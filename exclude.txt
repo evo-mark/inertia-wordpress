@@ -1,0 +1,13 @@
+.git/*
+.github/*
+development/*
+*node_modules*/*
+tests/*
+.gitignore
+*.DS_Store*
+exclude.txt
+pnpm-lock.yaml
+pnpm-workspace.yaml
+phpcs.xml.dist
+phpunit.xml.dist
+/temp_inertia-wordpress/

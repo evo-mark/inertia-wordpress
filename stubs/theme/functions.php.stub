@@ -1,0 +1,12 @@
+<?php
+
+use EvoWpRestRegistration\RestApi;
+
+require_once 'vendor/autoload.php';
+
+new RestApi([
+    'namespace' => '##NAMESPACE##\\RestApi\\',
+    'version' => 1,
+    'directory' => __DIR__ . '/rest-api',
+    'base_url' => 'riley'
+]);

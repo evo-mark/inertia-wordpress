@@ -1,0 +1,11 @@
+{
+    "name": "inertia-wordpress/##SLUG##",
+    "type": "project",
+    "license": "ISC",
+    "autoload": {
+        "psr-4": {
+            "##NAMESPACE##\\RestApi\\": "rest-api/"
+        }
+    },
+    "require": {}
+}

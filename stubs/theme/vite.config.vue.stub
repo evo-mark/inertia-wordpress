@@ -1,0 +1,21 @@
+import { defineConfig } from "vite";
+import { wordpress } from "wordpress-vite-plugin";
+import vue from "@vitejs/plugin-vue";
+
+export default defineConfig({
+    plugins: [
+        vue({
+            template: {
+                transformAssetUrls: {
+                    base: false,
+                    includeAbsolute: false,
+                },
+            },
+        }),
+        wordpress({
+            input: "resources/js/main.js",
+            ssr: "resources/js/ssr.js",
+            namespace: "theme-inertia",
+        }),
+    ],
+});

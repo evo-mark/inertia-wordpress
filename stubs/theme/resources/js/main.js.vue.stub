@@ -1,0 +1,14 @@
+import { createSSRApp, h } from "vue";
+import { createInertiaApp } from "@inertiajs/vue3";
+import { resolveInertiaPage } from "@evo-mark/inertia-wordpress";
+
+createInertiaApp({
+    resolve: resolveInertiaPage(
+        import.meta.glob("./pages/**/*.vue", { eager: false })
+    ),
+    setup({ el, App, props, plugin }) {
+        createSSRApp({ render: () => h(App, props) })
+            .use(plugin)
+            .mount(el);
+    },
+});
