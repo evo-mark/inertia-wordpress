@@ -19,6 +19,7 @@ use EvoMark\InertiaWordpress\Resources\PostResource;
 class Inertia
 {
     /**
+     * Share a value with the frontend using the given key
      * @param  string|array|Arrayable  $key
      * @param  mixed  $value
      */
@@ -28,30 +29,47 @@ class Inertia
         $request->share($key, $value);
     }
 
+    /**
+     * Remove all shared props so far
+     */
     public static function flushShared(): void
     {
         $request = inertia_request();
         $request->flushShared();
     }
 
+    /**
+     * Make a request to clear the user's visit history
+     */
     public static function clearHistory(): void
     {
         $request = inertia_request();
         $request->setClearHistory();
     }
 
+    /**
+     * Enable the encryption of the user's browser history for this visit
+     * @param bool $encrypt To encrypt or not
+     */
     public static function encryptHistory($encrypt = true): void
     {
         $request = inertia_request();
         $request->setEncryptHistory($encrypt);
     }
 
+    /**
+     * Get the current asset version
+     * @return string
+     */
     public static function getVersion(): string
     {
         $request = inertia_request();
         return $request->getVersion();
     }
 
+    /**
+     * Generate an Inertia Lazy prop
+     */
     public static function lazy(callable $callback): LazyProp
     {
         return new LazyProp($callback);

@@ -47,6 +47,9 @@ class CreateThemeCommand extends BaseCommand
         $container = Container::getInstance();
         $stubsPath = Path::join($container->get('env.root'), 'stubs', 'theme');
 
+        // GITIGNORE
+        $this->copyStub(Path::join($stubsPath, '.gitignore.stub'), Path::join($themeDir, '.gitignore'));
+
         // STYLE.CSS
         $this->copyStub(Path::join($stubsPath, 'style.css.stub'), Path::join($themeDir, 'style.css'));
 
