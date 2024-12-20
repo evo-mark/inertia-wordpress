@@ -1,1 +1,0 @@
-- **BugFix**: Apply release tag after writing new version and changelog to repo
