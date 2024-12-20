@@ -99,7 +99,7 @@ jobs:
         run: |
           git config --global user.email  "noreply@evomark.co.uk"
           git config --global user.name  "evoMark Action"
-          git add changelog/
+          git add changelog/ inertia-wordpress.php
           git commit -m "Chore: Updated changelog"
           git push
 
