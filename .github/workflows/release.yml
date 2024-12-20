@@ -74,7 +74,9 @@ jobs:
   # Actually create the git tag
   tag:
     runs-on: ubuntu-latest
-    needs: check_tag
+    needs:
+      - check_tag
+      - version
     if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
     permissions:
       contents: write
