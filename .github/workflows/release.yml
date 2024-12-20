@@ -85,6 +85,11 @@ jobs:
         with:
           fetch-depth: "0"
 
+      - name: Fetch and checkout the latest commit
+        run: |
+          git fetch origin main
+          git checkout origin/main
+
       - name: Bump version and push tag
         id: tag
         uses: anothrNick/github-tag-action@1.71.0
