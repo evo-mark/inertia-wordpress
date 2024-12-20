@@ -6,8 +6,76 @@ on:
       - main
 
 jobs:
+  # Perform a Dry Run on the tag action and get the proposed version
+  check_tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+
+      - name: Bump version and push tag
+        id: check_tag
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          WITH_V: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: none
+          RELEASE_BRANCHES: main
+          DRY_RUN: true
+
+    outputs:
+      bump: ${{ steps.check_tag.outputs.part }}
+      new_tag: ${{ steps.check_tag.outputs.new_tag }}
+
+  # With the version from the last step, write it to the entry PHP file and create the changelog file
+  version:
+    runs-on: ubuntu-latest
+    needs: check_tag
+    if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+
+      - name: Update version in PHP file
+        run: |
+          VERSION=${{ needs.check_tag.outputs.new_tag }}
+          VERSION=${VERSION#v}
+          sed -i "s/Version: .*/Version: $VERSION/" inertia-wordpress.php
+
+      - name: Process changelog
+        id: changelog_file
+        run: |
+          if [[ ! -z $(cat changelog/next.md) ]] ; then
+            echo "changelog=${{ needs.check_tag.outputs.new_tag }}-$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+            mv changelog/next.md changelog/${{ needs.check_tag.outputs.new_tag }}-$(date +'%Y-%m-%d').md
+            touch changelog/next.md
+          else
+            echo "changelog=next" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes to changelog folder
+        continue-on-error: true
+        run: |
+          git config --global user.email  "noreply@evomark.co.uk"
+          git config --global user.name  "evoMark Action"
+          git add changelog/ inertia-wordpress.php
+          git commit -m "Chore: Updated changelog and version"
+          git push
+
+    outputs:
+      changelog: ${{ steps.changelog_file.outputs.changelog }}
+
+  # Actually create the git tag
   tag:
     runs-on: ubuntu-latest
+    needs: check_tag
+    if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
     permissions:
       contents: write
     steps:
@@ -28,11 +96,14 @@ jobs:
       bump: ${{ steps.tag.outputs.part }}
       new_tag: ${{ steps.tag.outputs.new_tag }}
 
+  # Create a release with asset
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: tag
+    needs:
+      - tag
+      - version
     if: needs.tag.outputs.bump != '' && needs.tag.outputs.bump != 'none'
     steps:
       - uses: actions/checkout@v4
@@ -60,12 +131,6 @@ jobs:
           path: /vendor
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
 
-      - name: Update version in PHP file
-        run: |
-          VERSION=${{ needs.tag.outputs.new_tag }}
-          VERSION=${VERSION#v}
-          sed -i "s/Version: .*/Version: $VERSION/" inertia-wordpress.php
-
       - name: Install dependencies
         uses: nick-fields/retry@v3
         with:
@@ -80,28 +145,8 @@ jobs:
           cache: "pnpm"
       - run: pnpm -r install
 
-      - name: Process changelog
-        id: changelog_file
-        run: |
-          if [[ ! -z $(cat changelog/next.md) ]] ; then
-            echo "changelog=${{ needs.tag.outputs.new_tag }}-$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-            mv changelog/next.md changelog/${{ needs.tag.outputs.new_tag }}-$(date +'%Y-%m-%d').md
-            touch changelog/next.md
-          else
-            echo "changelog=next" >> $GITHUB_OUTPUT
-          fi
-
       - name: Build assets
         run: pnpm -r run build
-
-      - name: Commit changes to changelog folder
-        continue-on-error: true
-        run: |
-          git config --global user.email  "noreply@evomark.co.uk"
-          git config --global user.name  "evoMark Action"
-          git add changelog/ inertia-wordpress.php
-          git commit -m "Chore: Updated changelog"
-          git push
 
       - name: Create ZIP for release
         run: |
@@ -119,7 +164,7 @@ jobs:
         with:
           tag_name: ${{ needs.tag.outputs.new_tag }}
           name: ${{ needs.tag.outputs.new_tag }}
-          body_path: changelog/${{ steps.changelog_file.outputs.changelog }}.md
+          body_path: changelog/${{ needs.version.outputs.changelog }}.md
           draft: false
           prerelease: false
           files: inertia-wordpress.zip
