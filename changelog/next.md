@@ -1,4 +1,0 @@
-- **Feature**: Menus by location now available on the `wp.menus` page prop
-- **Feature**: Filter hooks added, more information coming soon
-- **Improvement**: Added default layout and pages to bootstrapped Vue theme
-- **Improvement**: `logo`, `name` and `homeUrl` also now available on `wp` page prop
