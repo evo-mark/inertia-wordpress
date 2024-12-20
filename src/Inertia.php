@@ -124,6 +124,9 @@ class Inertia
         return Wordpress::getArchiveData();
     }
 
+    /**
+     * Get a processed post object, defaults to global
+     */
     public static function getPost(?\WP_Post $post = null, array $args = null)
     {
         if (empty($post)) {

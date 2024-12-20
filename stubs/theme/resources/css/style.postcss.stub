@@ -1,0 +1,9 @@
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--wp-admin--admin-bar--height));
+}
+
+main {
+  flex-grow: 1;
+}

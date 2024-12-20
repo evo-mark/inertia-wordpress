@@ -16,6 +16,14 @@ class ThemeSetup
         self::addTemplateDirectories();
         self::enqueueScripts();
         self::getThemeVersion();
+        self::addThemeSupport();
+    }
+
+    public static function addThemeSupport()
+    {
+        add_theme_support('custom-logo');
+        add_theme_support('post-thumbnails');
+        add_theme_support('title-tag');
     }
 
     public static function enqueueScripts()
@@ -36,11 +44,14 @@ class ThemeSetup
         $viteDir =  Path::join(wp_upload_dir()['basedir'], 'scw-vite-hmr', $entryNamespace);
         $container = Container::getInstance();
         $request = $container->get('requestHandler');
+        $manifestPath = Path::join($viteDir, 'build', 'manifest.json');
 
         if (file_exists(Path::join($viteDir, 'hot'))) {
             $request->setVersion("dev");
+        } else if (file_exists($manifestPath)) {
+            $request->setVersion(md5_file($manifestPath));
         } else {
-            $request->setVersion(md5_file(Path::join($viteDir, 'build', 'manifest.json')));
+            $request->setVersion("unknown");
         }
     }
 

@@ -100,10 +100,17 @@ class CreateThemeCommand extends BaseCommand
 
         // MAIN JS
         wp_mkdir_p(Path::join($themeDir, 'resources', 'js'));
-        wp_mkdir_p(Path::join($themeDir, 'resources', 'js', 'pages'));
 
         $this->copyStub(Path::join($stubsPath, 'resources', 'js', 'main.js.' . $template . '.stub'), Path::join($themeDir, 'resources', 'js', 'main.js'));
         $this->copyStub(Path::join($stubsPath, 'resources', 'js', 'ssr.js.' . $template . '.stub'), Path::join($themeDir, 'resources', 'js', 'ssr.js'));
+
+        // TEMPLATE FILES
+        if ($template === "vue") $this->copyVueTemplateFiles($stubsPath, $themeDir);
+
+        // THEME CSS
+        wp_mkdir_p(Path::join($themeDir, 'resources', 'css'));
+        $this->copyStub(Path::join($stubsPath, 'resources', 'css', 'style.postcss.stub'), Path::join($themeDir, 'resources', 'css', 'style.postcss'));
+
 
         // COMPOSER INSTALL
         $process = new Process(['composer', 'install'], $themeDir);
@@ -120,6 +127,26 @@ class CreateThemeCommand extends BaseCommand
         return true;
     }
 
+    private function copyVueTemplateFiles($stubsPath, $themeDir)
+    {
+        wp_mkdir_p(Path::join($themeDir, 'resources', 'js', 'pages'));
+        wp_mkdir_p(Path::join($themeDir, 'resources', 'js', 'layouts'));
+
+        $pages = glob(Path::join($stubsPath, 'resources', 'js', 'pages', '*.vue.stub'));
+        foreach ($pages as $page) {
+            $filename = basename($page, '.stub'); // Remove the .stub extension
+            $targetFile = Path::join($themeDir, 'resources', 'js', 'pages', $filename);
+            $this->copyStub($page, $targetFile);
+        }
+
+        $layouts = glob(Path::join($stubsPath, 'resources', 'js', 'layouts', '*.vue.stub'));
+        foreach ($layouts as $layout) {
+            $filename = basename($layout, '.stub'); // Remove the .stub extension
+            $targetFile = Path::join($themeDir, 'resources', 'js', 'layouts', $filename);
+            $this->copyStub($layout, $targetFile);
+        }
+    }
+
     private function applyReplacements(string $content): string
     {
         foreach ($this->replacements as $search => $replace) {
@@ -132,6 +159,8 @@ class CreateThemeCommand extends BaseCommand
     {
         $content = file_get_contents($from);
         $content = $this->applyReplacements($content);
-        file_put_contents($to, $content);
+        if (!file_put_contents($to, $content)) {
+            throw new \RuntimeException("Failed to write $from to location: $to");
+        };
     }
 }

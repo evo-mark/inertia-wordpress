@@ -1,0 +1,5 @@
+<template>
+  <div>Post Page</div>
+</template>
+
+<script setup></script>

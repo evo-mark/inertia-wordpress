@@ -385,10 +385,14 @@ class RequestHandler
     {
         $this->share('errors', Inertia::always(RequestResponse::getFormattedErrors()));
         $this->share('wp', [
+            'name' => get_bloginfo('name'),
             'adminBar' => $this->isInertia() ? fn() => Wordpress::getAdminBar() : null,
             'restUrl' => get_rest_url(),
             'user' => is_user_logged_in() ? UserResource::single(wp_get_current_user()) : null,
-            'userCapabilities' => is_user_logged_in() ? Wordpress::getUserCapabilities(wp_get_current_user()) : null
+            'userCapabilities' => is_user_logged_in() ? Wordpress::getUserCapabilities(wp_get_current_user()) : null,
+            'logo' => Wordpress::getCustomLogo(),
+            'homeUrl' => home_url(),
+            'menus' => Wordpress::getNavigationMenus()
         ]);
     }
 }

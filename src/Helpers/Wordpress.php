@@ -7,6 +7,8 @@ use EvoMark\InertiaWordpress\Data\Archive;
 use EvoMark\InertiaWordpress\Resources\ImageResource;
 use EvoMark\InertiaWordpress\Resources\PostSimpleResource;
 use EvoMark\InertiaWordpress\Resources\ArchivePaginationResource;
+use EvoMark\InertiaWordpress\Resources\MenuItemResource;
+use stdClass;
 
 class Wordpress
 {
@@ -66,6 +68,98 @@ class Wordpress
     {
         global $post;
         return $post;
+    }
+
+    public static function getCustomLogo(): ?stdClass
+    {
+        if (! has_custom_logo()) return null;
+        $logoId = get_theme_mod('custom_logo');
+        return ImageResource::single($logoId);
+    }
+
+    public static function getNavigationMenus(): array
+    {
+        $menus = [];
+        $registered = get_registered_nav_menus();
+        $locations = get_nav_menu_locations();
+        foreach ($locations as $name => $menuId) {
+            $menus[$name] = [
+                'label' => $registered[$name],
+                ...self::getNavigationMenu($menuId)
+            ];
+        }
+        return $menus;
+    }
+
+    public static function getNavigationMenu($menuId): array
+    {
+        $menuObject = wp_get_nav_menu_object($menuId);
+
+        /**
+         * Filter the arguments supplied to each call to `wp_get_nav_menu_items` when generating menus
+         *
+         * @since 0.2.0
+         *
+         * @param array $args The args to pass
+         * @param \WP_Term $menuObject The menu term object
+         * @return array $args
+         */
+        $args = apply_filters(HookFilters::SHARE_MENU_ITEMS_ARGS, [], $menuObject);
+
+        $data = [
+            'menuId' => $menuObject->term_id,
+            'menuName' => $menuObject->name,
+            'menuSlug' => $menuObject->slug,
+            'menuCount' => $menuObject->count,
+            'menuDescription' => $menuObject->description,
+            'items' => self::createMenuTree($menuId, $args)
+        ];
+
+        /**
+         * Called before each compiled menu object is passed to the frontend
+         *
+         * @since 0.2.0
+         *
+         * @param array $data The compiled menu data object
+         * @param \WP_Term $menuObject The raw Wordpress term object for the menu
+         * @param int $menuId The term ID of the menu
+         * @return array $data
+         */
+        return apply_filters(HookFilters::SHARE_MENU, $data, $menuObject, $menuId);
+    }
+
+    public static function createMenuTree($menuId, $args): array
+    {
+        $items = wp_get_nav_menu_items($menuId, $args);
+        $items_by_parent = [];
+        foreach ($items as $item) {
+            $items_by_parent[$item->menu_item_parent][] = $item;
+        }
+
+        $buildTree = function ($parentId) use (&$items_by_parent, &$buildTree) {
+            $tree = [];
+            if (isset($items_by_parent[$parentId])) {
+                foreach ($items_by_parent[$parentId] as $item) {
+                    $item = MenuItemResource::single($item);
+                    $children = $buildTree($item->id);
+                    $item->items = count($children) > 0 ? $children : null;
+
+                    /**
+                     * Called when adding a menu item
+                     *
+                     * @since 0.2.0
+                     *
+                     * @param stdClass $item The generated menu item object
+                     * @param string $parentId The ID of the menu item's parent. Default is "0"
+                     * @return stdClass $item
+                     */
+                    $tree[] = apply_filters(HookFilters::MENU_ITEM, $item, $parentId);
+                }
+            }
+            return $tree;
+        };
+
+        return $buildTree("0");
     }
 
     public static function getAdminBar()
