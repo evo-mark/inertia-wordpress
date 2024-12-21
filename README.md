@@ -13,8 +13,20 @@
 > Note: This adapter is a work-in-progress and should not be used in essential services
 
 <p align="center">
-    <a href="https://github.com/evo-mark/inertia-wordpress/releases">Get the Latest Release</a>
+    <a href="https://github.com/evo-mark/inertia-wordpress/releases" style="display:block;height:75px">
+        <img src="https://img.shields.io/badge/Get_the_Latest_Release-ff7326?style=flat-square" style="height:35px">
+    </a>
 </p>
+
+---
+
+<p align="center">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="height:100px">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" style="height:100px">
+    <img src="https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg" style="height:100px">
+</p>
+
+---
 
 Inertia is a new approach to building classic server-driven web apps. We call it the modern monolith.
 
