@@ -51,7 +51,7 @@ class CreateThemeCommand extends BaseCommand
         $this->replacements = [
             '##NAMESPACE##' => Strings::toPascalCase($name),
             '##SLUG##' => $slug,
-            '##THEME_TITLE##' => $name
+            '##THEME_TITLE##' => $name,
         ];
 
         $themesDir = WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'themes';

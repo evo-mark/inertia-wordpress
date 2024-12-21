@@ -23,7 +23,7 @@ class ArchivePaginationResource
             'base' => $baseUrl,
             'format' => $format,
             'per_page' => get_option('posts_per_page'),
-            'add_args' => []
+            'add_args' => [],
         ];
 
 
@@ -32,7 +32,7 @@ class ArchivePaginationResource
             // Find the format argument.
             $format       = explode('?', str_replace('%_%', $args['format'], $baseUrl));
 
-            $format_query = isset($format[1]) ? $format[1] : '';
+            $format_query = $format[1] ?? '';
             wp_parse_str($format_query, $format_args);
 
 
@@ -75,7 +75,9 @@ class ArchivePaginationResource
         global $wp_query;
 
         $max = (int) $wp_query->max_num_pages;
-        if ($page > $max || $page < 1) return null;
+        if ($page > $max || $page < 1) {
+            return null;
+        }
 
         $link = str_replace('%_%', 1 == $page ? '' : self::$args['format'], self::$args['base']);
         $link = str_replace('%#%', $page, $link);

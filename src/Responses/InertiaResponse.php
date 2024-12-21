@@ -3,7 +3,6 @@
 namespace EvoMark\InertiaWordpress\Responses;
 
 use EvoMark\InertiaWordpress\Helpers\Header;
-use EvoMark\InertiaWordpress\Container;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Inertia;
 

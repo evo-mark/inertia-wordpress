@@ -9,8 +9,11 @@ class CategoryResource implements InertiaResource
 {
     public static function collection(?array $categories): array
     {
-        if (empty($categories) || !$categories) return [];
-        else return array_map(fn($c) => self::single($c), $categories);
+        if (empty($categories) || !$categories) {
+            return [];
+        } else {
+            return array_map(fn ($c) => self::single($c), $categories);
+        }
     }
 
     public static function single($cat): stdClass
@@ -21,7 +24,7 @@ class CategoryResource implements InertiaResource
             'slug' => $cat->slug,
             'description' => $cat->description,
             'link' => get_category_link($cat),
-            'count' => $cat->count
+            'count' => $cat->count,
         ];
     }
 }

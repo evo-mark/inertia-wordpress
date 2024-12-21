@@ -21,9 +21,9 @@ use EvoMark\InertiaWordpress\Responses\SsrResponse;
 use EvoMark\InertiaWordpress\Contracts\IgnoreFirstLoad;
 use EvoMark\InertiaWordpress\Responses\StandardResponse;
 use EvoMark\InertiaWordpress\Data\SsrResponse as DataSsrResponse;
+use EvoMark\InertiaWordpress\Helpers\HookActions;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Helpers\Wordpress;
-use EvoMark\InertiaWordpress\Resources\PostResource;
 use EvoMark\InertiaWordpress\Resources\UserResource;
 
 class RequestHandler
@@ -106,9 +106,8 @@ class RequestHandler
 
     public function setUrl()
     {
-        return isset($_SERVER['REQUEST_URI'])
-            ? $_SERVER['REQUEST_URI']
-            : '/';
+        return $_SERVER['REQUEST_URI']
+            ?? '/';
     }
 
     public function setComponent(string $component)
@@ -156,7 +155,7 @@ class RequestHandler
                 'version' => $this->version,
                 'component' => $this->component,
                 'clearHistory' => $this->clearHistory,
-                'encryptHistory' => $this->encryptHistory
+                'encryptHistory' => $this->encryptHistory,
             ],
             $this->resolveMergeProps(),
             $this->resolveDeferredProps(),
@@ -337,7 +336,9 @@ class RequestHandler
 
     public function getHeader(string $header, mixed $defaultValue = null): mixed
     {
-        if ($this->headers->has($header) === false) return $defaultValue;
+        if ($this->headers->has($header) === false) {
+            return $defaultValue;
+        }
 
         $value = $this->headers[$header];
         return $value ?? $defaultValue;
@@ -392,7 +393,14 @@ class RequestHandler
             'userCapabilities' => is_user_logged_in() ? Wordpress::getUserCapabilities(wp_get_current_user()) : null,
             'logo' => Wordpress::getCustomLogo(),
             'homeUrl' => home_url(),
-            'menus' => Wordpress::getNavigationMenus()
+            'menus' => Wordpress::getNavigationMenus(),
         ]);
+
+        /**
+         * Call to add any needed global shares before the response factory is called
+         *
+         * @since 0.4.0
+         */
+        do_action(HookActions::SET_GLOBAL_SHARES);
     }
 }

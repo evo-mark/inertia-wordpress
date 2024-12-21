@@ -243,7 +243,7 @@ If you check your Inertia page props, you'll see a few provided objects pre-load
 - **$page.props.wp.userCapabilities**: An object of the current users capabilities/permission
 - **$page.props.wp.logo**: An image resource containing your site logo as set in Wordpress' Appearance->Customise menu
 - **$page.props.wp.menus**: A nested object containing your registered menus, keyed by location
-- **$page.props.wp.adminBar**: _Coming Soon_
+- **$page.props.wp.adminBar**: An array of changed HTML elements that can be updated in your admin bar
 
 ## Wordpress Settings
 

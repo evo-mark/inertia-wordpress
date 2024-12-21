@@ -3,7 +3,6 @@
 namespace EvoMark\InertiaWordpress\Helpers;
 
 use DOMDocument;
-use WP_Post;
 use EvoMark\InertiaWordpress\Data\Archive;
 use EvoMark\InertiaWordpress\Resources\ImageResource;
 use EvoMark\InertiaWordpress\Resources\PostSimpleResource;
@@ -17,7 +16,7 @@ class Wordpress
     {
         $image_id = \get_post_thumbnail_id($post);
         $image = ImageResource::single($image_id, [
-            'fallback' => false
+            'fallback' => false,
         ]);
 
         return $image;
@@ -50,7 +49,9 @@ class Wordpress
 
     public static function getArchiveData(?string $title = null, ?array $posts = null)
     {
-        if (empty($title)) $title = self::getCurrentArchiveTitle();
+        if (empty($title)) {
+            $title = self::getCurrentArchiveTitle();
+        }
         if (empty($posts)) {
             global $wp_query;
             $posts = $wp_query->posts;
@@ -61,7 +62,9 @@ class Wordpress
 
     public static function getUserCapabilities(\WP_User $user): array
     {
-        if (empty($user)) return [];
+        if (empty($user)) {
+            return [];
+        }
         return $user->get_role_caps();
     }
 
@@ -73,7 +76,9 @@ class Wordpress
 
     public static function getCustomLogo(): ?stdClass
     {
-        if (! has_custom_logo()) return null;
+        if (! has_custom_logo()) {
+            return null;
+        }
         $logoId = get_theme_mod('custom_logo');
         return ImageResource::single($logoId);
     }
@@ -86,7 +91,7 @@ class Wordpress
         foreach ($locations as $name => $menuId) {
             $menus[$name] = [
                 'label' => $registered[$name],
-                ...self::getNavigationMenu($menuId)
+                ...self::getNavigationMenu($menuId),
             ];
         }
         return $menus;
@@ -113,7 +118,7 @@ class Wordpress
             'menuSlug' => $menuObject->slug,
             'menuCount' => $menuObject->count,
             'menuDescription' => $menuObject->description,
-            'items' => self::createMenuTree($menuId, $args)
+            'items' => self::createMenuTree($menuId, $args),
         ];
 
         /**
@@ -197,5 +202,26 @@ class Wordpress
             $listItems[] = $dom->saveHTML($element);
         }
         return $listItems;
+    }
+
+    public static function parseAllBlocks($blocks, $blockName)
+    {
+        $list = [];
+
+        foreach ($blocks as $block) {
+            if ($blockName === $block['blockName']) {
+                $list[] = $block;
+            }
+            if (!empty($block['innerBlocks'])) {
+                $list = array_merge($list, self::parseAllBlocks($block['innerBlocks'], $blockName));
+            }
+            if ('core/block' === $block['blockName']) {
+                $id = $block['attrs']['ref'];
+                $reusableBlock = get_post($id);
+                $reusableContent = parse_blocks($reusableBlock->post_content);
+                $list = array_merge($list, self::parseAllBlocks($reusableContent, $blockName));
+            }
+        }
+        return $list;
     }
 }

@@ -9,8 +9,11 @@ class MenuItemResource implements InertiaResource
 {
     public static function collection(?array $menus): array
     {
-        if (empty($menus) || !$menus) return [];
-        else return array_map(fn($m) => self::single($m), $menus);
+        if (empty($menus) || !$menus) {
+            return [];
+        } else {
+            return array_map(fn ($m) => self::single($m), $menus);
+        }
     }
 
     public static function single($menu): stdClass
@@ -29,7 +32,7 @@ class MenuItemResource implements InertiaResource
             'url' => $menu->url,
             'target' => $menu->target,
             'rel' => $menu->xfn,
-            'classes' => esc_attr($menu->classes ? implode(' ', $menu->classes) : '')
+            'classes' => esc_attr($menu->classes ? implode(' ', $menu->classes) : ''),
         ];
     }
 }

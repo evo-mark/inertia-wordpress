@@ -57,13 +57,21 @@
 	>
 		<VRow>
 			<VCol>
-				<div class="flex items-center gap-8">
+				<div class="flex items-center gap-4">
 					<AcfLogo class="h-12" />
 					<h2 class="font-bold">Advanced Custom Fields</h2>
 				</div>
 			</VCol>
 			<VCol>
 				<VSwitch v-model="settings.modules" label="Enabled" value="acf" />
+			</VCol>
+		</VRow>
+		<VRow>
+			<VCol>
+				<VImg src="https://contactform7.com/wp-content/uploads/contact-form-7-logo@2x.png" max-width="275px" />
+			</VCol>
+			<VCol>
+				<VSwitch v-model="settings.modules" label="Enabled" value="cf7" />
 			</VCol>
 		</VRow>
 	</EvoSetting>

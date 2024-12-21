@@ -2,8 +2,13 @@
 
 namespace EvoMark\InertiaWordpress\Modules;
 
-use EvoMark\InertiaWordpress\Container;
 use Illuminate\Support\Arr;
+use EvoMark\InertiaWordpress\Inertia;
+use EvoMark\InertiaWordpress\Container;
+use EvoMark\InertiaWordpress\Helpers\HookActions;
+use EvoMark\InertiaWordpress\Modules\AdvancedCustomFields\Module as AdvancedCustomFieldsModule;
+use EvoMark\InertiaWordpress\Modules\ContactForm7\Module as ContactForm7Module;
+
 
 class ModuleSetup
 {
@@ -13,7 +18,25 @@ class ModuleSetup
     public static function init()
     {
         $container = Container::getInstance();
-        $container->set('modules.acf', new \EvoMark\InertiaWordpress\Modules\AdvancedCustomFields\Module());
+        $container->set('modules', collect());
+
+        Inertia::addModule(AdvancedCustomFieldsModule::class);
+        Inertia::addModule(ContactForm7Module::class);
+
+
+        /**
+         * Hook for registering new Inertia Wordpress modules
+         *
+         * @since 0.4.0
+         *
+         * @param string $module The class string for the module, must extend 'EvoMark\InertiaWordpress\Modules\BaseModule'
+         */
+        do_action(HookActions::MODULES);
+
+        add_action(HookActions::SET_GLOBAL_SHARES, [__CLASS__, 'initModules']);
+
+
+
         /*
         ContactForm7\Activate::run();
         SmartCrawl\Activate::run();
@@ -28,7 +51,9 @@ class ModuleSetup
         $entry = Arr::wrap($entry);
 
         foreach ($entry as $file) {
-            if (self::isEntryFile($file)) return true;
+            if (self::isEntryFile($file)) {
+                return true;
+            }
         }
 
         return false;
@@ -42,5 +67,18 @@ class ModuleSetup
     public static function isEntryFile(string $file): bool
     {
         return in_array($file, apply_filters('active_plugins', get_option('active_plugins')));
+    }
+
+    /**
+     * @hook HookActions::SET_GLOBAL_SHARES
+     */
+    public static function initModules()
+    {
+        $container = Container::getInstance();
+        $modules = $container->get('modules');
+
+        foreach ($modules as $module) {
+            $instance = $module::boot();
+        }
     }
 }

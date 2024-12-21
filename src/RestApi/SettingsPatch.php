@@ -14,7 +14,7 @@ class SettingsPatch extends BaseRestController
     protected $methods = 'PATCH';
 
     protected $rules = [
-        'fields' => ['required', 'array']
+        'fields' => ['required', 'array'],
     ];
 
     public function authorise()

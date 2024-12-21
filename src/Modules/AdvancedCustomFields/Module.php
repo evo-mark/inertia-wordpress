@@ -2,10 +2,8 @@
 
 namespace EvoMark\InertiaWordpress\Modules\AdvancedCustomFields;
 
-use Illuminate\Support\Arr;
 use EvoMark\InertiaWordpress\Inertia;
 use EvoMark\InertiaWordpress\Modules\BaseModule;
-use stdClass;
 
 class Module extends BaseModule
 {
@@ -13,19 +11,14 @@ class Module extends BaseModule
     protected string $slug = "acf";
     protected array|string $entry = ['advanced-custom-fields-pro/acf.php', 'acf-pro/acf.php'];
 
-    public function __construct()
-    {
-        parent::__construct();
-        if (! $this->isEnabled()) return;
-
-        add_action('wp', [$this, 'shareAcfFields']);
-    }
-
-    public function shareAcfFields()
+    /**
+     * Called via action hook
+     */
+    public function init(): void
     {
         Inertia::share('acf', [
             'post' => $this->getAcfPostFields(),
-            'options' => $this->getAcfOptionsPages()
+            'options' => $this->getAcfOptionsPages(),
         ]);
     }
 
@@ -34,7 +27,9 @@ class Module extends BaseModule
      */
     private function getAcfPostFields()
     {
-        if (!function_exists('get_field_objects')) return (object) [];
+        if (!function_exists('get_field_objects')) {
+            return (object) [];
+        }
         $acf = get_field_objects();
         $acf = $acf !== false ? $acf : [];
         $results = [];

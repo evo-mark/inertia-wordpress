@@ -13,15 +13,15 @@ class SsrResponse
         $request = inertia_request();
         $url = Settings::get('ssr_url');
 
-        $client = new Client;
+        $client = new Client();
         try {
             $response = $client->post(
                 $url . "/render",
                 [
                     'json' => $request->getPageData(false),
                     'headers' => [
-                        'Content-Type' => 'application/json'
-                    ]
+                        'Content-Type' => 'application/json',
+                    ],
                 ]
             );
 

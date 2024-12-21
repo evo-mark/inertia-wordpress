@@ -4,7 +4,6 @@ namespace EvoMark\InertiaWordpress\Theme;
 
 use EvoMark\WpVite\WpVite;
 use EvoMark\InertiaWordpress\Container;
-use EvoMark\InertiaWordpress\Theme\Utils;
 use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Inertia;
@@ -37,7 +36,7 @@ class ThemeSetup
         $vite->enqueue([
             'input' => $entryFile,
             'namespace' => $entryNamespace,
-            'react' => $isReact
+            'react' => $isReact,
         ]);
     }
 
@@ -51,7 +50,7 @@ class ThemeSetup
 
         if (file_exists(Path::join($viteDir, 'hot'))) {
             $request->setVersion("dev");
-        } else if (file_exists($manifestPath)) {
+        } elseif (file_exists($manifestPath)) {
             $request->setVersion(md5_file($manifestPath));
         } else {
             $request->setVersion("unknown");

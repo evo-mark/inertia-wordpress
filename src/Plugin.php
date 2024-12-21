@@ -139,7 +139,7 @@ class Plugin
             'namespace' => 'EvoMark\\InertiaWordpress\\RestApi\\',
             'version' => 1,
             'directory' => __DIR__ . '/RestApi',
-            'base_url' => 'inertia-wordpress'
+            'base_url' => 'inertia-wordpress',
         ]);
     }
 
@@ -154,7 +154,7 @@ class Plugin
             /** @var \WP_Error $response */
             $bag = $request->get_header(Header::ERROR_BAG) ?? "default";
             RequestResponse::setFlashData('errors', [
-                $bag => new MessageBag(RequestResponse::formatErrors($response->error_data['rest_invalid_param']['params'] ?? []))
+                $bag => new MessageBag(RequestResponse::formatErrors($response->error_data['rest_invalid_param']['params'] ?? [])),
             ]);
             return Inertia::back();
         }

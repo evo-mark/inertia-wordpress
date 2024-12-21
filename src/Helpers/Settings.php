@@ -5,7 +5,6 @@ namespace EvoMark\InertiaWordpress\Helpers;
 use EvoMark\WpVite\WpVite;
 use EvoMark\InertiaWordpress\Container;
 
-
 class Settings
 {
     public static $prefix = "inertia_";
@@ -55,7 +54,7 @@ class Settings
 
     public static function renderSettingsPage()
     {
-?>
+        ?>
         <div id="inertia-wordpress__admin-page--wrapper" class="v-cloak font-sans"></div>
 <?php
     }
@@ -82,7 +81,7 @@ class Settings
         if (!self::isInertiaMenu()) {
             return $stylesArray;
         } else {
-            return array_filter($stylesArray, fn($style) => in_array($style, ['forms']) === false);
+            return array_filter($stylesArray, fn ($style) => in_array($style, ['forms']) === false);
         }
     }
 

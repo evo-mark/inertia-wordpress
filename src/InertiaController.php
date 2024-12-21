@@ -21,7 +21,9 @@ abstract class InertiaController implements InertiaControllerContract
         $request->setProps($props);
         $request->setGlobalShares();
 
-        if ($request->isInertia()) return InertiaResponse::handle();
+        if ($request->isInertia()) {
+            return InertiaResponse::handle();
+        }
 
         $view = Settings::get('root_template');
 

@@ -2,16 +2,18 @@
 
 namespace EvoMark\InertiaWordpress;
 
+use Illuminate\Support\Collection;
 use EvoMark\InertiaWordpress\Data\Archive;
 use EvoMark\InertiaWordpress\Helpers\Header;
-use EvoMark\InertiaWordpress\Helpers\RequestResponse;
-use EvoMark\InertiaWordpress\Helpers\Wordpress;
-use EvoMark\InertiaWordpress\Props\AlwaysProp;
-use EvoMark\InertiaWordpress\Props\DeferProp;
 use EvoMark\InertiaWordpress\Props\LazyProp;
+use EvoMark\InertiaWordpress\Props\DeferProp;
 use EvoMark\InertiaWordpress\Props\MergeProp;
+use EvoMark\InertiaWordpress\Props\AlwaysProp;
+use EvoMark\InertiaWordpress\Helpers\Wordpress;
 use EvoMark\InertiaWordpress\Props\OptionalProp;
 use EvoMark\InertiaWordpress\Resources\PostResource;
+use EvoMark\InertiaWordpress\Helpers\RequestResponse;
+use EvoMark\InertiaWordpress\Modules\BaseModule;
 
 /**
  * Facade-like functions
@@ -127,7 +129,7 @@ class Inertia
     /**
      * Get a processed post object, defaults to global
      */
-    public static function getPost(?\WP_Post $post = null, array $args = null)
+    public static function getPost(?\WP_Post $post = null, ?array $args = null)
     {
         if (empty($post)) {
             $post = Wordpress::getGlobalPost();
@@ -136,10 +138,31 @@ class Inertia
             $args = [
                 'author' => true,
                 'excerpt' => true,
-                'content' => true
+                'content' => true,
             ];
         }
 
         return PostResource::single($post, $args);
+    }
+
+    /**
+     * Add a new module to Inertia
+     */
+    public static function addModule(string $module)
+    {
+        if (!class_exists($module)) {
+            throw new \Exception("Unable to find class definition for " . $module);
+        } else if (is_subclass_of($module, BaseModule::class) === false) {
+            throw new \Exception($module . " must extend the " . BaseModule::class . " class");
+        }
+
+        $container = Container::getInstance();
+
+        /** @var Collection $modules */
+        $modules = $container->get('modules');
+
+        $modules->push($module);
+
+        $container->set('modules', $modules);
     }
 }

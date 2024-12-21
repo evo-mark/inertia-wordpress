@@ -4,4 +4,6 @@ namespace EvoMark\InertiaWordpress\Exceptions;
 
 use Exception;
 
-class SsrException extends Exception {}
+class SsrException extends Exception
+{
+}

@@ -14,7 +14,7 @@ class SettingsGet extends BaseRestController
     protected $methods = 'GET';
 
     protected $rules = [
-        'fields' => ['required', 'array']
+        'fields' => ['required', 'array'],
     ];
 
     public function authorise()

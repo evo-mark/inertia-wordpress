@@ -6,8 +6,11 @@ class TagResource
 {
     public static function collection(array | bool $tags)
     {
-        if (empty($tags) || !$tags) return [];
-        else return array_map(fn($tag) => self::toArray($tag), $tags);
+        if (empty($tags) || !$tags) {
+            return [];
+        } else {
+            return array_map(fn ($tag) => self::toArray($tag), $tags);
+        }
     }
 
     public static function toArray($tag)
@@ -18,7 +21,7 @@ class TagResource
             'slug' => $tag->slug,
             'description' => $tag->description,
             'link' => get_tag_link($tag),
-            'count' => $tag->count
+            'count' => $tag->count,
         ];
     }
 }

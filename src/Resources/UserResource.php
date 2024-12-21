@@ -8,8 +8,11 @@ class UserResource
 {
     public static function collection(array | bool $users)
     {
-        if (empty($users) || !$users) return [];
-        else return array_map(fn($user) => self::single($user), $users);
+        if (empty($users) || !$users) {
+            return [];
+        } else {
+            return array_map(fn ($user) => self::single($user), $users);
+        }
     }
 
     public static function single(WP_User|int $user)
@@ -21,7 +24,7 @@ class UserResource
             'name' => $userInfo->display_name,
             'description' => get_user_meta($userInfo->ID, 'description', true),
             'website'        => $userInfo->user_url,
-            'avatar'      => get_avatar_url($userInfo->ID)
+            'avatar'      => get_avatar_url($userInfo->ID),
         ];
     }
 }
