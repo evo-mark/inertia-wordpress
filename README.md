@@ -35,13 +35,11 @@ Download the <a href="https://github.com/evo-mark/inertia-wordpress/releases">in
 
 ## Getting Started
 
-From the root of your Wordpress application, run the following command to bootstrap a new InertiaJS theme
+From the root of your Wordpress application, run the following command to bootstrap a new InertiaJS theme. Available templates are: **Vue**, **React** and **Svelte**.
 
 ```sh
 wp inertia:create-theme
 ```
-
-> Currently, only Vue is supported, but more will be coming soon.
 
 Using your terminal, navigate to the newly created theme directory and run:
 
