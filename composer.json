@@ -25,7 +25,7 @@
     "require": {
         "php": ">=8.2",
         "evo-mark/evo-wp-rest-registration": "^4.1",
-        "evo-mark/wp-vite": "^1.1",
+        "evo-mark/wp-vite": "^1.2",
         "guzzlehttp/guzzle": "^7.9",
         "illuminate/collections": "^11.35",
         "nesbot/carbon": "^3.8",

@@ -8,6 +8,14 @@
         ".": {
             "import": "./index.js",
             "require": "./index.js"
+        },
+        "./react": {
+            "import": "./react.jsx",
+            "require": "./react.jsx"
+        },
+        "./svelte": {
+            "import": "./svelte.js",
+            "require": "./svelte.js"
         }
     },
     "scripts": {

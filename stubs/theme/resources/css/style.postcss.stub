@@ -1,9 +1,65 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro,
+        sans-serif;
+    font-weight: normal;
+}
+
 #app {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - var(--wp-admin--admin-bar--height));
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - var(--wp-admin--admin-bar--height));
 }
 
 main {
-  flex-grow: 1;
+    flex-grow: 1;
+}
+
+header,
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: hsl(204, 15%, 13%);
+    color: #ffffff;
+    padding: 1rem 2rem;
+}
+
+footer {
+    margin-top: 2rem;
+}
+
+#header-menu {
+    display: flex;
+    gap: 1rem;
+
+    ul,
+    li {
+        list-style-type: none;
+    }
+
+    a {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        text-transform: uppercase;
+        padding: 0.5rem 1rem;
+
+        &:hover {
+            color: steelblue;
+        }
+    }
+}
+
+.flex-centre {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#featured-image {
+    max-width: 500px;
+    max-height: 280px;
 }

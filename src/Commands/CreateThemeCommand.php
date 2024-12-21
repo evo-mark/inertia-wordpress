@@ -7,6 +7,7 @@ use Symfony\Component\Process\Process;
 use EvoMark\InertiaWordpress\Container;
 use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Strings;
+use EvoMark\InertiaWordpress\Helpers\Settings;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
 defined('\\ABSPATH') || exit;
@@ -14,6 +15,9 @@ defined('\\ABSPATH') || exit;
 class CreateThemeCommand extends BaseCommand
 {
     public array $replacements;
+    public string $template;
+    public string $extension = "js";
+    public string $sfcExtension;
 
     /**
      * Create an Inertia-based theme
@@ -30,8 +34,18 @@ class CreateThemeCommand extends BaseCommand
         $name = $args[0] ?? $this->ask(
             'What should the theme be called?',
         );
-        $template = $this->choice("Which template should be used?", ['Vue'], 0);
+        $template = $this->choice("Which template should be used?", ['Vue', 'Svelte', 'React'], 0);
         $template = strtolower($template);
+        $this->template = $template;
+
+        if ($template === "react") {
+            $this->extension = "jsx";
+        }
+        $this->sfcExtension = match ($template) {
+            'vue' => 'vue',
+            'svelte' => 'svelte',
+            'react' => 'jsx'
+        };
 
         $slug = sanitize_title($name);
         $this->replacements = [
@@ -101,11 +115,38 @@ class CreateThemeCommand extends BaseCommand
         // MAIN JS
         wp_mkdir_p(Path::join($themeDir, 'resources', 'js'));
 
-        $this->copyStub(Path::join($stubsPath, 'resources', 'js', 'main.js.' . $template . '.stub'), Path::join($themeDir, 'resources', 'js', 'main.js'));
-        $this->copyStub(Path::join($stubsPath, 'resources', 'js', 'ssr.js.' . $template . '.stub'), Path::join($themeDir, 'resources', 'js', 'ssr.js'));
+        $this->copyStub(
+            Path::join(
+                $stubsPath,
+                'resources',
+                'js',
+                'main.' . $this->extension .  '.' . $template . '.stub'
+            ),
+            Path::join(
+                $themeDir,
+                'resources',
+                'js',
+                'main.' . $this->extension
+            )
+        );
+        $this->copyStub(
+            Path::join(
+                $stubsPath,
+                'resources',
+                'js',
+                'ssr.' . $this->extension .  '.' . $template . '.stub'
+            ),
+            Path::join(
+                $themeDir,
+                'resources',
+                'js',
+                'ssr.' . $this->extension
+            )
+        );
 
         // TEMPLATE FILES
-        if ($template === "vue") $this->copyVueTemplateFiles($stubsPath, $themeDir);
+        $this->copyTemplateFiles($stubsPath, $themeDir);
+
 
         // THEME CSS
         wp_mkdir_p(Path::join($themeDir, 'resources', 'css'));
@@ -123,25 +164,31 @@ class CreateThemeCommand extends BaseCommand
             WP_CLI::log("Unable to initiate composer in theme folder, please run `composer install` before use.");
         }
 
+        if ($template === "react") {
+            Settings::set('entry_file', 'resources/js/main.jsx');
+        } else {
+            Settings::set('entry_file', 'resources/js/main.js');
+        }
+
         WP_CLI::runcommand('theme activate ' . $slug);
         return true;
     }
 
-    private function copyVueTemplateFiles($stubsPath, $themeDir)
+    private function copyTemplateFiles($stubsPath, $themeDir)
     {
         wp_mkdir_p(Path::join($themeDir, 'resources', 'js', 'pages'));
         wp_mkdir_p(Path::join($themeDir, 'resources', 'js', 'layouts'));
 
-        $pages = glob(Path::join($stubsPath, 'resources', 'js', 'pages', '*.vue.stub'));
+        $pages = glob(Path::join($stubsPath, 'resources', 'js', 'pages', '*.' . $this->template . '.stub'));
         foreach ($pages as $page) {
-            $filename = basename($page, '.stub'); // Remove the .stub extension
+            $filename = basename($page, $this->template . '.stub') . $this->sfcExtension; // Remove the .stub extension
             $targetFile = Path::join($themeDir, 'resources', 'js', 'pages', $filename);
             $this->copyStub($page, $targetFile);
         }
 
-        $layouts = glob(Path::join($stubsPath, 'resources', 'js', 'layouts', '*.vue.stub'));
+        $layouts = glob(Path::join($stubsPath, 'resources', 'js', 'layouts', '*.' . $this->template . '.stub'));
         foreach ($layouts as $layout) {
-            $filename = basename($layout, '.stub'); // Remove the .stub extension
+            $filename = basename($layout, $this->template . '.stub') . $this->sfcExtension; // Remove the .stub extension
             $targetFile = Path::join($themeDir, 'resources', 'js', 'layouts', $filename);
             $this->copyStub($layout, $targetFile);
         }

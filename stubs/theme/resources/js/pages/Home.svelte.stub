@@ -1,0 +1,11 @@
+<svelte:head>
+  <title>Welcome</title>
+</svelte:head>
+
+<div>
+  <h1>Welcome to {wp.name}</h1>
+</div>
+
+<script>
+  let { wp } = $props()
+</script>

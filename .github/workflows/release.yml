@@ -116,6 +116,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Fetch and checkout the latest commit
+        run: |
+          git fetch origin main
+          git checkout origin/main
+
       - uses: pnpm/action-setup@v2
         with:
           version: 9

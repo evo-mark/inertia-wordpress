@@ -1,0 +1,20 @@
+import { createInertiaApp } from '@inertiajs/svelte';
+import { hydrate, mount } from 'svelte';
+import { resolveInertiaPage } from "@evo-mark/inertia-wordpress/svelte";
+import DefaultLayout from "./layouts/DefaultLayout.svelte";
+import "../css/style.postcss";
+
+createInertiaApp({
+    resolve: resolveInertiaPage(
+        // TODO: Setting eager to 'false' seems to cause issues currently
+        import.meta.glob("./pages/**/*.svelte", { eager: true }),
+        DefaultLayout
+    ),
+    setup({ el, App, props }) {
+        if (el.dataset.serverRendered === 'true') {
+            hydrate(App, { target: el, props })
+        } else {
+            mount(App, { target: el, props })
+        }
+    },
+});

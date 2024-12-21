@@ -1,17 +1,10 @@
 import { defineConfig } from "vite";
 import { wordpress } from "wordpress-vite-plugin";
-import vue from "@vitejs/plugin-vue";
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
     plugins: [
-        vue({
-            template: {
-                transformAssetUrls: {
-                    base: false,
-                    includeAbsolute: false,
-                },
-            },
-        }),
+        svelte({}),
         wordpress({
             input: "resources/js/main.js",
             ssr: "resources/js/ssr.js",

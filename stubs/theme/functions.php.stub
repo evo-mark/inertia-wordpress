@@ -8,5 +8,9 @@ new RestApi([
     'namespace' => '##NAMESPACE##\\RestApi\\',
     'version' => 1,
     'directory' => __DIR__ . '/rest-api',
-    'base_url' => 'riley'
+    'base_url' => '##SLUG##'
+]);
+
+register_nav_menus([
+    'header-menu' => __('Header Menu'),
 ]);

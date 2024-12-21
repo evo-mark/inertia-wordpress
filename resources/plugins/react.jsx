@@ -1,10 +1,10 @@
 export const resolveInertiaPage = (
   glob,
-  layout = null,
+  Layout = null,
   layoutCallback = null
 ) => {
   return async function (name) {
-    let resolvedPage = glob[`./pages/${name}.vue`];
+    let resolvedPage = glob[`./pages/${name}.jsx`];
     if (!resolvedPage) {
       console.error(`[Inertia] Couldn't find page matching "${name}"`);
       return null;
@@ -16,8 +16,9 @@ export const resolveInertiaPage = (
 
     if (layoutCallback) {
       resolvedPage.default.layout = layoutCallback(name, resolvedPage);
-    } else if (layout) {
-      resolvedPage.default.layout = resolvedPage.default.layout || layout;
+    } else if (Layout) {
+      resolvedPage.default.layout =
+        resolvedPage.default.layout || ((page) => <Layout children={page} />);
     }
 
     return resolvedPage;

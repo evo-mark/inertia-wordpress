@@ -23,7 +23,7 @@ abstract class BaseCommand
     /**
      * Ask the user for input and return it
      */
-    protected function ask(string $question, callable $validationCallback = null): string
+    protected function ask(string $question, ?callable $validationCallback = null): string
     {
         $q = new Question(rtrim($question) . ' ');
         if (!empty($validationCallback)) {

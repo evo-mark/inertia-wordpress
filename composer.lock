@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "395eb20e0a536260c917661856afe4db",
+    "content-hash": "e8564996de0d9f760fa9f6d0dea02d5d",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -126,16 +126,16 @@
         },
         {
             "name": "evo-mark/wp-vite",
-            "version": "v1.1.1",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/evo-mark/wp-vite.git",
-                "reference": "852fa07ae207366fb3d5d643230a48cf3292312b"
+                "reference": "25e5ed52b433ec7f7da0a6ad9d7172bf1abfc818"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/evo-mark/wp-vite/zipball/852fa07ae207366fb3d5d643230a48cf3292312b",
-                "reference": "852fa07ae207366fb3d5d643230a48cf3292312b",
+                "url": "https://api.github.com/repos/evo-mark/wp-vite/zipball/25e5ed52b433ec7f7da0a6ad9d7172bf1abfc818",
+                "reference": "25e5ed52b433ec7f7da0a6ad9d7172bf1abfc818",
                 "shasum": ""
             },
             "require": {
@@ -161,9 +161,9 @@
             ],
             "support": {
                 "issues": "https://github.com/evo-mark/wp-vite/issues",
-                "source": "https://github.com/evo-mark/wp-vite/tree/v1.1.1"
+                "source": "https://github.com/evo-mark/wp-vite/tree/v1.2.1"
             },
-            "time": "2024-11-17T13:30:37+00:00"
+            "time": "2024-12-21T12:17:50+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -492,16 +492,16 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v11.35.1",
+            "version": "v11.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
-                "reference": "b8be9c0fedfc5be1524b290fed640d4b7d42c813"
+                "reference": "21868f9ac221a42d4346dc56495d11ab7e0d339a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/collections/zipball/b8be9c0fedfc5be1524b290fed640d4b7d42c813",
-                "reference": "b8be9c0fedfc5be1524b290fed640d4b7d42c813",
+                "url": "https://api.github.com/repos/illuminate/collections/zipball/21868f9ac221a42d4346dc56495d11ab7e0d339a",
+                "reference": "21868f9ac221a42d4346dc56495d11ab7e0d339a",
                 "shasum": ""
             },
             "require": {
@@ -544,11 +544,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-12-10T14:54:28+00:00"
+            "time": "2024-12-13T13:58:10+00:00"
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v11.35.1",
+            "version": "v11.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
@@ -594,7 +594,7 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v11.35.1",
+            "version": "v11.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -642,7 +642,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v11.35.1",
+            "version": "v11.36.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -790,10 +790,6 @@
             ],
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev",
-                    "dev-2.x": "2.x-dev"
-                },
                 "laravel": {
                     "providers": [
                         "Carbon\\Laravel\\ServiceProvider"
@@ -803,6 +799,10 @@
                     "includes": [
                         "extension.neon"
                     ]
+                },
+                "branch-alias": {
+                    "dev-2.x": "2.x-dev",
+                    "dev-master": "3.x-dev"
                 }
             },
             "autoload": {
@@ -2512,13 +2512,13 @@
             },
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-main": "3.x-dev"
-                },
                 "phpstan": {
                     "includes": [
                         "extension.neon"
                     ]
+                },
+                "branch-alias": {
+                    "dev-main": "3.x-dev"
                 }
             },
             "autoload": {

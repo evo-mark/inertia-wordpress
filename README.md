@@ -94,43 +94,43 @@ Once your theme has been created, it will not be changed again by the Inertia Wo
 
 If you ran the theme bootstrapper command above, you should have something like the above.
 
-### app.php
+> ### app.php
 
 See [InertiaJS.com > Server-Side Setup > Root Template](https://inertiajs.com/server-side-setup#root-template)
 
-### controllers
+> ### controllers
 
 These files will be the bridge between Wordpress and Inertia for serving GET requests. Each file should contain a single class that extends the `EvoMark\InertiaWordpress\InertiaController` class and provides a `handle` method. The handle method must return a call to `$this->render()`.
 
 The files in this directory are loaded in accordance with [Wordpress' template hierarchy rules](https://developer.wordpress.org/themes/basics/template-hierarchy/), albeit moved from the root of your theme to this `controllers` directory.
 
-### ecosystem.config.cjs
+> ### ecosystem.config.cjs
 
 This is an optional file provided to make running your InertiaJS SSR process easier. It is read by the PM2 process manager and keeps your process running reliably.
 
 For more information see the page on [PM2 Ecosystem Files](https://pm2.keymetrics.io/docs/usage/application-declaration/)
 
-### functions.php
+> ### functions.php
 
-The standard entry point for your theme. The bootstrapper will populate this with a call to REST API.
+The standard entry point for your theme. The bootstrapper will populate this with a small amount of code.
 
-The REST API is a call to [WP Rest Registration](https://evomark.co.uk/open-source-software/wp-rest-registration/) which allows you to easily register REST endpoints that can validated input.
+The code `new RestApi` is a call to [WP Rest Registration](https://evomark.co.uk/open-source-software/wp-rest-registration/) which allows you to easily register REST API endpoints that can validate input.
 
-We'll be using these to process information submitted by our InertiaJS frontend. See `rest-api` below for more details.
+We'll be using these endpoints to process information submitted by our InertiaJS frontend. See `rest-api` below for more details.
 
-### index.php
+> ### index.php
 
 Intentionally left empty to prevent directory indexing
 
-### package.json
+> ### package.json
 
 A file used by NodeJS package managers to install dependencies required by your theme. Common package managers are `NPM`, `PNPM`, and `Yarn`.
 
-### resources
+> ### resources
 
 This is where the majority of your themes frontend will live. It's no different from a standard InertiaJS project setup, so we won't go into much detail on the file structure.
 
-### rest-api
+> ### rest-api
 
 Since InertiaJS sends its data via AJAX requests, we can't use our `controllers` classes to process it. Instead, we must use special REST API controllers.
 
@@ -138,11 +138,11 @@ All classes in this directory are automatically registered by the call the `new 
 
 See the [WP REST Registration documentation](https://evomark.co.uk/open-source-software/wp-rest-registration/) for more details.
 
-### style.css
+> ### style.css
 
 Required by Wordpress.
 
-### vite.config.js
+> ### vite.config.js
 
 Used by Vite to bundle/build your theme's JavaScript and CSS files. You shouldn't need to change anything here to get Vite working, but feel free to add more plugins.
 
@@ -202,7 +202,7 @@ createInertiaApp({
 
 The `resolveInertiaPage` accepts two arguments, the first is your pages glob. With `eager: true` the pages will all be bundled into a single file, whereas with `eager: false` Vite will use code-splitting when bundling your app.
 
-The second argument the `resolveInertiaPage` accepts is your [Default Layout](https://inertiajs.com/pages#default-layouts). This can either be a standard layout/layout-array:
+The second argument the `resolveInertiaPage` accepts is your [Default Layout](https://inertiajs.com/pages#default-layouts).
 
 ```js
 import Layout from './Layout'
@@ -213,7 +213,7 @@ resolve: resolveInertiaPage(
 ),
 ```
 
-or you can pass a function that should return a layout or layout-array:
+A third argument can be an optional callback that receives the page name and page object and should return a valid Layout.
 
 ```js
 import Layout1 from './Layout';
@@ -222,6 +222,7 @@ import Layout2 from './Layout2';
 // ...
 resolve: resolveInertiaPage(
     import.meta.glob("./pages/**/*.vue", { eager: false }),
+    null, // Notice that the 2nd argument is null
     /**
      * @param { string } name The page name that is being loaded
      * @param { VNode } resolvedPage The resolved page vNode
@@ -237,10 +238,14 @@ resolve: resolveInertiaPage(
 
 If you check your Inertia page props, you'll see a few provided objects pre-loaded:
 
-- **$page.props.wp.adminBar**: _Coming Soon_
+- **$page.props.wp.name**: The name of your site
+- **$page.props.wp.homeUrl**: The URL of your site's homepage
 - **$page.props.wp.restUrl**: The base URL for making REST API requests
 - **$page.props.wp.user**: The user object for the currently logged in user
 - **$page.props.wp.userCapabilities**: An object of the current users capabilities/permission
+- **$page.props.wp.logo**: An image resource containing your site logo as set in Wordpress' Appearance->Customise menu
+- **$page.props.wp.menus**: A nested object containing your registered menus, keyed by location
+- **$page.props.wp.adminBar**: _Coming Soon_
 
 ## Wordpress Settings
 

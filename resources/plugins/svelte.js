@@ -4,7 +4,7 @@ export const resolveInertiaPage = (
   layoutCallback = null
 ) => {
   return async function (name) {
-    let resolvedPage = glob[`./pages/${name}.vue`];
+    let resolvedPage = glob[`./pages/${name}.svelte`];
     if (!resolvedPage) {
       console.error(`[Inertia] Couldn't find page matching "${name}"`);
       return null;
@@ -15,11 +15,15 @@ export const resolveInertiaPage = (
     }
 
     if (layoutCallback) {
-      resolvedPage.default.layout = layoutCallback(name, resolvedPage);
-    } else if (layout) {
-      resolvedPage.default.layout = resolvedPage.default.layout || layout;
+      return {
+        default: resolvedPage.default,
+        layout: layoutCallback(name, resolvedPage),
+      };
+    } else {
+      return {
+        default: resolvedPage.default,
+        layout: resolvedPage.layout || layout,
+      };
     }
-
-    return resolvedPage;
   };
 };

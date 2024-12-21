@@ -28,6 +28,7 @@ class InertiaResponse
         header('Vary: Accept');
         header(ucwords(Header::INERTIA, "-") . ": true");
 
+
         wp_send_json($page);
     }
 }

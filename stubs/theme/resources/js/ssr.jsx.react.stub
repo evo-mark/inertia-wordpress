@@ -1,0 +1,17 @@
+import { createInertiaApp } from '@inertiajs/react';
+import createServer from '@inertiajs/react/server';
+import * as ReactDOMServer from 'react-dom/server';
+import DefaultLayout from "./layouts/DefaultLayout.jsx";
+
+createServer((page) =>
+  createInertiaApp({
+    page,
+    render: ReactDOMServer.renderToString,
+    title: (title) => `${title} - InertiaJS`,
+    resolve: resolveInertiaPage(
+        import.meta.glob("./pages/**/*.jsx", { eager: true }),
+        DefaultLayout
+    ),
+    setup: ({ App, props }) => <App {...props} />,
+  }),
+);

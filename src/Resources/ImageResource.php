@@ -4,7 +4,7 @@ namespace EvoMark\InertiaWordpress\Resources;
 
 class ImageResource
 {
-    public static function single(int $attachment_id = null, array $args = [])
+    public static function single(?int $attachment_id = null, array $args = [])
     {
         $fallbackToPostImage = !isset($args['fallback']) || $args['fallback'] !== false;
 

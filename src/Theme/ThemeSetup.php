@@ -7,6 +7,7 @@ use EvoMark\InertiaWordpress\Container;
 use EvoMark\InertiaWordpress\Theme\Utils;
 use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Settings;
+use EvoMark\InertiaWordpress\Inertia;
 
 class ThemeSetup
 {
@@ -23,7 +24,6 @@ class ThemeSetup
     {
         add_theme_support('custom-logo');
         add_theme_support('post-thumbnails');
-        add_theme_support('title-tag');
     }
 
     public static function enqueueScripts()
@@ -31,10 +31,13 @@ class ThemeSetup
         $entryFile = Settings::get('entry_file');
         $entryNamespace = Settings::get('entry_namespace');
 
+        $isReact = str_ends_with($entryFile, ".jsx");
+
         $vite = new WpVite();
         $vite->enqueue([
             'input' => $entryFile,
-            'namespace' => $entryNamespace
+            'namespace' => $entryNamespace,
+            'react' => $isReact
         ]);
     }
 
@@ -69,7 +72,15 @@ class ThemeSetup
 
             $controller = new $class();
             echo $controller->handle();
-        } else return $template;
+        } else {
+            $class = Utils::getClass(Path::join($controllerDir, 'error.php'));
+            if (in_array('EvoMark\InertiaWordpress\Contracts\InertiaControllerContract', class_implements($class)) === false) {
+                return $template;
+            }
+            Inertia::share('error', 404);
+            $controller = new $class();
+            echo $controller->handle();
+        }
     }
 
     /**

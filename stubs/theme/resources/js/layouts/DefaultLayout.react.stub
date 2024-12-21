@@ -1,0 +1,56 @@
+import { Link, usePage } from "@inertiajs/react";
+import { useMemo } from "react";
+
+function Layout({ children }) {
+    const { name, homeUrl, logo, menus } = usePage().props.wp;
+
+    const headerMenu = useMemo(() => menus?.["header-menu"] ?? null, [menus]);
+
+    console.log(menus);
+
+    return (
+        <>
+            <header>
+                <div>
+                    <Link href={homeUrl}>
+                        {logo ? (
+                            <img
+                                src={logo.sizes.large.url}
+                                alt={logo.metadata.alt}
+                            />
+                        ) : (
+                            <p>{name}</p>
+                        )}
+                    </Link>
+                </div>
+                <nav>
+                    {headerMenu && (
+                        <ul id="header-menu">
+                            {headerMenu.items.map((item) => (
+                                <li>
+                                    {item.type === "custom" ? (
+                                        <a href={item.url} target="_blank">
+                                            {item.label}
+                                        </a>
+                                    ) : (
+                                        <Link href={item.url}>
+                                            {item.label}
+                                        </Link>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </nav>
+            </header>
+            <main>{children}</main>
+            <footer>
+                <div>
+                    &copy; {new Date().getFullYear()} {name}
+                </div>
+            </footer>
+        </>
+    );
+}
+
+export default Layout;

@@ -2,6 +2,7 @@
 
 namespace EvoMark\InertiaWordpress\Helpers;
 
+use DOMDocument;
 use WP_Post;
 use EvoMark\InertiaWordpress\Data\Archive;
 use EvoMark\InertiaWordpress\Resources\ImageResource;
@@ -47,7 +48,7 @@ class Wordpress
         return $title;
     }
 
-    public static function getArchiveData(string $title = null, array $posts = null)
+    public static function getArchiveData(?string $title = null, ?array $posts = null)
     {
         if (empty($title)) $title = self::getCurrentArchiveTitle();
         if (empty($posts)) {
@@ -164,26 +165,37 @@ class Wordpress
 
     public static function getAdminBar()
     {
-        /* require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
-
-        if (! function_exists('wp_get_current_user')) {
-            require_once ABSPATH . WPINC . '/pluggable.php';
+        if (!class_exists('WP_Admin_Bar')) {
+            require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
         }
+        $bar = new \WP_Admin_Bar();
+        wp_admin_bar_comments_menu($bar);
+        wp_admin_bar_edit_menu($bar);
 
-        $GLOBALS['wp_admin_bar'] = new \WP_Admin_Bar();
+        /**
+         * Fired before the admin bar update HTML elements are extracted
+         *
+         * @since 0.3.0
+         *
+         * @param \WP_Admin_Bar $bar A slimmed down version of the admin bar
+         */
+        do_action(HookActions::PRE_RENDER_ADMIN_BAR_UPDATE, $bar);
 
-
-        // Render the admin bar
-        $GLOBALS['wp_admin_bar']->initialize();
-        do_action('admin_bar_init');
-        do_action('admin_bar_menu', $GLOBALS['wp_admin_bar']);
-        $GLOBALS['wp_admin_bar']->add_menus();
-
-        dd($GLOBALS['wp_admin_bar']);
         ob_start();
-        $GLOBALS['wp_admin_bar']->render();
+        $bar->render();
         $html = ob_get_clean();
-        dd($html);
-        return $html; */
+
+        $dom = new DOMDocument();
+        $dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+        $xpath = new \DOMXPath($dom);
+        $elements = $xpath->query("//li");
+
+        $listItems = [];
+
+        foreach ($elements as $element) {
+            $listItems[] = $dom->saveHTML($element);
+        }
+        return $listItems;
     }
 }

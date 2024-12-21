@@ -1,0 +1,15 @@
+import { Head, usePage } from "@inertiajs/react";
+
+const Home = () => {
+    const { wp } = usePage().props;
+    return (
+        <>
+            <Head title={wp.name} />
+            <div className="flex-centre">
+                <h1>Welcome to {wp.name}</h1>
+            </div>
+        </>
+    );
+};
+
+export default Home;
