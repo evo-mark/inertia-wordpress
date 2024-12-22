@@ -1,6 +1,6 @@
 <template>
-	<VBanner :icon="mdiServerNetwork" class="bg-orange-100 border-orange-400 text-orange-900" density="compact">
-		<VBannerText>Server-Side Rendering (SSR)</VBannerText>
+	<VBanner :icon="mdiServerNetwork" v-bind="bannerBind">
+		<VBannerText class="font-bold">Server-Side Rendering (SSR)</VBannerText>
 	</VBanner>
 	<EvoSetting title="Enabled">
 		<template #description>
@@ -18,7 +18,7 @@
 	>
 		<VTextField v-model="settings.ssr_url" label="SSR URL" />
 	</EvoSetting>
-	<VBanner :icon="mdiTimer" class="bg-orange-100 border-orange-400 text-orange-900" density="compact">
+	<VBanner :icon="mdiTimer" v-bind="bannerBind">
 		<VBannerText>History</VBannerText>
 	</VBanner>
 	<EvoSetting
@@ -27,7 +27,7 @@
 	>
 		<VSwitch v-model="settings.history_encrypt" label="Encrypt" />
 	</EvoSetting>
-	<VBanner :icon="mdiProjectorScreen" class="bg-orange-100 border-orange-400 text-orange-900" density="compact">
+	<VBanner :icon="mdiProjectorScreen" v-bind="bannerBind">
 		<VBannerText>Theme Settings</VBannerText>
 	</VBanner>
 	<EvoSetting
@@ -48,7 +48,7 @@
 	>
 		<VTextField v-model="settings.entry_file" label="Theme Entry File" />
 	</EvoSetting>
-	<VBanner :icon="mdiConnection" class="bg-orange-100 border-orange-400 text-orange-900" density="compact">
+	<VBanner :icon="mdiConnection" v-bind="bannerBind">
 		<VBannerText>Modules</VBannerText>
 	</VBanner>
 	<EvoSetting
@@ -62,27 +62,49 @@
 					<h2 class="font-bold">Advanced Custom Fields</h2>
 				</div>
 			</VCol>
-			<VCol>
+			<VCol cols="auto">
 				<VSwitch v-model="settings.modules" label="Enabled" value="acf" />
+			</VCol>
+			<VCol>
+				<router-link :to="{ name: 'modules.acf' }">
+					<VBtn v-tooltip="`More about this module`" :icon="mdiPageNextOutline" color="info" />
+				</router-link>
 			</VCol>
 		</VRow>
 		<VRow>
 			<VCol>
 				<VImg src="https://contactform7.com/wp-content/uploads/contact-form-7-logo@2x.png" max-width="275px" />
 			</VCol>
-			<VCol>
+			<VCol cols="auto">
 				<VSwitch v-model="settings.modules" label="Enabled" value="cf7" />
 			</VCol>
+			<VCol>
+				<router-link :to="{ name: 'modules.cf7' }">
+					<VBtn v-tooltip="`More about this module`" :icon="mdiPageNextOutline" color="info" />
+				</router-link>
+			</VCol>
+		</VRow>
+		<VRow v-for="module in externalModules">
+			<VCol>
+				<VImg v-if="module.logo" :src="module.logo" max-width="275px" />
+				<h3 v-else class="text-3xl font-bold">{{ module.title }}</h3>
+			</VCol>
+			<VCol cols="auto">
+				<VSwitch v-model="settings.modules" label="Enabled" :value="module.slug" />
+			</VCol>
+			<VCol></VCol>
 		</VRow>
 	</EvoSetting>
 </template>
 
 <script setup>
-import { mdiServerNetwork, mdiTimer, mdiProjectorScreen, mdiConnection } from "@mdi/js";
+import { mdiServerNetwork, mdiTimer, mdiProjectorScreen, mdiConnection, mdiPageNextOutline } from "@mdi/js";
 import { useSettings } from "composables/useSettings";
+import { useApi } from "composables/useApi";
 import EvoSetting from "components/Setting.vue";
 import AcfLogo from "components/AcfLogo.vue";
 
+const api = useApi();
 const { settings } = useSettings([
 	"ssr_enabled",
 	"ssr_url",
@@ -92,4 +114,17 @@ const { settings } = useSettings([
 	"entry_namespace",
 	"entry_file",
 ]);
+
+const bannerBind = {
+	class: "bg-teal-500 border-teal-600 text-white",
+	theme: "dark",
+	density: "compact",
+};
+
+const modules = ref([]);
+const externalModules = computed(() => modules.value.filter((m) => m.isInternal === false));
+
+api.get("modules").then((res) => {
+	modules.value = res.data.modules;
+});
 </script>

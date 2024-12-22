@@ -35,7 +35,10 @@
         "wordpress-vite-plugin": "^1.1.0"
     },
     "dependencies": {
+        "@tailwindcss/typography": "^0.5.15",
+        "@vueuse/core": "^12.0.0",
         "@wordpress/api-fetch": "^7.14.0",
+        "highlight.js": "^11.11.0",
         "lodash-es": "^4.17.21"
     }
 }

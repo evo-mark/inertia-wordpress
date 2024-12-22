@@ -118,6 +118,15 @@ class Inertia
         return RequestResponse::back(...$params);
     }
 
+    public static function flash(string $key, mixed $value): void
+    {
+        $data = RequestResponse::getFlashData('flash', []);
+        $data = array_merge($data, [
+            $key => $value
+        ]);
+        RequestResponse::setFlashData('flash', $data);
+    }
+
     /**
      * Gets information, posts and pagination for the current archive
      */

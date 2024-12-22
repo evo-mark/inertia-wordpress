@@ -385,6 +385,7 @@ class RequestHandler
     public function setGlobalShares()
     {
         $this->share('errors', Inertia::always(RequestResponse::getFormattedErrors()));
+        $this->share('flash', Inertia::always(RequestResponse::getFlashData('flash', (object)[])));
         $this->share('wp', [
             'name' => get_bloginfo('name'),
             'adminBar' => $this->isInertia() ? fn() => Wordpress::getAdminBar() : null,

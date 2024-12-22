@@ -20,9 +20,25 @@ class RequestResponse
         }
     }
 
+    public static function getTemporaryId(): string
+    {
+        if (! isset($_COOKIE['_temp_id'])) {
+            $tempId = bin2hex(random_bytes(16));
+            setcookie('_temp_id', $tempId, [
+                'expires' => 0,
+                'path' => COOKIEPATH,
+                'domain' => COOKIE_DOMAIN,
+                'httponly' => true,
+                'samesite' => 'Strict'
+            ]);
+            return $tempId;
+        }
+        return $_COOKIE['_temp_id'];
+    }
+
     public static function getFlashKey($key)
     {
-        return "inertia_" . $key;
+        return "inertia_" . self::getTemporaryId() . "_" . $key;
     }
 
     public static function setFlashData($key, $value)

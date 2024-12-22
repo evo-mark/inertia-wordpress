@@ -9,6 +9,7 @@ use EvoMark\InertiaWordpress\Resources\PostSimpleResource;
 use EvoMark\InertiaWordpress\Resources\ArchivePaginationResource;
 use EvoMark\InertiaWordpress\Resources\MenuItemResource;
 use stdClass;
+use WP_REST_Server;
 
 class Wordpress
 {

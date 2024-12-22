@@ -7,14 +7,20 @@ use EvoMark\InertiaWordpress\Modules\BaseModule;
 
 class Module extends BaseModule
 {
+    protected string $title = "Advanced Custom Fields";
     protected string $class = "ACF";
     protected string $slug = "acf";
-    protected array|string $entry = ['advanced-custom-fields-pro/acf.php', 'acf-pro/acf.php'];
+    protected array|string $entry = [
+        'advanced-custom-fields-pro/acf.php',
+        'acf-pro/acf.php',
+        'advanced-custom-fields/acf.php'
+    ];
+    protected bool $isInternal = true;
 
     /**
      * Called via action hook
      */
-    public function init(): void
+    public function boot(): void
     {
         Inertia::share('acf', [
             'post' => $this->getAcfPostFields(),

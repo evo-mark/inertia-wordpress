@@ -13,7 +13,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@evo-mark/inertia-wordpress": "link:../../plugins/inertia-wordpress/resources/plugins",
+        "@evo-mark/inertia-wordpress": "file:../../plugins/inertia-wordpress/resources/plugins",
         "@inertiajs/react": "^2.0.0",
         "@vitejs/plugin-react": "^4.3.2",
         "vite": "^6.0.3",

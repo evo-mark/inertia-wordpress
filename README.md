@@ -10,7 +10,7 @@
 
 # Inertia Wordpress Adapter
 
-> Note: This adapter is a work-in-progress and should not be used in essential services
+> Note: This adapter is a work-in-progress and should not be used in essential services. There may be breaking changes between minor versions
 
 <p align="center">
     <a href="https://github.com/evo-mark/inertia-wordpress/releases" style="display:block;height:75px">
@@ -21,9 +21,15 @@
 ---
 
 <p align="center">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="height:100px">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" style="height:100px">
-    <img src="https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg" style="height:100px">
+    <a href="https://vuejs.org/" target="_blank" title="Vue">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="height:100px">
+    </a>
+    <a href="https://react.dev/"  target="_blank" title="React">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" style="height:100px">
+    </a>
+    <a href="https://svelte.dev/"  target="_blank" title="Svelte">
+        <img src="https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg" style="height:100px">
+    </a>
 </p>
 
 ---
@@ -33,6 +39,8 @@ Inertia is a new approach to building classic server-driven web apps. We call it
 Inertia allows you to create fully client-side rendered, single-page apps, without the complexity that comes with modern SPAs. It does this by leveraging existing server-side patterns that you already love.
 
 This is an unofficial adapter for applications powered by Wordpress that allows you to create a reactive JavaScript frontend.
+
+For more information on InertiaJS, visit the [Official Website](https://inertiajs.com/).
 
 ## Installation
 

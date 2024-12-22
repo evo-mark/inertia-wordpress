@@ -12,6 +12,8 @@ use EvoMark\InertiaWordpress\Modules\ContactForm7\Module as ContactForm7Module;
 
 class ModuleSetup
 {
+    protected static array $registeredModules = [];
+
     /**
      * @hook init
      */
@@ -33,7 +35,9 @@ class ModuleSetup
          */
         do_action(HookActions::MODULES);
 
-        add_action(HookActions::SET_GLOBAL_SHARES, [__CLASS__, 'initModules']);
+        self::registerModules();
+
+        add_action(HookActions::SET_GLOBAL_SHARES, [__CLASS__, 'bootModules']);
 
 
 
@@ -69,16 +73,28 @@ class ModuleSetup
         return in_array($file, apply_filters('active_plugins', get_option('active_plugins')));
     }
 
-    /**
-     * @hook HookActions::SET_GLOBAL_SHARES
-     */
-    public static function initModules()
+    public static function registerModules()
     {
         $container = Container::getInstance();
         $modules = $container->get('modules');
 
         foreach ($modules as $module) {
-            $instance = $module::boot();
+            $instance = $module::create();
+            if (! $instance->isEnabled()) {
+                continue;
+            }
+            self::$registeredModules[] = $instance;
+            $instance->register();
+        }
+    }
+
+    /**
+     * @hook HookActions::SET_GLOBAL_SHARES
+     */
+    public static function bootModules()
+    {
+        foreach (self::$registeredModules as $module) {
+            if ($module->isEnabled()) $module->boot();
         }
     }
 }

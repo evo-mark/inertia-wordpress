@@ -20,6 +20,17 @@ class Utils
         return $service->get_sitekey();
     }
 
+    public static function getRecaptchaUrl()
+    {
+        $key = self::getRecaptchaSiteKey();
+        return $key ? add_query_arg(
+            array(
+                'render' => self::getRecaptchaSiteKey(),
+            ),
+            'https://www.google.com/recaptcha/api.js'
+        ) : false;
+    }
+
     /**
      * @param \WPCF7_ContactForm[] $formObjects
      */

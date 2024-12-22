@@ -6,24 +6,33 @@
     "type": "module",
     "exports": {
         ".": {
-            "import": "./index.js",
-            "require": "./index.js"
+            "import": "./vue/index.js",
+            "require": "./vue/index.js"
+        },
+        "./vue": {
+            "import": "./vue/index.js",
+            "require": "./vue/index.js"
         },
         "./react": {
-            "import": "./react.jsx",
-            "require": "./react.jsx"
+            "import": "./react/index.jsx",
+            "require": "./react/index.jsx"
         },
         "./svelte": {
-            "import": "./svelte.js",
-            "require": "./svelte.js"
+            "import": "./svelte/index.js",
+            "require": "./svelte/index.js"
         }
     },
     "scripts": {
+        "build": "vite build",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "devDependencies": {},
-    "dependencies": {}
+    "dependencies": {
+        "vite": "^6.0.3"
+    },
+    "peerDependencies": {
+        "@inertiajs/vue3": "^2.0.0"
+    }
 }

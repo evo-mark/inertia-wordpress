@@ -1,0 +1,30 @@
+<script>
+    let { post } = $props();
+    let publishedDate = $derived.by(() => {
+        const d = new Date(post.createdAt);
+        return d.toLocaleString(undefined, {
+            dateStyle: "long",
+            timeStyle: "medium",
+        });
+    });
+</script>
+
+<svelte:head>
+    <title>{post.title}</title>
+</svelte:head>
+
+<main class="flex-centre">
+    <h1>{post.title}</h1>
+    {#if post.featuredImage}
+        <img
+            id="featured-image"
+            src={post.featuredImage.sizes.full.url}
+            alt={post.featuredImage.alt}
+        />
+    {/if}
+
+    <div>
+        {@html post.content}
+    </div>
+    <div>Written by {post.author.name} on {publishedDate}</div>
+</main>
