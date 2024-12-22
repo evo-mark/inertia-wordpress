@@ -167,6 +167,10 @@ class Inertia
 
         $container = Container::getInstance();
 
+        if ($container->has('modules') === false) {
+            throw new \Exception("Inertia::addModule() was called too early. Please use the `inertia_wordpress_modules` action hook.");
+        }
+
         /** @var Collection $modules */
         $modules = $container->get('modules');
 
