@@ -1,0 +1,16 @@
+import { createInertiaApp } from "@inertiajs/react";
+import { hydrateRoot, createRoot } from "react-dom/client";
+import { resolveInertiaPage } from "@evo-mark/inertia-wordpress/react";
+import DefaultLayout from "./layouts/DefaultLayout.jsx";
+import "../css/style.postcss";
+
+createInertiaApp({
+    resolve: resolveInertiaPage(
+        import.meta.glob("./pages/**/*.jsx", { eager: false }),
+        DefaultLayout
+    ),
+    setup({ el, App, props }) {
+        /* hydrateRoot(el, <App {...props} />); */
+        createRoot(el).render(<App {...props} />);
+    },
+});

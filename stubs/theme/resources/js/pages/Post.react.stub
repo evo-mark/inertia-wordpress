@@ -1,0 +1,34 @@
+import { Head, usePage } from "@inertiajs/react";
+import { useMemo } from "react";
+
+const Post = () => {
+    const { post } = usePage().props;
+    const publishedDate = useMemo(() => {
+        const d = new Date(post.createdAt);
+        return d.toLocaleString(undefined, {
+            dateStyle: "long",
+            timeStyle: "medium",
+        });
+    }, [post]);
+
+    return (
+        <>
+            <Head title={post.title} />
+            <div className="flex-centre">
+                <h1 className="text-3xl">{post.title}</h1>
+                {post.featuredImage && (
+                    <img
+                        id="featured-image"
+                        src={post.featuredImage.sizes.full.url}
+                    />
+                )}
+                <div dangerouslySetInnerHTML={{ __html: post.content }}></div>
+                <div>
+                    Written by {post.author.name} on {publishedDate}
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default Post;

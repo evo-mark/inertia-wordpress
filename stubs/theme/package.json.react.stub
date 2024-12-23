@@ -1,0 +1,24 @@
+{
+    "name": "##SLUG##",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && vite build --ssr",
+        "ssr": "pm2 start ecosystem.config.cjs"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@evo-mark/inertia-wordpress": "file:../../plugins/inertia-wordpress/resources/plugins",
+        "@inertiajs/react": "^2.0.0",
+        "@vitejs/plugin-react": "^4.3.2",
+        "vite": "^6.0.3",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "wordpress-vite-plugin": "^1.2.6"
+    },
+}

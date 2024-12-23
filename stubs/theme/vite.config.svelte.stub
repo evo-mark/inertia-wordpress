@@ -1,0 +1,15 @@
+import { defineConfig } from "vite";
+import { wordpress } from "wordpress-vite-plugin";
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+
+export default defineConfig({
+    plugins: [
+        svelte({}),
+        wordpress({
+            input: "resources/js/main.js",
+            ssr: "resources/js/ssr.js",
+            namespace: "theme-inertia",
+            splitVendor: true
+        }),
+    ],
+});

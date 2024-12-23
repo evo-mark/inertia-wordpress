@@ -1,0 +1,17 @@
+import { createSSRApp, h } from "vue";
+import { createInertiaApp } from "@inertiajs/vue3";
+import { resolveInertiaPage } from "@evo-mark/inertia-wordpress";
+import DefaultLayout from "./layouts/DefaultLayout.vue";
+import "../css/style.postcss";
+
+createInertiaApp({
+    resolve: resolveInertiaPage(
+        import.meta.glob("./pages/**/*.vue", { eager: false }),
+        DefaultLayout
+    ),
+    setup({ el, App, props, plugin }) {
+        createSSRApp({ render: () => h(App, props) })
+            .use(plugin)
+            .mount(el);
+    },
+});

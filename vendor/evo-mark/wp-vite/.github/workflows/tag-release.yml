@@ -1,0 +1,90 @@
+name: tag-release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"
+
+      - name: Bump version and push tag
+        id: tag
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          WITH_V: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: none
+          RELEASE_BRANCHES: main
+
+    outputs:
+      bump: ${{ steps.tag.outputs.part }}
+      new_tag: ${{ steps.tag.outputs.new_tag }}
+
+  release:
+    if: needs.tag.outputs.bump
+    needs: tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: dom, curl, libxml, mbstring, zip
+          ini-values: error_reporting=E_ALL
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache composer vendor files
+        id: cache-composer
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-composer
+        with:
+          path: /vendor
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install dependencies
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: composer install --no-interaction --no-scripts --no-plugins
+
+      - name: Create ZIP for release
+        run: zip -r evomark-wp-vite.zip . -x "*.DS_Store*" -x ".github/*" -x ".git/*" -x ".gitignore"
+
+      - name: Create Github release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.tag.outputs.new_tag }}
+          release_name: ${{ needs.tag.outputs.new_tag }}
+          draft: false
+          prerelease: false
+
+      - name: Add ZIP to release
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./evomark-wp-vite.zip
+          asset_name: evomark-wp-vite.zip
+          asset_content_type: application/zip

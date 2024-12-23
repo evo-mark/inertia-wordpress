@@ -1,0 +1,33 @@
+{
+    "name": "evo-mark/evo-wp-rest-registration",
+    "description": "Register your Wordpress REST API endpoints easily",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": ">=7.4"
+    },
+    "keywords": [
+        "wordpress",
+        "rest",
+        "api",
+        "automatic",
+        "object-oriented",
+        "wp"
+    ],
+    "authors": [
+        {
+            "name": "Craig Riley",
+            "email": "c.riley@evomark.co.uk",
+            "homepage": "https://evomark.co.uk"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/evo-mark/evo-wp-rest-registration/issues",
+        "source": "https://github.com/evo-mark/evo-wp-rest-registration"
+    },
+    "autoload": {
+        "psr-4": {
+            "EvoWpRestRegistration\\": "src/"
+        }
+    }
+}

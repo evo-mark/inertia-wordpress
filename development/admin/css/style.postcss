@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.v-application__wrap {
+	min-height: calc(100vh - var(--wp-admin--admin-bar--height));
+}
+
+.v-list :focus-visible {
+	outline: none;
+}
+
+.v-application {
+	@apply text-base min-h-full;
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		color: rgb(var(--v-theme-on-background));
+	}
+
+	p {
+		@apply text-base;
+	}
+
+	a:not(.v-btn) {
+		@apply underline underline-offset-4;
+	}
+}
+
+#wpwrap {
+	max-height: 100%;
+}
+
+#wpbody-content {
+	padding-bottom: 0px;
+	max-height: 100%;
+}
+
+a:focus {
+	box-shadow: unset !important;
+	color: unset;
+}

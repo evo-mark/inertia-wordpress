@@ -1,0 +1,72 @@
+<template>
+    <header>
+        <div>
+            <Link :href="homeUrl">
+                <img
+                    v-if="logo"
+                    :src="logo.sizes.large.url"
+                    :alt="logo.metadata.alt"
+                />
+                <p v-else>{{ siteName }}</p>
+            </Link>
+        </div>
+        <nav>
+            <ul v-if="headerMenu" id="header-menu">
+                <li v-for="item in headerMenu.items">
+                    <a
+                        v-if="item.type === 'custom'"
+                        :href="item.url"
+                        target="_blank"
+                        >{{ item.label }}</a
+                    >
+                    <Link v-else :href="item.url">{{ item.label }}</Link>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <slot></slot>
+    <footer>
+        <div>&copy; 2024 {{ siteName }}</div>
+    </footer>
+</template>
+
+<script setup>
+import { usePage, Link } from "@inertiajs/vue3";
+import { computed } from "vue";
+
+const logo = computed(() => usePage().props.wp.logo);
+const homeUrl = computed(() => usePage().props.wp.homeUrl);
+const siteName = computed(() => usePage().props.wp.name);
+const headerMenu = computed(
+    () => usePage().props.wp.menus["header-menu"] ?? null
+);
+</script>
+
+<style lang="postcss" scoped>
+header,
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: hsl(204, 15%, 13%);
+    color: #ffffff;
+    padding: 1rem 2rem;
+}
+
+footer {
+    margin-top: 2rem;
+}
+
+#header-menu {
+    display: flex;
+    gap: 1rem;
+
+    a {
+        padding: 0.5rem 1rem;
+
+        &:hover {
+            color: steelblue;
+        }
+    }
+}
+</style>

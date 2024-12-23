@@ -1,0 +1,21 @@
+{
+  "name": "evo-mark/wp-vite",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "EvoMark\\WpVite\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Craig Riley"
+    }
+  ],
+  "require-dev": {
+    "symfony/var-dumper": "^6.2"
+  },
+  "require": {
+    "yahnis-elsts/plugin-update-checker": "^5.0"
+  }
+}

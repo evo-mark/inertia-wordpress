@@ -1,0 +1,15 @@
+import { usePage, Link } from "@inertiajs/react";
+
+const Error = () => {
+    const { error, wp } = usePage().props;
+    return (
+        <>
+            <div className="flex-centre">
+                <h1>Error: {error}</h1>
+                <Link href={wp.homeUrl}>Go Home</Link>
+            </div>
+        </>
+    );
+};
+
+export default Error;

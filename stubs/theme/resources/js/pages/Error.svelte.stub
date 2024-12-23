@@ -1,0 +1,11 @@
+<script>
+    let { error } = $props();
+</script>
+
+<svelte:head>
+    <title>Error</title>
+</svelte:head>
+
+<main>
+    <h1>Error: {error}</h1>
+</main>

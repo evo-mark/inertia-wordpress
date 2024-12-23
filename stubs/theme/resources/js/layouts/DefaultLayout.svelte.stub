@@ -1,0 +1,44 @@
+<script>
+    import { inertia, page } from "@inertiajs/svelte";
+
+    let { children } = $props();
+    let headerMenu = $derived($page.props.wp?.menus?.["header-menu"] ?? []);
+</script>
+
+<header>
+    <div>
+        <a use:inertia href={$page.props.wp.homeUrl}>
+            {#if $page.props.wp.logo}
+                <img
+                    src={$page.props.wp.logo.sizes.large.url}
+                    alt={$page.props.wp.logo.metadata.alt}
+                />
+            {:else}
+                <p>{$page.props.wp.name}</p>
+            {/if}
+        </a>
+    </div>
+    <nav>
+        {#if headerMenu}
+            <ul id="header-menu">
+                {#each headerMenu.items as item}
+                    <li>
+                        {#if item.type === "custom"}
+                            <a href={item.url} target="_blank">{item.label}</a>
+                        {:else}
+                            <a use:inertia href={item.url}
+                                >{item.label}</a
+                            >
+                        {/if}
+                    </li>
+                {/each}
+            </ul>
+        {/if}
+    </nav>
+</header>
+<main>
+    {@render children()}
+</main>
+<footer>
+    <div>&copy; {new Date().getFullYear()} {$page.props.wp.name}</div>
+</footer>
