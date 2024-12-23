@@ -84,6 +84,22 @@
 				</router-link>
 			</VCol>
 		</VRow>
+		<VRow>
+			<VCol>
+				<div class="flex items-center gap-4">
+					<img src="https://ps.w.org/autodescription/assets/icon.svg?rev=3000376" width="50px" />
+					<h2 class="font-bold">The SEO Framework</h2>
+				</div>
+			</VCol>
+			<VCol cols="auto">
+				<VSwitch v-model="settings.modules" label="Enabled" value="seo-framework" />
+			</VCol>
+			<VCol>
+				<router-link :to="{ name: 'modules.seo-framework' }">
+					<VBtn v-tooltip="`More about this module`" :icon="mdiPageNextOutline" color="info" />
+				</router-link>
+			</VCol>
+		</VRow>
 		<VRow v-for="module in externalModules">
 			<VCol>
 				<VImg v-if="module.logo" :src="module.logo" max-width="275px" />

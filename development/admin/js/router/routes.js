@@ -1,5 +1,6 @@
 import AdvancedCustomFields from "../pages/modules/AdvancedCustomFields.vue";
 import ContactForm7 from "../pages/modules/ContactForm7.vue";
+import TheSeoFramework from "../pages/modules/TheSeoFramework.vue";
 import SettingsPage from "../pages/Settings.vue";
 
 export default [
@@ -26,5 +27,13 @@ export default [
 			title: "Modules: Contact Form 7",
 		},
 		name: "modules.cf7",
+	},
+	{
+		path: "/modules/seo-framework",
+		component: TheSeoFramework,
+		meta: {
+			title: "Modules: The SEO Framework",
+		},
+		name: "modules.seo-framework",
 	},
 ];

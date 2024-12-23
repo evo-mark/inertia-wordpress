@@ -181,3 +181,18 @@ jobs:
           draft: false
           prerelease: false
           files: inertia-wordpress.zip
+
+      - name: Commit to dist branch
+        run: |
+          git checkout --orphan dist
+          git rm -rf .
+          cp dist.gitignore .gitignore
+          git add .
+          git commit -m "Dist for ${{ needs.tag.outputs.new_tag }}"
+          git push --force origin dist
+
+      - name: Reapply Tag to Dist Branch
+        run: |
+          tag_name=${GITHUB_REF#refs/tags/}
+          git tag $tag_name
+          git push origin $tag_name

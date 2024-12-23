@@ -10,7 +10,7 @@
 
 # Inertia Wordpress Adapter
 
-> Note: This adapter is a work-in-progress and should not be used in essential services. There may be breaking changes between minor versions
+> Note: This adapter is in active development and should be used with caution. There may be breaking changes between minor versions
 
 <p align="center">
     <a href="https://github.com/evo-mark/inertia-wordpress/releases" style="display:block;height:75px">
@@ -21,13 +21,13 @@
 ---
 
 <p align="center">
-    <a href="https://vuejs.org/" target="_blank" title="Vue">
+    <a href="https://vuejs.org/" target="_blank" title="Vue" style="text-decoration: none">
         <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="height:100px">
     </a>
-    <a href="https://react.dev/"  target="_blank" title="React">
+    <a href="https://react.dev/"  target="_blank" title="React" style="text-decoration: none">
         <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" style="height:100px">
     </a>
-    <a href="https://svelte.dev/"  target="_blank" title="Svelte">
+    <a href="https://svelte.dev/"  target="_blank" title="Svelte" style="text-decoration: none">
         <img src="https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg" style="height:100px">
     </a>
 </p>
@@ -36,11 +36,39 @@
 
 Inertia is a new approach to building classic server-driven web apps. We call it the modern monolith.
 
-Inertia allows you to create fully client-side rendered, single-page apps, without the complexity that comes with modern SPAs. It does this by leveraging existing server-side patterns that you already love.
+Inertia allows you to create fully client-side rendered, single-page apps, without the complexity that comes with modern SPAs. Simply install this plugin, bootstrap your theme using our built-in command and away you go.
 
-This is an unofficial adapter for applications powered by Wordpress that allows you to create a reactive JavaScript frontend.
+This is an community Inertia adapter for applications powered by Wordpress.
 
 For more information on InertiaJS, visit the [Official Website](https://inertiajs.com/).
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Theme Structure](#theme-structure)
+  - [app.php](#appphp)
+  - [controllers](#controllers)
+  - [ecosystem.config.cjs](#ecosystemconfigcjs)
+  - [functions.php](#functionsphp)
+  - [index.php](#indexphp)
+  - [package.json](#packagejson)
+  - [resources](#resources)
+  - [rest-api](#rest-api)
+  - [style.css](#stylecss)
+  - [vite.config.js](#viteconfigjs)
+- [Development](#development)
+- [Production](#production)
+- [Server-Side Rendering](#server-side-rendering)
+- [WP-CLI Commands](#wp-cli-commands)
+- [Inertia Helpers](#inertia-helpers)
+  - [resolveInertiaPage](#resolveinertiapage)
+  - [Global Shared Props](#global-shared-props)
+- [Wordpress Settings](#wordpress-settings)
+- [Using Inertia in Wordpress](#using-inertia-in-wordpress)
+- [Modules](#modules)
+- [Custom Modules](#custom-modules)
 
 ## Installation
 
@@ -269,14 +297,6 @@ If you check your Inertia page props, you'll see a few provided objects pre-load
 
 You can find settings for this plugin in your Wordpress admin area in the `Settings > Inertia` submenu.
 
-## Modules
-
-Modules provide functionality that allow common plugins to interact with your Inertia-powered theme. We'll be adding more as time goes on, but for now we have:
-
-- Advanced Custom Fields
-
-You must enable each module in the Wordpress settings submenu mentioned above for its functionality to be activated.
-
 ## Using Inertia in Wordpress
 
 We've moved all of the functions you'll need to a single class. All functions are static, so the syntax should be the same as with Laravel.
@@ -331,6 +351,16 @@ Inertia::getArchive();
 // Get the current (or provided) Wordpress post
 Inertia::getPost(?\WP_Post $post = null, array $args = null);
 ```
+
+## Modules
+
+Modules provide functionality that allow common plugins to interact with your Inertia-powered theme. We'll be adding more as time goes on, but for now we have:
+
+- Advanced Custom Fields
+- Contact Form 7
+- The SEO Framework
+
+You must enable each module in the Wordpress settings submenu mentioned above for its functionality to be activated.
 
 ## Custom Modules
 

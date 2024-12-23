@@ -95,12 +95,6 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(rollup@4.29.1)(vite@6.0.3(jiti@1.21.6)(sass-embedded@1.83.0)(yaml@2.6.1))
 
-  resources/plugins:
-    dependencies:
-      vite:
-        specifier: ^6.0.3
-        version: 6.0.3(jiti@1.21.6)(sass-embedded@1.83.0)(yaml@2.6.1)
-
 packages:
 
   '@alloc/quick-lru@5.2.0':

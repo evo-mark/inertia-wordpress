@@ -8,6 +8,7 @@ use EvoMark\InertiaWordpress\Container;
 use EvoMark\InertiaWordpress\Helpers\HookActions;
 use EvoMark\InertiaWordpress\Modules\AdvancedCustomFields\Module as AdvancedCustomFieldsModule;
 use EvoMark\InertiaWordpress\Modules\ContactForm7\Module as ContactForm7Module;
+use EvoMark\InertiaWordpress\Modules\TheSeoFramework\Module as TheSeoFrameworkModule;
 
 
 class ModuleSetup
@@ -24,6 +25,7 @@ class ModuleSetup
 
         Inertia::addModule(AdvancedCustomFieldsModule::class);
         Inertia::addModule(ContactForm7Module::class);
+        Inertia::addModule(TheSeoFrameworkModule::class);
 
 
         /**
