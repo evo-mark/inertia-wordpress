@@ -1,3 +1,0 @@
-- **Feature**: New module for The SEO Framework
-- **Improvement**: (internal) Build to dist branch to allow Packagist release
-- **Improvement**: Full table-of-contents added to readme
