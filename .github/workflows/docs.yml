@@ -41,5 +41,5 @@ jobs:
           USER: ${{secrets.DEPLOY_DOCS_SSH_USER}}
           KEY: ${{secrets.DEPLOY_DOCS_SSH_KEY}}
           SOURCE: ./docs/.vitepress/dist
-          TARGET: /public_html/
+          TARGET: ${{secrets.DEPLOY_DOCS_SSH_TARGET}}
           SSH_ARGS: -p ${{secrets.DEPLOY_DOCS_SSH_PORT}} -o StrictHostKeyChecking=no
