@@ -1,0 +1,35 @@
+name: documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # Perform a Dry Run on the tag action and get the proposed version
+  build_documentation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+      - run: pnpm -r install
+
+      - name: Build documentation
+        run: npm run docs:build
+
+      - name: Deploy documentation
+        uses: up9cloud/action-rsync@v1
+        env:
+          HOST: ${{secrets.DEPLOY_DOCS_SSH_HOST}}
+          PORT: ${{secrets.DEPLOY_DOCS_SSH_PORT}}
+          USER: ${{secrets.DEPLOY_DOCS_SSH_USER}}
+          KEY: ${{secrets.DEPLOY_DOCS_SSH_KEY}}
+          SOURCE: ./docs/.vitepress/dist
+          TARGET: /public_html/
+          SSH_ARGS: -o StrictHostKeyChecking=no

@@ -309,7 +309,7 @@ If you check your Inertia page props, you'll see a few provided objects pre-load
 Inertia Wordpress allows you to use Wordpress' built-in [Templates](https://developer.wordpress.org/themes/templates/templates/) functionality to create sub-layouts for your pages. Here's how to set them up:
 
 1. Create a new folder for your templates, such as `resources/js/templates`
-2. If you use something different, make sure you change the setting in your [Wordpress setting menu](#wordpress-settings)
+2. If you use something different, make sure you change the setting in your [Wordpress settings menu](#wordpress-settings)
 3. Create your templates, making sure you follow [your framework's instructions](https://inertiajs.com/pages#creating-layouts) on layouts
 4. Wordpress will now read your templates folder and make them available as templates in the admin block editor
 5. Pass your templates directory as an import glob to `resolveInertiaPage` in your `app.js` and `ssr.js` files
