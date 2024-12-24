@@ -13,7 +13,7 @@ class Module extends BaseModule
     protected array|string $entry = [
         'advanced-custom-fields-pro/acf.php',
         'acf-pro/acf.php',
-        'advanced-custom-fields/acf.php'
+        'advanced-custom-fields/acf.php',
     ];
     protected bool $isInternal = true;
 

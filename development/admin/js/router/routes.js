@@ -1,6 +1,7 @@
 import AdvancedCustomFields from "../pages/modules/AdvancedCustomFields.vue";
 import ContactForm7 from "../pages/modules/ContactForm7.vue";
 import TheSeoFramework from "../pages/modules/TheSeoFramework.vue";
+import WooCommerce from "../pages/modules/WooCommerce.vue";
 import SettingsPage from "../pages/Settings.vue";
 
 export default [
@@ -35,5 +36,13 @@ export default [
 			title: "Modules: The SEO Framework",
 		},
 		name: "modules.seo-framework",
+	},
+	{
+		path: "/modules/woocommerce",
+		component: WooCommerce,
+		meta: {
+			title: "Modules: WooCommerce",
+		},
+		name: "modules.woocommerce",
 	},
 ];

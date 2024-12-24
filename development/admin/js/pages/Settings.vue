@@ -48,6 +48,12 @@
 	>
 		<VTextField v-model="settings.entry_file" label="Theme Entry File" />
 	</EvoSetting>
+	<EvoSetting
+		title="Templates Folder"
+		description="Choose a location for files that should be made available as page/post templates in Wordpress. When selected, a template will be automatically loaded by the `resolveInertiaPage` helper"
+	>
+		<VTextField v-model="settings.templates_directory" label="Templates Folder" />
+	</EvoSetting>
 	<VBanner :icon="mdiConnection" v-bind="bannerBind">
 		<VBannerText>Modules</VBannerText>
 	</VBanner>
@@ -100,6 +106,20 @@
 				</router-link>
 			</VCol>
 		</VRow>
+		<VRow>
+			<VCol>
+				<WooCommerceLogo class="h-12" />
+			</VCol>
+			<VCol cols="auto">
+				<span class="italic">Coming Soon</span>
+				<!-- <VSwitch v-model="settings.modules" label="Enabled" value="woocommerce" /> -->
+			</VCol>
+			<VCol>
+				<!-- <router-link :to="{ name: 'modules.woocommerce' }">
+					<VBtn v-tooltip="`More about this module`" :icon="mdiPageNextOutline" color="info" />
+				</router-link> -->
+			</VCol>
+		</VRow>
 		<VRow v-for="module in externalModules">
 			<VCol>
 				<VImg v-if="module.logo" :src="module.logo" max-width="275px" />
@@ -119,6 +139,7 @@ import { useSettings } from "composables/useSettings";
 import { useApi } from "composables/useApi";
 import EvoSetting from "components/Setting.vue";
 import AcfLogo from "components/AcfLogo.vue";
+import WooCommerceLogo from "components/WooCommerceLogo.vue";
 
 const api = useApi();
 const { settings } = useSettings([
@@ -129,6 +150,7 @@ const { settings } = useSettings([
 	"modules",
 	"entry_namespace",
 	"entry_file",
+	"templates_directory",
 ]);
 
 const bannerBind = {

@@ -9,7 +9,7 @@ use EvoMark\InertiaWordpress\Helpers\HookActions;
 use EvoMark\InertiaWordpress\Modules\AdvancedCustomFields\Module as AdvancedCustomFieldsModule;
 use EvoMark\InertiaWordpress\Modules\ContactForm7\Module as ContactForm7Module;
 use EvoMark\InertiaWordpress\Modules\TheSeoFramework\Module as TheSeoFrameworkModule;
-
+use EvoMark\InertiaWordpress\Modules\WooCommerce\Module as WooCommerceModule;
 
 class ModuleSetup
 {
@@ -26,6 +26,7 @@ class ModuleSetup
         Inertia::addModule(AdvancedCustomFieldsModule::class);
         Inertia::addModule(ContactForm7Module::class);
         Inertia::addModule(TheSeoFrameworkModule::class);
+        // Inertia::addModule(WooCommerceModule::class);
 
 
         /**
@@ -96,7 +97,9 @@ class ModuleSetup
     public static function bootModules()
     {
         foreach (self::$registeredModules as $module) {
-            if ($module->isEnabled()) $module->boot();
+            if ($module->isEnabled()) {
+                $module->boot();
+            }
         }
     }
 }

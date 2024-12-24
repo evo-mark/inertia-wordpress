@@ -153,7 +153,7 @@ class RequestHandler
                 'url' => $this->url,
                 'props' => $this->resolveProperties(),
                 'version' => $this->version,
-                'component' => $this->component,
+                'component' => $this->component . Wordpress::getTemplate(),
                 'clearHistory' => $this->clearHistory,
                 'encryptHistory' => $this->encryptHistory,
             ],
@@ -250,7 +250,7 @@ class RequestHandler
                 DeferProp::class,
                 AlwaysProp::class,
                 MergeProp::class,
-            ])->first(fn($class) => $value instanceof $class);
+            ])->first(fn ($class) => $value instanceof $class);
 
             if ($resolveUserFunction) {
                 $value = call_user_func($value);
@@ -388,13 +388,17 @@ class RequestHandler
         $this->share('flash', Inertia::always(RequestResponse::getFlashData('flash', (object)[])));
         $this->share('wp', [
             'name' => get_bloginfo('name'),
-            'adminBar' => $this->isInertia() ? fn() => Wordpress::getAdminBar() : null,
+            'adminBar' => $this->isInertia() ? fn () => Wordpress::getAdminBar() : null,
             'restUrl' => get_rest_url(),
             'user' => is_user_logged_in() ? UserResource::single(wp_get_current_user()) : null,
             'userCapabilities' => is_user_logged_in() ? Wordpress::getUserCapabilities(wp_get_current_user()) : null,
             'logo' => Wordpress::getCustomLogo(),
             'homeUrl' => home_url(),
             'menus' => Wordpress::getNavigationMenus(),
+            'nonces' => [
+                'nonce'         => wp_create_nonce('wp_rest'),
+                'ajax_nonce'    => wp_create_nonce('ajax_nonce'),
+            ],
         ]);
 
         /**

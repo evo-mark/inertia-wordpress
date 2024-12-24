@@ -112,6 +112,10 @@ jobs:
       - tag
       - version
     if: needs.tag.outputs.bump != '' && needs.tag.outputs.bump != 'none'
+    env:
+      PHP_VERSION: "8.3"
+      PHP_EXTENSIONS: dom, curl, libxml, mbstring, zip
+      PHP_CACHE_KEY: extension-cache-v1
     steps:
       - uses: actions/checkout@v4
         with:
@@ -126,23 +130,41 @@ jobs:
         with:
           version: 9
 
+      - name: Setup cache environment
+        id: extcache
+        uses: shivammathur/cache-extensions@v1
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          key: ${{ env.PHP_CACHE_KEY }}
+
+      - name: Cache PHP extensions
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.extcache.outputs.dir }}
+          key: ${{ steps.extcache.outputs.key }}
+          restore-keys: ${{ steps.extcache.outputs.key }}
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.3
-          extensions: dom, curl, libxml, mbstring, zip
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: none
 
+      - name: Get Composer cache dir
+        id: composer-cache-dir
+        run: echo dir=$(composer config cache-files-dir) >> $GITHUB_OUTPUT
+
       - name: Cache composer vendor files
         id: cache-composer
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-composer
+        uses: actions/cache@v4.0.2
         with:
-          path: /vendor
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
+          key: composer-cache-${{ hashFiles('**/composer.lock') }}
+          path: ${{ steps.composer-cache-dir.outputs.dir }}
+          restore-keys: composer-cache-
 
       - name: Install dependencies
         uses: nick-fields/retry@v3

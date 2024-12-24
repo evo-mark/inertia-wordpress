@@ -23,6 +23,8 @@ class Plugin
     public function __construct()
     {
         add_action('init', [$this, 'init']);
+        add_action('admin_init', [$this, 'adminInit']);
+        add_action('rest_api_init', [$this, 'restApiInit']);
     }
 
     /**
@@ -57,6 +59,22 @@ class Plugin
         $this->registerRestErrorHandler();
         ThemeSetup::init();
         ModuleSetup::init();
+    }
+
+    /**
+     * @hook admin_init
+     */
+    public function adminInit()
+    {
+        $this->registerThemeTemplateFilters();
+    }
+
+    /**
+     * @hook rest_api_init
+     */
+    public function restApiInit()
+    {
+        $this->registerThemeTemplateFilters();
     }
 
     private function registerCommands()
@@ -116,6 +134,12 @@ class Plugin
             'default' => [],
             'label' => 'Inertia modules that are enabled',
         ]);
+
+        register_setting('inertia', 'inertia_templates_directory', [
+            'type' => 'string',
+            'default' => 'resources/js/templates',
+            'label' => 'Theme templates directory',
+        ]);
     }
 
     /**
@@ -160,5 +184,45 @@ class Plugin
         }
 
         return $response;
+    }
+
+    public function registerThemeTemplateFilters()
+    {
+        $postTypes = [...array_values(get_post_types([
+            'public' => true,
+            '_builtin' => false,
+        ])), 'post', 'page'];
+        foreach ($postTypes as $type) {
+            add_filter('theme_' . $type . '_templates', [$this, 'registerLayoutsAsTemplates'], 11, 3);
+        }
+
+        add_filter('default_page_template_title', function () {
+            return __('Inherit Page Template', 'inertia-wordpress');
+        });
+    }
+
+    public function registerLayoutsAsTemplates($pageTemplates, $theme, $post)
+    {
+        $templatesDirectory = Settings::get('templates_directory');
+        if (substr($templatesDirectory, 0, 1) !== '/') {
+            $templatesDirectory = '/' . $templatesDirectory;
+        }
+        $templatesDirectory = get_stylesheet_directory() . $templatesDirectory;
+
+        if (! file_exists($templatesDirectory)) {
+            return $pageTemplates;
+        }
+
+        $layouts = opendir($templatesDirectory);
+        while (($entry = readdir($layouts)) !== false) {
+            if (!preg_match("/^\./", $entry)) {
+                $filename = $entry;
+                $label = pathinfo($filename)['filename'];
+                $pageTemplates[$filename] = ucwords($label);
+            }
+        }
+        closedir($layouts);
+
+        return $pageTemplates;
     }
 }

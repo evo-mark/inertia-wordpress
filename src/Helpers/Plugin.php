@@ -27,4 +27,20 @@ class Plugin
             $container->set('env.version', $pluginData['Version'] ?? "dev");
         }, 1);
     }
+
+    public static function registerNewModule(string $module): void
+    {
+        $container = Container::getInstance();
+
+        if ($container->has('modules') === false) {
+            throw new \Exception("Unable to register Inertia Wordpress module");
+        }
+
+        /** @var Collection $modules */
+        $modules = $container->get('modules');
+
+        $modules->push($module);
+
+        $container->set('modules', $modules);
+    }
 }

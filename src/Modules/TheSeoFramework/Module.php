@@ -14,7 +14,7 @@ class Module extends BaseModule
     protected string $class = "The_SEO_Framework\Load";
     protected string $slug = "seo-framework";
     protected array|string $entry = [
-        'autodescription/autodescription.php'
+        'autodescription/autodescription.php',
     ];
     protected bool $isInternal = true;
 
@@ -45,7 +45,7 @@ class Module extends BaseModule
             'title' => html_entity_decode(Title::get_title()),
             'links' => $this->parseLinks($dom->getElementsByTagName('link')),
             'meta' => $this->parseMeta($dom->getElementsByTagName('meta')),
-            'schema' => $this->parseSchema($dom->getElementsByTagName('script'))
+            'schema' => $this->parseSchema($dom->getElementsByTagName('script')),
         ];
 
         Inertia::share('seo', $seo);

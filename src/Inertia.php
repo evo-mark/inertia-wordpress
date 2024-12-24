@@ -2,9 +2,9 @@
 
 namespace EvoMark\InertiaWordpress;
 
-use Illuminate\Support\Collection;
 use EvoMark\InertiaWordpress\Data\Archive;
 use EvoMark\InertiaWordpress\Helpers\Header;
+use EvoMark\InertiaWordpress\Helpers\Plugin;
 use EvoMark\InertiaWordpress\Props\LazyProp;
 use EvoMark\InertiaWordpress\Props\DeferProp;
 use EvoMark\InertiaWordpress\Props\MergeProp;
@@ -122,7 +122,7 @@ class Inertia
     {
         $data = RequestResponse::getFlashData('flash', []);
         $data = array_merge($data, [
-            $key => $value
+            $key => $value,
         ]);
         RequestResponse::setFlashData('flash', $data);
     }
@@ -161,21 +161,16 @@ class Inertia
     {
         if (!class_exists($module)) {
             throw new \Exception("Unable to find class definition for " . $module);
-        } else if (is_subclass_of($module, BaseModule::class) === false) {
+        } elseif (is_subclass_of($module, BaseModule::class) === false) {
             throw new \Exception($module . " must extend the " . BaseModule::class . " class");
         }
 
-        $container = Container::getInstance();
-
-        if ($container->has('modules') === false) {
-            throw new \Exception("Inertia::addModule() was called too early. Please use the `inertia_wordpress_modules` action hook.");
+        if (!did_action('inertia_wordpress_modules')) {
+            add_action('inertia_wordpress_modules', function () use ($module) {
+                Plugin::registerNewModule($module);
+            });
+        } else {
+            Plugin::registerNewModule($module);
         }
-
-        /** @var Collection $modules */
-        $modules = $container->get('modules');
-
-        $modules->push($module);
-
-        $container->set('modules', $modules);
     }
 }

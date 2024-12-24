@@ -3,7 +3,6 @@
 namespace EvoMark\InertiaWordpress\RestApi;
 
 use EvoMark\InertiaWordpress\Container;
-use EvoMark\InertiaWordpress\Helpers\Settings;
 use WP_REST_Request;
 use EvoWpRestRegistration\BaseRestController;
 use Illuminate\Support\Arr;

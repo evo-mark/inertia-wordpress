@@ -29,7 +29,7 @@ abstract class BaseModule
 
     public static function create()
     {
-        return new static;
+        return new static();
     }
 
     /**
@@ -37,7 +37,9 @@ abstract class BaseModule
      * You should only use this to register essential side-effects using
      * Wordpress hooks.
      */
-    public function register() {}
+    public function register()
+    {
+    }
 
 
     /**
@@ -64,7 +66,7 @@ abstract class BaseModule
             'slug' => $this->slug,
             'class' => $this->class,
             'entry' => $this->entry,
-            'isInternal' => $this->isInternal
+            'isInternal' => $this->isInternal,
         ];
     }
 }

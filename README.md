@@ -42,6 +42,13 @@ This is an community Inertia adapter for applications powered by Wordpress.
 
 For more information on InertiaJS, visit the [Official Website](https://inertiajs.com/).
 
+## Sponsoring
+
+We're providing this community adapter free-of-charge without any paywalled features. However, all development and maintenance costs time, energy and money. So please help fund this project if you can.
+
+[GitHub Sponsors](https://github.com/sponsors/craigrileyuk)
+[Buy Me a Coffee](https://buymeacoffee.com/craigrileyuk)
+
 ## Table of Contents
 
 - [Installation](#installation)
@@ -65,6 +72,7 @@ For more information on InertiaJS, visit the [Official Website](https://inertiaj
 - [Inertia Helpers](#inertia-helpers)
   - [resolveInertiaPage](#resolveinertiapage)
   - [Global Shared Props](#global-shared-props)
+- [Using Templates](#using-templates)
 - [Wordpress Settings](#wordpress-settings)
 - [Using Inertia in Wordpress](#using-inertia-in-wordpress)
 - [Modules](#modules)
@@ -235,12 +243,12 @@ wp inertia:stop-ssr
 
 ### resolveInertiaPage
 
-While not required to use, the plugin provides a helper for resolving your InertiaJS pages.
+While not required, this helper aids in resolving your InertiaJS pages and performs the logic necessary to resolve templates (if you're using them).
 
 ```js
 createInertiaApp({
   resolve: resolveInertiaPage(
-    import.meta.glob("./pages/**/*.vue", { eager: false })
+    import.meta.glob("./pages/**/*.vue", { eager: false }),
   ),
   // ...
 });
@@ -259,7 +267,7 @@ resolve: resolveInertiaPage(
 ),
 ```
 
-A third argument can be an optional callback that receives the page name and page object and should return a valid Layout.
+A third argument can be an object containing an optional callback that receives the page name and page object and should return a valid Layout.
 
 ```js
 import Layout1 from './Layout';
@@ -269,13 +277,16 @@ import Layout2 from './Layout2';
 resolve: resolveInertiaPage(
     import.meta.glob("./pages/**/*.vue", { eager: false }),
     null, // Notice that the 2nd argument is null
-    /**
-     * @param { string } name The page name that is being loaded
-     * @param { VNode } resolvedPage The resolved page vNode
-     */
-    (name, resolvedPage) => {
-        if (name.startsWith('account')) return Layout2;
-        else return Layout;
+    { // Notice that this 3rd argument is an object
+        /**
+         * @param { string } name The page name that is being loaded
+         * @param { VNode } resolvedPage The resolved page vNode
+         * @param { ?VNode } resolvedTemplate If the post is assigned a template, the resolved vNode
+         */
+        layoutCallback:  (name, resolvedPage, resolvedTemplate) => {
+            if (name.startsWith('account')) return Layout2;
+            else return Layout;
+        }
     }
 ),
 ```
@@ -292,6 +303,30 @@ If you check your Inertia page props, you'll see a few provided objects pre-load
 - **$page.props.wp.logo**: An image resource containing your site logo as set in Wordpress' Appearance->Customise menu
 - **$page.props.wp.menus**: A nested object containing your registered menus, keyed by location
 - **$page.props.wp.adminBar**: An array of changed HTML elements that can be updated in your admin bar
+
+## Using Templates
+
+Inertia Wordpress allows you to use Wordpress' built-in [Templates](https://developer.wordpress.org/themes/templates/templates/) functionality to create sub-layouts for your pages. Here's how to set them up:
+
+1. Create a new folder for your templates, such as `resources/js/templates`
+2. If you use something different, make sure you change the setting in your [Wordpress setting menu](#wordpress-settings)
+3. Create your templates, making sure you follow [your framework's instructions](https://inertiajs.com/pages#creating-layouts) on layouts
+4. Wordpress will now read your templates folder and make them available as templates in the admin block editor
+5. Pass your templates directory as an import glob to `resolveInertiaPage` in your `app.js` and `ssr.js` files
+
+```js
+resolve: resolveInertiaPage(
+    import.meta.glob("./pages/**/*.vue"),
+    DefaultLayout,
+    { // Notice that this 3rd argument is an object
+        templates: import.meta.glob("./templates/**/*.vue")
+    }
+),
+```
+
+And done!
+
+The `resolveInertiaPage` helper function will also handle situations where you already have a default layout, automatically setting it as a sub-layout of that one.
 
 ## Wordpress Settings
 

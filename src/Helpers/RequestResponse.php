@@ -29,7 +29,7 @@ class RequestResponse
                 'path' => COOKIEPATH,
                 'domain' => COOKIE_DOMAIN,
                 'httponly' => true,
-                'samesite' => 'Strict'
+                'samesite' => 'Strict',
             ]);
             return $tempId;
         }

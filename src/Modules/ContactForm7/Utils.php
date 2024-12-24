@@ -2,8 +2,6 @@
 
 namespace EvoMark\InertiaWordpress\Modules\ContactForm7;
 
-use EvoMark\InertiaWordpress\Helpers\Wordpress;
-
 class Utils
 {
     public static function getForms(): array
@@ -24,9 +22,9 @@ class Utils
     {
         $key = self::getRecaptchaSiteKey();
         return $key ? add_query_arg(
-            array(
+            [
                 'render' => self::getRecaptchaSiteKey(),
-            ),
+            ],
             'https://www.google.com/recaptcha/api.js'
         ) : false;
     }
@@ -46,7 +44,7 @@ class Utils
                 'locale' => $form->locale(),
                 'fields' => self::formatFormFields($form),
                 'messages' => $properties['messages'],
-                'additionalSettings' => $properties['additional_settings']
+                'additionalSettings' => $properties['additional_settings'],
             ];
         }
         return $forms;

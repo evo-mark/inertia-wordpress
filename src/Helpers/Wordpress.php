@@ -9,7 +9,6 @@ use EvoMark\InertiaWordpress\Resources\PostSimpleResource;
 use EvoMark\InertiaWordpress\Resources\ArchivePaginationResource;
 use EvoMark\InertiaWordpress\Resources\MenuItemResource;
 use stdClass;
-use WP_REST_Server;
 
 class Wordpress
 {
@@ -224,5 +223,24 @@ class Wordpress
             }
         }
         return $list;
+    }
+
+    public static function getTemplate(): string
+    {
+        $id = get_the_ID();
+        $template = get_page_template_slug($id);
+        if (empty($template)) {
+            return "";
+        }
+
+        /**
+         * Selected page template before it's appended to the page
+         *
+         * @since 0.6.0
+         *
+         * @param string $template The template slug
+         * @param int $id The current page ID
+         */
+        return "?template=" . base64_encode(apply_filters(HookFilters::PAGE_TEMPLATE, $template, $id));
     }
 }

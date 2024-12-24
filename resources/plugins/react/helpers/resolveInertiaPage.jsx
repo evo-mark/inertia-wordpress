@@ -1,26 +1,51 @@
-export const resolveInertiaPage = (
-  glob,
-  Layout = null,
-  layoutCallback = null
-) => {
-  return async function (name) {
-    let resolvedPage = glob[`./pages/${name}.jsx`];
-    if (!resolvedPage) {
-      console.error(`[Inertia] Couldn't find page matching "${name}"`);
-      return null;
-    }
+import { resolvePageTemplate } from "../../shared/resolvePageTemplate";
 
-    if (typeof resolvedPage === "function") {
-      resolvedPage = await resolvedPage();
-    }
+export const resolveInertiaPage = (glob, Layout = null, args = {}) => {
+	if (typeof args === "function") {
+		console.error(
+			"Third argument to resolveInertiaPage must now be an object. Check documentation for full details",
+		);
+		return;
+	}
 
-    if (layoutCallback) {
-      resolvedPage.default.layout = layoutCallback(name, resolvedPage);
-    } else if (Layout) {
-      resolvedPage.default.layout =
-        resolvedPage.default.layout || ((page) => <Layout children={page} />);
-    }
+	const { layoutCallback, templates } = args;
+	const templateMap = new WeakMap();
 
-    return resolvedPage;
-  };
+	return async function (name) {
+		const [resolvedName, query] = name.split("?");
+		const ResolvedTemplate = await resolvePageTemplate(templates, query, null);
+
+		let resolvedPage = glob[`./pages/${resolvedName}.jsx`];
+		if (!resolvedPage) {
+			console.error(`[Inertia] Couldn't find page matching "${resolvedName}"`);
+			return null;
+		}
+
+		if (typeof resolvedPage === "function") {
+			resolvedPage = await resolvedPage();
+		}
+
+		if (layoutCallback) {
+			resolvedPage.default.layout = layoutCallback(resolvedName, resolvedPage, resolvedTemplate);
+		} else {
+			let ResolvedLayout =
+				resolvedPage.default.layout || ((page) => <Layout children={page?.children ?? page} />);
+
+			if (ResolvedTemplate && !templateMap.get(ResolvedLayout)) {
+				const OriginalLayout = ResolvedLayout;
+
+				ResolvedLayout = (page) => {
+					return (
+						<OriginalLayout>
+							<ResolvedTemplate children={page} />
+						</OriginalLayout>
+					);
+				};
+				templateMap.set(ResolvedLayout, true);
+			}
+			resolvedPage.default.layout = ResolvedLayout;
+		}
+
+		return resolvedPage;
+	};
 };

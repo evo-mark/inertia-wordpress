@@ -12,7 +12,7 @@ class FormFieldResource implements InertiaResource
         if (empty($formFields) || !$formFields) {
             return [];
         } else {
-            return array_map(fn($m) => self::single($m), $formFields);
+            return array_map(fn ($m) => self::single($m), $formFields);
         }
     }
 
@@ -30,7 +30,7 @@ class FormFieldResource implements InertiaResource
             'content' => $formField->content,
             'options' => $formField->options,
             'values' => $formField->values,
-            'attr' => $formField->attr
+            'attr' => $formField->attr,
         ];
     }
 }

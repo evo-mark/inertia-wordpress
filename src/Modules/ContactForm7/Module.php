@@ -5,7 +5,6 @@ namespace EvoMark\InertiaWordpress\Modules\ContactForm7;
 use EvoMark\InertiaWordpress\Inertia;
 use EvoMark\InertiaWordpress\Helpers\Header;
 use EvoMark\InertiaWordpress\Data\MessageBag;
-use EvoMark\InertiaWordpress\Helpers\Wordpress;
 use EvoMark\InertiaWordpress\Modules\BaseModule;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Helpers\Settings;
@@ -45,18 +44,20 @@ class Module extends BaseModule
             }, 100);
         }
 
-        Inertia::share('cf7', fn() => [
+        Inertia::share('cf7', fn () => [
             'forms' => Utils::getForms(),
             'recaptchaSiteKey' => Utils::getRecaptchaSiteKey(),
             'recaptchaUrl' => Utils::getRecaptchaUrl(),
-            'restUrl' => get_rest_url(null, '/contact-form-7/v1/')
+            'restUrl' => get_rest_url(null, '/contact-form-7/v1/'),
         ]);
     }
 
     public function handleFeedbackResponse($response, $result)
     {
         $request = inertia_request();
-        if ($request->isInertia() === false) return $response;
+        if ($request->isInertia() === false) {
+            return $response;
+        }
 
         $isFailed = $response['status'] === "validation_failed";
         $isSpam = $response['status'] === "spam";
@@ -68,7 +69,7 @@ class Module extends BaseModule
                     return [$field['field'] => [$field['message']]];
                 })),
             ]);
-        } else if ($isSpam) {
+        } elseif ($isSpam) {
             $bag = $request->getHeader(Header::ERROR_BAG) ?? "default";
             RequestResponse::setFlashData('errors', [
                 $bag => new MessageBag(['recaptcha' => [$response['message']]]),
