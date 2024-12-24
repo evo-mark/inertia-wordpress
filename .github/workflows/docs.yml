@@ -38,9 +38,8 @@ jobs:
         uses: up9cloud/action-rsync@v1
         env:
           HOST: ${{secrets.DEPLOY_DOCS_SSH_HOST}}
-          PORT: ${{secrets.DEPLOY_DOCS_SSH_PORT}}
           USER: ${{secrets.DEPLOY_DOCS_SSH_USER}}
           KEY: ${{secrets.DEPLOY_DOCS_SSH_KEY}}
           SOURCE: ./docs/.vitepress/dist
           TARGET: /public_html/
-          SSH_ARGS: -o StrictHostKeyChecking=no
+          SSH_ARGS: -p ${{secrets.DEPLOY_DOCS_SSH_PORT}} -o StrictHostKeyChecking=no
