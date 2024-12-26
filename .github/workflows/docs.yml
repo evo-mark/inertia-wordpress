@@ -1,14 +1,15 @@
 name: documentation
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: [tag-release]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
-  # Perform a Dry Run on the tag action and get the proposed version
   build_documentation:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,6 +20,7 @@ jobs:
             package.json
             pnpm-lock.yaml
             docs
+            changelog
 
       - uses: pnpm/action-setup@v2
         with:
@@ -40,6 +42,6 @@ jobs:
           HOST: ${{secrets.DEPLOY_DOCS_SSH_HOST}}
           USER: ${{secrets.DEPLOY_DOCS_SSH_USER}}
           KEY: ${{secrets.DEPLOY_DOCS_SSH_KEY}}
-          SOURCE: ./docs/.vitepress/dist
+          SOURCE: ./docs/.vitepress/dist/
           TARGET: ${{secrets.DEPLOY_DOCS_SSH_TARGET}}
           SSH_ARGS: -p ${{secrets.DEPLOY_DOCS_SSH_PORT}} -o StrictHostKeyChecking=no

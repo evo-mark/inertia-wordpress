@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /get-started
+      link: /getting-started/introduction
     - theme: alt
-      text: evoMark's website
-      link: https://evomark.co.uk
+      text: Sponsor This Project
+      link: https://github.com/sponsors/craigrileyuk
 
 features:
   - title: Inertia v2

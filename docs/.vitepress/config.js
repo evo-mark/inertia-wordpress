@@ -1,41 +1,32 @@
 import { defineConfig } from "vitepress";
+import { socialLinks } from "./helpers/socialLinks";
+import { generateChangelogMenu } from "./helpers/generateChangelogMenu";
+import { sidebar } from "./helpers/sidebar";
+import { copyChangelogs } from "./helpers/copyChangelogs";
+
+copyChangelogs();
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Inertia Wordpress",
+  titleTemplate: ":title | Inertia Wordpress",
   description: "A community Wordpress adapter for InertiaJS",
+  head: [["link", { rel: "icon", href: "/favicon-dark.png" }]],
   themeConfig: {
-    logo: "logo.svg",
+    logo: {
+      light: "/logo-light.svg",
+      dark: "/logo-dark.svg",
+    },
     // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: "Home", link: "/" },
-      {
-        text: 123,
-        items: [
-          {
-            text: "Changelog",
-            link: "https://github.com/vuejs/vitepress/blob/main/CHANGELOG.md",
-          },
-          {
-            text: "Contributing",
-            link: "https://github.com/vuejs/vitepress/blob/main/.github/contributing.md",
-          },
-        ],
-      },
-    ],
+    nav: [{ text: "Home", link: "/" }, generateChangelogMenu()],
 
-    sidebar: [
-      {
-        text: "Examples",
-        items: [
-          { text: "Get Started", link: "/get-started" },
-          { text: "Runtime API Examples", link: "/api-examples" },
-        ],
-      },
-    ],
+    sidebar,
 
-    socialLinks: [
-      { icon: "github", link: "https://github.com/evo-mark/inertia-wordpress" },
-    ],
+    socialLinks,
+
+    footer: {
+      message: "Released under the Apache2 License.",
+      copyright: "Copyright © 2024 Evo Mark Ltd",
+    },
   },
 });

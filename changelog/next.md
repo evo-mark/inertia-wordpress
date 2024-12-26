@@ -1,0 +1,4 @@
+- **Feature**: Added `Inertia::redirect(string $url)` function
+- **Feature**: Added links to support the open-source project
+- **Improvement**: Moved documentation to dedicated website
+- **Improvement**: New NPM scripts added to bootstrapped `package.json` files for `npm run ssr:stop` and `npm run ssr:restart`.

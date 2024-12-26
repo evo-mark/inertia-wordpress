@@ -11,8 +11,13 @@ class RequestResponse
 
     public static function back($status = 302)
     {
-        if (wp_get_referer()) {
-            wp_safe_redirect(wp_get_referer(), $status, "Inertia");
+        self::redirect(wp_get_referer(), $status);
+    }
+
+    public static function redirect(string $url, ?int $status = 302)
+    {
+        if ($url) {
+            wp_safe_redirect($url, $status, "Inertia");
             exit;
         } else {
             wp_safe_redirect(home_url(), $status, "Inertia");

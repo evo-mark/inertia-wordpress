@@ -3,3 +3,4 @@ vendor
 build
 docs/.vitepress/dist
 docs/.vitepress/cache
+docs/changelogs

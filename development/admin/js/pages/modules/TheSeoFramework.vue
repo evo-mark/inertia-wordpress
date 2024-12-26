@@ -30,38 +30,14 @@
 						<li>Redirects the tags to <code>$page.props.seo</code></li>
 						<li>Helper components for all frameworks</li>
 					</ul>
+					<h2 class="text-xl mt-0">Settings</h2>
+					<VEmptyState :icon="mdiCogOffOutline" text="There are no settings available for this module" />
 				</div>
 			</VCol>
 			<VCol>
-				<div class="prose">
-					<h2 class="text-xl mt-0 mb-4">Example</h2>
-					<p class="mb-2">
-						Since all of the SEO props are managed through your page props, you will likely only need to use
-						the component in a single place. Your default layout is an excellent location for this.
-					</p>
-				</div>
-				<v-card>
-					<v-tabs v-model="exampleTab" class="bg-teal-500 text-white">
-						<v-tab value="vue">Vue</v-tab>
-						<v-tab value="react">React</v-tab>
-						<v-tab value="svelte">Svelte</v-tab>
-					</v-tabs>
-
-					<v-card-text>
-						<v-tabs-window v-model="exampleTab">
-							<v-tabs-window-item value="vue">
-								<Code :code="seoFrameworkExampleVue" language="vue" />
-							</v-tabs-window-item>
-							<v-tabs-window-item value="react">
-								<Code :code="seoFrameworkExampleReact" language="jsx" />
-							</v-tabs-window-item>
-
-							<v-tabs-window-item value="svelte">
-								<Code :code="seoFrameworkExampleSvelte" language="html" />
-							</v-tabs-window-item>
-						</v-tabs-window>
-					</v-card-text>
-				</v-card>
+				<DocumentationLink href="https://inertia-wordpress.evomark.co.uk/modules/the-seo-framework">
+					The SEO Framework
+				</DocumentationLink>
 			</VCol>
 		</VRow>
 	</main>
@@ -76,11 +52,9 @@ import { useSettings } from "composables/useSettings";
 import ModuleStatus from "components/ModuleStatus.vue";
 import ModuleExternalLink from "components/ModuleExternalLink.vue";
 import BackToSettingsLink from "components/BackToSettingsLink.vue";
-import { seoFrameworkExampleVue, seoFrameworkExampleReact, seoFrameworkExampleSvelte } from "../../code/seoFramework";
-import Code from "components/Code.vue";
+import { mdiCogOffOutline } from "@mdi/js";
+import DocumentationLink from "components/DocumentationLink.vue";
 
 const { settings } = useSettings(["modules"]);
 const isEnabled = computed(() => settings.value?.modules && settings.value.modules.includes("cf7"));
-
-const exampleTab = ref("vue");
 </script>

@@ -41,31 +41,9 @@
 					</EvoSetting>
 				</VCol>
 				<VCol>
-					<div class="prose">
-						<h2 class="text-xl mt-0 mb-4">Example</h2>
-					</div>
-					<v-card>
-						<v-tabs v-model="exampleTab" class="bg-teal-500 text-white">
-							<v-tab value="vue">Vue</v-tab>
-							<v-tab value="react">React</v-tab>
-							<v-tab value="svelte">Svelte</v-tab>
-						</v-tabs>
-
-						<v-card-text>
-							<v-tabs-window v-model="exampleTab">
-								<v-tabs-window-item value="vue">
-									<Code :code="contactForm7TemplateVue" language="vue" />
-								</v-tabs-window-item>
-								<v-tabs-window-item value="react">
-									<Code :code="contactForm7TemplateReact" language="jsx" />
-								</v-tabs-window-item>
-
-								<v-tabs-window-item value="svelte">
-									<Code :code="contactForm7TemplateSvelte" language="html" />
-								</v-tabs-window-item>
-							</v-tabs-window>
-						</v-card-text>
-					</v-card>
+					<DocumentationLink href="https://inertia-wordpress.evomark.co.uk/modules/contact-form-7">
+						Contact Form 7
+					</DocumentationLink>
 				</VCol>
 			</VRow>
 		</main>
@@ -76,21 +54,14 @@
 </template>
 
 <script setup>
-import {
-	contactForm7TemplateReact,
-	contactForm7TemplateVue,
-	contactForm7TemplateSvelte,
-} from "../../code/contactForm7";
 import { useSettings } from "composables/useSettings";
 import EvoSetting from "components/Setting.vue";
 import ModuleStatus from "components/ModuleStatus.vue";
 import ModuleExternalLink from "components/ModuleExternalLink.vue";
 import BackToSettingsLink from "components/BackToSettingsLink.vue";
+import DocumentationLink from "components/DocumentationLink.vue";
 import { computed } from "vue";
-import Code from "components/Code.vue";
 
 const { settings } = useSettings(["modules", "module_cf7_disable_frontend_resources"]);
 const isEnabled = computed(() => settings.value?.modules && settings.value.modules.includes("cf7"));
-
-const exampleTab = ref("vue");
 </script>

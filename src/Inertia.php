@@ -118,6 +118,11 @@ class Inertia
         return RequestResponse::back(...$params);
     }
 
+    public static function redirect(string $url, ?int $status)
+    {
+        return RequestResponse::redirect($url, $status);
+    }
+
     public static function flash(string $key, mixed $value): void
     {
         $data = RequestResponse::getFlashData('flash', []);

@@ -30,7 +30,14 @@
 						</li>
 						<li>Fully-scoped sharing of global options pages on <code>$page.props.acf.options</code></li>
 					</ul>
+					<h2 class="text-xl mt-0">Settings</h2>
+					<VEmptyState :icon="mdiCogOffOutline" text="There are no settings available for this module" />
 				</div>
+			</VCol>
+			<VCol>
+				<DocumentationLink href="https://inertia-wordpress.evomark.co.uk/modules/advanced-custom-fields">
+					Advanced Custom Fields
+				</DocumentationLink>
 			</VCol>
 		</VRow>
 	</main>
@@ -44,8 +51,10 @@ import AcfLogo from "components/AcfLogo.vue";
 import ModuleStatus from "components/ModuleStatus.vue";
 import ModuleExternalLink from "components/ModuleExternalLink.vue";
 import BackToSettingsLink from "components/BackToSettingsLink.vue";
+import DocumentationLink from "components/DocumentationLink.vue";
 import { useSettings } from "composables/useSettings";
 import { computed } from "vue";
+import { mdiCogOffOutline } from "@mdi/js";
 
 const { settings } = useSettings(["modules"]);
 const isEnabled = computed(() => settings.value?.modules && settings.value.modules.includes("cf7"));

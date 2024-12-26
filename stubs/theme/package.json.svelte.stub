@@ -7,7 +7,9 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build && vite build --ssr",
-        "ssr": "pm2 start ecosystem.config.cjs"
+        "ssr": "pm2 start ecosystem.config.cjs",
+        "ssr:stop": "pm2 stop ecosystem.config.cjs",
+        "ssr:restart": "pm2 restart ecosystem.config.cjs"
     },
     "keywords": [],
     "author": "",

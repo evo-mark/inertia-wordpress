@@ -11,6 +11,12 @@
 			<VAppBarTitle>
 				<span class="text-xs uppercase text-white">The Modern Monolith</span>
 			</VAppBarTitle>
+			<template #append>
+				<div class="flex gap-4">
+					<GithubSponsors />
+					<BuyMeACoffee />
+				</div>
+			</template>
 		</VAppBar>
 		<VMain>
 			<VContainer fluid>
@@ -22,6 +28,8 @@
 
 <script setup>
 import InertiaLogo from "components/InertiaLogo.vue";
+import BuyMeACoffee from "components/BuyMeACoffee.vue";
+import GithubSponsors from "components/GithubSponsors.vue";
 </script>
 
 <style lang="postcss">

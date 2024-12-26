@@ -38,7 +38,7 @@
         "@tailwindcss/typography": "^0.5.15",
         "@vueuse/core": "^12.2.0",
         "@wordpress/api-fetch": "^7.14.0",
-        "highlight.js": "^11.11.0",
+        "highlight.js": "^11.11.1",
         "lodash-es": "^4.17.21"
     }
 }
