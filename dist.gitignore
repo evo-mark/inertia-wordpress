@@ -1,6 +1,0 @@
-development
-.php-cs-fixer.*
-exclude.txt
-LIFECYCLE.md
-pnpm-workspace.yaml
-node_modules

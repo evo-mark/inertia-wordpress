@@ -28,6 +28,7 @@
 						<li>Compiles SEO links, meta tags and JSON schema</li>
 						<li>Prevents the SEO tags from being directly written to the page</li>
 						<li>Redirects the tags to <code>$page.props.seo</code></li>
+						<li>Outputs breadcrumb to <code>$page.props.breadcrumb</code></li>
 						<li>Helper components for all frameworks</li>
 					</ul>
 					<h2 class="text-xl mt-0">Settings</h2>

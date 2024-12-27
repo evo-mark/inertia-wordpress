@@ -8,25 +8,35 @@ copyChangelogs();
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Inertia Wordpress",
-  titleTemplate: ":title | Inertia Wordpress",
-  description: "A community Wordpress adapter for InertiaJS",
-  head: [["link", { rel: "icon", href: "/favicon-dark.png" }]],
-  themeConfig: {
-    logo: {
-      light: "/logo-light.svg",
-      dark: "/logo-dark.svg",
-    },
-    // https://vitepress.dev/reference/default-theme-config
-    nav: [{ text: "Home", link: "/" }, generateChangelogMenu()],
+	title: "Inertia Wordpress",
+	titleTemplate: ":title | Inertia Wordpress",
+	description: "A community Wordpress adapter for InertiaJS",
+	head: [
+		["link", { rel: "icon", href: "/favicon-dark.png" }],
+		[
+			"script",
+			{
+				defer: true,
+				src: "https://plausible.southcoastweb.co.uk/js/script.js",
+				dataDomain: "inertia-wordpress.evomark.co.uk",
+			},
+		],
+	],
+	themeConfig: {
+		logo: {
+			light: "/logo-light.svg",
+			dark: "/logo-dark.svg",
+		},
+		// https://vitepress.dev/reference/default-theme-config
+		nav: [{ text: "Home", link: "/" }, generateChangelogMenu()],
 
-    sidebar,
+		sidebar,
 
-    socialLinks,
+		socialLinks,
 
-    footer: {
-      message: "Released under the Apache2 License.",
-      copyright: "Copyright © 2024 Evo Mark Ltd",
-    },
-  },
+		footer: {
+			message: "Released under the Apache2 License.",
+			copyright: "Copyright © 2024 Evo Mark Ltd",
+		},
+	},
 });

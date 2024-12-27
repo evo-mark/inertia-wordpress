@@ -48,6 +48,7 @@ class Module extends BaseModule
             'schema' => $this->parseSchema($dom->getElementsByTagName('script')),
         ];
 
+        Inertia::share('breadcrumb', fn () => \The_SEO_Framework\Meta\Breadcrumbs::get_breadcrumb_list());
         Inertia::share('seo', $seo);
     }
 

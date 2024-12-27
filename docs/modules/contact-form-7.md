@@ -16,9 +16,9 @@ processing of user-submitted content on your Wordpress application.
 - Extension for Inertia form helper for all frameworks
 - Messages will be flashed to the `$page.props.flash.cf7` namespace
 
-## useForm Extended Composable
+## useCf7Form Extended Composable
 
-Inertia Wordpress provides an extended version of the `useForm` helper that automatically extracts and passes your form fields, sets up the correct submission URL and handles populating the `errors` that your controller might return.
+Inertia Wordpress provides an extended version of the InertiaJS `useForm` helper that automatically extracts and passes your form fields, sets up the correct submission URL and handles populating the `errors` that your controller might return.
 
 ::: code-group
 
@@ -218,6 +218,31 @@ An example CF7 form object might be:
   },
   "additionalSettings": ""
 }
+```
+
+## loadRecaptcha
+
+:::tip
+If you don't attach the `formRef` to your form, you will need to call this function manually, otherwise you shouldn't need this.
+:::
+
+A callback function that loads all needed scripts for Google reCaptcha using your integration settings from Contact Form 7.
+
+```js
+document.addEventListener('DOMContentLoaded' loadRecaptcha);
+```
+
+## unloadRecaptcha
+
+A callback function that unloads and removes all reCaptcha scripts and also removes any badges/window objects left behind.
+
+```js
+import { onUnmounted, onMounted } from "vue";
+const { form, formRef, fields, cf7Form, loadRecaptcha, unloadRecaptcha } =
+  useCf7Form("contact-form-1");
+
+onMounted(loadRecpatcha);
+onUnmounted(unloadRecaptcha);
 ```
 
 ## Storing Messages

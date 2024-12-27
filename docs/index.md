@@ -3,22 +3,22 @@
 layout: home
 
 hero:
-  name: "Inertia Wordpress"
-  text: "A community Wordpress adapter for InertiaJS"
-  tagline: SPA day for Wordpress
-  actions:
-    - theme: brand
-      text: Get Started
-      link: /getting-started/introduction
-    - theme: alt
-      text: Sponsor This Project
-      link: https://github.com/sponsors/craigrileyuk
+    name: "Inertia Wordpress"
+    text: "A community Wordpress adapter for InertiaJS"
+    tagline: SPA day for Wordpress
+    actions:
+        - theme: brand
+          text: Get Started
+          link: /getting-started/introduction
+        - theme: alt
+          text: Support This Project
+          link: https://github.com/sponsors/craigrileyuk
 
 features:
-  - title: Inertia v2
-    details: Fully compatible with Inertia v2 features including history encryption, polling, deferred props, infinite scrolling et al.
-  - title: Server-Side Rendering
-    details: Out-of-the-box support for SSR to improve your SEO results for your Wordpress application
-  - title: Plugin Modules
-    details: Integrate with common Wordpress ecosystem plugins such as Contact Form 7, The SEO Framework, WooCommerce and more
+    - title: Inertia v2
+      details: Fully compatible with Inertia v2 features including history encryption, polling, deferred props, infinite scrolling et al.
+    - title: Server-Side Rendering
+      details: Out-of-the-box support for SSR to improve your SEO results for your Wordpress application
+    - title: Plugin Modules
+      details: Integrate with common Wordpress ecosystem plugins such as Contact Form 7, The SEO Framework, WooCommerce and more
 ---

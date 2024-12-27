@@ -15,6 +15,10 @@ class TagResource
 
     public static function toArray($tag)
     {
+        if (is_int($tag)) {
+            $tag = get_term($tag);
+        }
+
         return (object) [
             'id' => $tag->term_id,
             'name' => $tag->name,

@@ -18,6 +18,10 @@ class CategoryResource implements InertiaResource
 
     public static function single($cat): stdClass
     {
+        if (is_int($cat)) {
+            $cat = get_term($cat);
+        }
+
         return (object) [
             'id' => $cat->term_id,
             'name' => $cat->name,

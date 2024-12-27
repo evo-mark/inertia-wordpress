@@ -10,10 +10,11 @@ use EvoMark\InertiaWordpress\Props\DeferProp;
 use EvoMark\InertiaWordpress\Props\MergeProp;
 use EvoMark\InertiaWordpress\Props\AlwaysProp;
 use EvoMark\InertiaWordpress\Helpers\Wordpress;
+use EvoMark\InertiaWordpress\Modules\BaseModule;
 use EvoMark\InertiaWordpress\Props\OptionalProp;
 use EvoMark\InertiaWordpress\Resources\PostResource;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
-use EvoMark\InertiaWordpress\Modules\BaseModule;
+use EvoMark\InertiaWordpress\Modules\WooCommerce\Resources\ProductResource;
 
 /**
  * Facade-like functions
@@ -157,6 +158,15 @@ class Inertia
         }
 
         return PostResource::single($post, $args);
+    }
+
+    public static function getProduct(?\WP_Post $product = null, ?array $args = null)
+    {
+        if (empty($product)) {
+            $product = Wordpress::getGlobalPost();
+        }
+
+        return ProductResource::single($product, $args);
     }
 
     /**

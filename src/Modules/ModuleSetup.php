@@ -26,7 +26,7 @@ class ModuleSetup
         Inertia::addModule(AdvancedCustomFieldsModule::class);
         Inertia::addModule(ContactForm7Module::class);
         Inertia::addModule(TheSeoFrameworkModule::class);
-        // Inertia::addModule(WooCommerceModule::class);
+        Inertia::addModule(WooCommerceModule::class);
 
 
         /**

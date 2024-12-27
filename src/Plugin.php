@@ -155,6 +155,7 @@ class Plugin
         );
         /** @disregard P1013 Is a valid function */
         $checker->getVcsApi()->enableReleaseAssets('/\.zip($|[?&#])/i', Api::REQUIRE_RELEASE_ASSETS);
+        dd((array) $checker->requestInfo());
     }
 
     private function registerRest()

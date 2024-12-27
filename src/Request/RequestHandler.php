@@ -396,8 +396,8 @@ class RequestHandler
             'homeUrl' => home_url(),
             'menus' => Wordpress::getNavigationMenus(),
             'nonces' => [
-                'nonce'         => wp_create_nonce('wp_rest'),
-                'ajax_nonce'    => wp_create_nonce('ajax_nonce'),
+                'rest' => wp_create_nonce('wp_rest'),
+                'ajax' => wp_create_nonce('ajax_nonce'),
             ],
         ]);
 
