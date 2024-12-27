@@ -18,7 +18,7 @@ export default defineConfig({
 			{
 				defer: true,
 				src: "https://plausible.southcoastweb.co.uk/js/script.js",
-				dataDomain: "inertia-wordpress.evomark.co.uk",
+				"data-domain": "inertia-wordpress.evomark.co.uk",
 			},
 		],
 	],
