@@ -27,6 +27,7 @@ export default defineConfig({
 			light: "/logo-light.svg",
 			dark: "/logo-dark.svg",
 		},
+		siteTitle: false,
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [{ text: "Home", link: "/" }, generateChangelogMenu()],
 
@@ -37,6 +38,14 @@ export default defineConfig({
 		footer: {
 			message: "Released under the Apache2 License.",
 			copyright: "Copyright © 2024 Evo Mark Ltd",
+		},
+		search: {
+			provider: "algolia",
+			options: {
+				appId: "N038QDFYJO",
+				apiKey: "71639db700323b989016c89d794c0889",
+				indexName: "inertia-wordpress-evomark-co",
+			},
 		},
 	},
 });

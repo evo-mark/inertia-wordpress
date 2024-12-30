@@ -16,7 +16,7 @@ class ModuleSetup
     protected static array $registeredModules = [];
 
     /**
-     * @hook init
+     * @hook plugins_loaded
      */
     public static function init()
     {

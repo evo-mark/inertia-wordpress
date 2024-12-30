@@ -3,6 +3,7 @@
 namespace EvoMark\InertiaWordpress\Modules\WooCommerce;
 
 use EvoMark\InertiaWordpress\Helpers\Arr;
+use Illuminate\Support\Arr as IlluminateArr;
 use EvoMark\InertiaWordpress\Resources\ImageResource;
 
 class Utils
@@ -84,5 +85,97 @@ class Utils
             ]),
             'saleIncludingTax' => wc_get_price_including_tax($product),
         ];
+    }
+
+    public static function getCustomerAddresses()
+    {
+        $customerId = get_current_user_id();
+
+        if (! wc_ship_to_billing_address_only() && wc_shipping_enabled()) {
+            $addresses = apply_filters(
+                'woocommerce_my_account_get_addresses',
+                [
+                    'billing'  => __('Billing address', 'woocommerce'),
+                    'shipping' => __('Shipping address', 'woocommerce'),
+                ],
+                $customerId
+            );
+        } else {
+            $addresses = apply_filters(
+                'woocommerce_my_account_get_addresses',
+                [
+                    'billing' => __('Billing address', 'woocommerce'),
+                ],
+                $customerId
+            );
+        }
+
+        return IlluminateArr::map($addresses, function ($value, $key) {
+            $address = self::getCustomerAddress($key);
+            return [
+                'label' => $value,
+                'fields' => self::getAddressFields($key, $address),
+                'formatted' => wc_get_account_formatted_address($key),
+                'data' => $address,
+            ];
+        });
+    }
+
+    public static function getCustomerAddress($type): array
+    {
+        $currentUser = wp_get_current_user();
+        $type = sanitize_key($type);
+        $country      = get_user_meta(get_current_user_id(), $type . '_country', true);
+
+        if (! $country) {
+            $country = WC()->countries->get_base_country();
+        }
+
+        if ('billing' === $type) {
+            $allowedCountries = WC()->countries->get_allowed_countries();
+
+            if (! array_key_exists($country, $allowedCountries)) {
+                $country = current(array_keys($allowedCountries));
+            }
+        }
+
+        if ('shipping' === $type) {
+            $allowedCountries = WC()->countries->get_shipping_countries();
+
+            if (! array_key_exists($country, $allowedCountries)) {
+                $country = current(array_keys($allowedCountries));
+            }
+        }
+
+        $addressFields = WC()->countries->get_address_fields($country, $type . '_');
+        $address = [];
+
+        foreach ($addressFields as $key => $field) {
+            $key = str_replace($type . "_", "", $key);
+
+            $value = get_user_meta(get_current_user_id(), $key, true);
+
+            if (! $value) {
+                switch ($key) {
+                    case 'email':
+                        $value = $currentUser->user_email;
+                        break;
+                }
+            }
+
+            $address[$key] = apply_filters('woocommerce_my_account_edit_address_field_value', $value, $key, $type);
+        }
+
+
+        return Arr::convertKeysToCamelCase($address);
+    }
+
+    public static function getAddressFields($type, $address)
+    {
+        $raw = WC()->countries->get_address_fields($address['country'], $type . '_');
+        $fields = IlluminateArr::mapWithKeys($raw, function ($value, $key) use ($type) {
+            return [str_replace($type . "_", "", $key) => $value];
+        });
+        return Arr::convertKeysToCamelCase($fields);
     }
 }

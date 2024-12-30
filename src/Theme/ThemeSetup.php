@@ -4,6 +4,7 @@ namespace EvoMark\InertiaWordpress\Theme;
 
 use EvoMark\WpVite\WpVite;
 use EvoMark\InertiaWordpress\Container;
+use EvoMark\InertiaWordpress\Helpers\HookFilters;
 use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Inertia;
@@ -65,6 +66,13 @@ class ThemeSetup
 
         if (file_exists($controllerFile)) {
             $class = Utils::getClass($template);
+
+            /**
+             * Filter the resolved page controller
+             * @since 0.7.0
+             */
+            $class = apply_filters(HookFilters::PAGE_CONTROLLER, $class, $controllerFile);
+
             if (in_array('EvoMark\InertiaWordpress\Contracts\InertiaControllerContract', class_implements($class)) === false) {
                 return $template;
             }

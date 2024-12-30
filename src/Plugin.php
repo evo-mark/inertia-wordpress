@@ -25,6 +25,7 @@ class Plugin
         add_action('init', [$this, 'init']);
         add_action('admin_init', [$this, 'adminInit']);
         add_action('rest_api_init', [$this, 'restApiInit']);
+        add_action('plugins_loaded', [ModuleSetup::class, 'init']);
     }
 
     /**
@@ -58,7 +59,6 @@ class Plugin
         $this->registerRest();
         $this->registerRestErrorHandler();
         ThemeSetup::init();
-        ModuleSetup::init();
     }
 
     /**
@@ -155,7 +155,6 @@ class Plugin
         );
         /** @disregard P1013 Is a valid function */
         $checker->getVcsApi()->enableReleaseAssets('/\.zip($|[?&#])/i', Api::REQUIRE_RELEASE_ASSETS);
-        dd((array) $checker->requestInfo());
     }
 
     private function registerRest()

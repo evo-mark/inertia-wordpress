@@ -2,6 +2,7 @@
 
 namespace EvoMark\InertiaWordpress\Modules\WooCommerce\RestApi;
 
+use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use WP_REST_Request;
 use EvoMark\InertiaWordpress\Inertia;
 use EvoWpRestRegistration\BaseRestController;
@@ -39,13 +40,9 @@ class UserLoginPost extends BaseRestController
         $user = wp_signon(apply_filters('woocommerce_login_credentials', $credentials), is_ssl());
 
         if (is_wp_error($user) || !$validNonce) {
-            $error = new \WP_Error('rest_invalid_param', __('Invalid parameters.'), [
-                'status' => 400,
-                'params'  => [
-                    'username' => 'Could not login with these credentials',
-                ],
+            RequestResponse::backWithErrors($request, [
+                'username' => 'Could not login with these credentials',
             ]);
-            apply_filters('rest_request_after_callbacks', $error, null, $request);
             exit;
         } else {
             Inertia::flash('success', 'Welcome Back');

@@ -1,6 +1,8 @@
 # Custom Modules
 
-You can now add custom modules to the Inertia Wordpress adapter.
+As mentioned in the [introduction](/modules/introduction), modules are the main way to provide global integration for Wordpress plugins. You can declare custom modules in your theme or in other plugins.
+
+If you feel you're filling a need others might have too, please consider submitting a [pull request](https://github.com/evo-mark/inertia-wordpress/pulls) for adding your module to the adapter.
 
 ## Extending the BaseModule
 
@@ -77,7 +79,7 @@ Don't forget to enable your module in the `Inertia -> Settings` menu once it is 
 1. Plugin boots
 2. All modules are added to the registry
 3. Checks that the `$class` for the plugin exists
-4. Checks that plugin is activated
+4. Checks that plugin is activated (using `$entry`)
 5. Checks that the module is enabled
 6. If all checks pass, the module's `register` method is called
 7. Request is handled through the controller

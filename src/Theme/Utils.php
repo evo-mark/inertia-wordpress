@@ -6,7 +6,7 @@ class Utils
 {
     public static function getClass($path)
     {
-        if (empty($path)) {
+        if (empty($path) || !file_exists($path)) {
             return [];
         }
 

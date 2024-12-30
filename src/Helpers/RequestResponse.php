@@ -95,4 +95,14 @@ class RequestResponse
 
         return [];
     }
+
+    public static function backWithErrors($request, $errors)
+    {
+        $error = new \WP_Error('rest_invalid_param', __('Invalid parameters.'), [
+            'status' => 400,
+            'params'  => $errors,
+        ]);
+        apply_filters('rest_request_after_callbacks', $error, null, $request);
+        exit;
+    }
 }

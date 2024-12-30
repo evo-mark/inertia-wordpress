@@ -20,7 +20,11 @@ This adapter is in active development and should be used with caution. There may
 
 ## Support Open-Source
 
-This project is free and open-source and committed to never paywalling features or extracting them into a pro version.
+This project is free and open-source and committed to:
+
+- No paywalling
+- No PRO version
+- No enshittification
 
 However, we can't do this without your help. So if you're able, please donate using the links below:
 

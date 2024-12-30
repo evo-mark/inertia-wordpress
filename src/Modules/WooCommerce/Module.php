@@ -2,9 +2,11 @@
 
 namespace EvoMark\InertiaWordpress\Modules\WooCommerce;
 
+use EvoMark\InertiaWordpress\Helpers\HookFilters;
 use EvoWpRestRegistration\RestApi;
 use EvoMark\InertiaWordpress\Inertia;
 use EvoMark\InertiaWordpress\Modules\BaseModule;
+use EvoMark\InertiaWordpress\Theme\Utils as ThemeUtils;
 use WC_Countries;
 
 use function WC;
@@ -33,13 +35,12 @@ class Module extends BaseModule
             'base_url' => 'inertia-wordpress',
         ]);
 
-        if (!is_admin()) {
-            if (is_null(WC()->cart)) {
-                wc_load_cart();
-            }
+        if (!is_admin() && is_null(WC()->cart)) {
+            add_action('woocommerce_init', 'wc_load_cart');
         }
 
         add_action('after_setup_theme', fn () => add_theme_support('woocommerce'));
+        add_filter(HookFilters::PAGE_CONTROLLER, [$this, 'checkForSubPage'], 10, 2);
     }
 
     /**
@@ -76,6 +77,51 @@ class Module extends BaseModule
             'nonces' => [
                 'login' => wp_create_nonce('woocommerce-login'),
             ],
+            'menus' => fn () => [
+                'account' => $this->getAccountMenuItems(),
+            ],
         ]);
+    }
+
+    public function checkForSubPage($class, $filename)
+    {
+        $originalClass = $class;
+        $needle = 'page-my-account.php';
+
+        if (str_ends_with($filename, $needle) === false) {
+            return $class;
+        }
+        $endpoint = WC()->query->get_current_endpoint();
+        $query = get_query_var($endpoint);
+
+        switch ($endpoint) {
+            case "edit-address":
+                $filename = str_replace($needle, 'account/edit-address.php', $filename);
+                break;
+        }
+
+        $class = ThemeUtils::getClass($filename);
+
+        if (empty($class) || in_array('EvoMark\InertiaWordpress\Contracts\InertiaControllerContract', class_implements($class)) === false) {
+            return $originalClass;
+        }
+
+        $controller = new $class();
+        echo $controller->handle();
+        exit;
+    }
+
+    public function getAccountMenuItems(): array
+    {
+        $items = wc_get_account_menu_items();
+        $urls = [];
+        foreach ($items as $endpoint => $label) {
+            $urls[] = [
+                'label' => $label,
+                'href' => esc_url(wc_get_account_endpoint_url($endpoint)),
+            ];
+        }
+
+        return $urls;
     }
 }

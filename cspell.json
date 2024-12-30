@@ -1,0 +1,20 @@
+{
+    "version": "0.2",
+    "ignorePaths": [],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "enshittification",
+        "frontmatter",
+        "paywalling",
+        "phpcs",
+        "phpunit",
+        "tagline",
+        "vitepress",
+        "Shiki"
+    ],
+    "ignoreWords": [
+        "QDFYJO"
+    ],
+    "import": []
+}
