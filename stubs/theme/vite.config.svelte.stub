@@ -3,6 +3,9 @@ import { wordpress } from "wordpress-vite-plugin";
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default defineConfig({
+    resolve: {
+        dedupe: ["@inertiajs/svelte", "svelte"],
+    },
     plugins: [
         svelte({}),
         wordpress({

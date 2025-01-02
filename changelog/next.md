@@ -1,1 +1,2 @@
 - **Improvement**: Changed `register` function to run on the `plugins_loaded` hook instead of `init`
+- **BugFix**: Add `resolve.dedupe` to Vite config stubs for NPM compatibility

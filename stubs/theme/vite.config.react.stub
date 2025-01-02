@@ -3,6 +3,9 @@ import { wordpress } from "wordpress-vite-plugin";
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+    resolve: {
+        dedupe: ["@inertiajs/react", "react","react-dom"],
+    },
     plugins: [
         react({}),
         wordpress({

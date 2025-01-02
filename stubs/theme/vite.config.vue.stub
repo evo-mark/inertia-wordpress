@@ -3,6 +3,9 @@ import { wordpress } from "wordpress-vite-plugin";
 import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
+    resolve: {
+        dedupe: ["@inertiajs/vue3", "@vueuse/core", "vue"],
+    },
     plugins: [
         vue({
             template: {
