@@ -102,7 +102,7 @@ class Wordpress
     {
         $menuObject = wp_get_nav_menu_object($menuId);
 
-        if(empty($menuObject)) {
+        if (empty($menuObject)) {
             return [];
         }
 
@@ -251,18 +251,24 @@ class Wordpress
 
     public static function getPostComments(\WP_Post $post)
     {
+        $isPaged = boolval(get_option('page_comments'));
         $page = intval($_GET['comments_page'] ?? 1);
-        $perPage = intval($_GET['comments_per_page'] ?? 10);
+        $perPage = intval($_GET['comments_per_page'] ?? get_option('comments_per_page'));
+        $order = strtoupper($_GET['comments_order'] ?? get_option('comment_order', 'DESC'));
+
+        $attrs = $isPaged ? [
+            'number'  => $perPage,
+            'offset'  => ($page - 1) * $perPage,
+        ] : [];
 
         $topLevelComments = get_comments([
             'post_id' => $post->ID,
             'status'  => 'approve',
             'orderby' => 'comment_date',
-            'order'   => 'DESC',
+            'order'   => $order,
             'parent'  => 0,
-            'number'  => $perPage,
-            'offset'  => ($page - 1) * $perPage,
             'hierarchical' => 'threaded',
+            ...$attrs,
         ]);
 
         $commentsHierarchy = CommentResource::collection($topLevelComments);

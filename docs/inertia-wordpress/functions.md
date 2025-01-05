@@ -268,9 +268,23 @@ The returned data includes featured images, comments, categories, tags et al.
 Inertia::getPost(?\WP_Post $post = null, array $args = null);
 ```
 
-> Post Comments
+### Post Comments
 
-Post comments will be on the `comments` prop of the post by default. They will be paginated and capped at 10 per page. To change the comments page or per page values, add `comments_page` and `comments_per_page` to your GET query string.
+Post comments will be on the `comments` prop of the post by default.
+
+They will be paginated according to your Wordpress Discussion settings for the following:
+
+- Break comments into pages
+- Top level comments per page
+- Comments to display at the top of each page
+
+To change the comments page or per page values, add `comments_page`, `comments_per_page` and `comments_order` to your GET query string.
+
+| GET param         | type                | default                    |
+| ----------------- | ------------------- | -------------------------- |
+| comments_page     | int                 | 1                          |
+| comments_per_page | int                 | &lt;discussion setting&gt; |
+| comments_order    | 'asc' &vert; 'desc' | &lt;discussion setting&gt; |
 
 For example, with Vue:
 
