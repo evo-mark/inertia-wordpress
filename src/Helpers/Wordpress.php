@@ -7,6 +7,7 @@ use EvoMark\InertiaWordpress\Data\Archive;
 use EvoMark\InertiaWordpress\Resources\ImageResource;
 use EvoMark\InertiaWordpress\Resources\PostSimpleResource;
 use EvoMark\InertiaWordpress\Resources\ArchivePaginationResource;
+use EvoMark\InertiaWordpress\Resources\CommentResource;
 use EvoMark\InertiaWordpress\Resources\MenuItemResource;
 use stdClass;
 
@@ -246,5 +247,26 @@ class Wordpress
          * @param int $id The current page ID
          */
         return "?template=" . base64_encode(apply_filters(HookFilters::PAGE_TEMPLATE, $template, $id));
+    }
+
+    public static function getPostComments(\WP_Post $post)
+    {
+        $page = intval($_GET['comments_page'] ?? 1);
+        $perPage = intval($_GET['comments_per_page'] ?? 10);
+
+        $topLevelComments = get_comments([
+            'post_id' => $post->ID,
+            'status'  => 'approve',
+            'orderby' => 'comment_date',
+            'order'   => 'DESC',
+            'parent'  => 0,
+            'number'  => $perPage,
+            'offset'  => ($page - 1) * $perPage,
+            'hierarchical' => 'threaded',
+        ]);
+
+        $commentsHierarchy = CommentResource::collection($topLevelComments);
+
+        return $commentsHierarchy;
     }
 }

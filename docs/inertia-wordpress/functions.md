@@ -262,8 +262,34 @@ Inertia::getArchive();
 
 A helper function that gets the current (or provided) post.
 
-The returned data includes featured images, comment counts, categories, tags et al.
+The returned data includes featured images, comments, categories, tags et al.
 
 ```php
 Inertia::getPost(?\WP_Post $post = null, array $args = null);
+```
+
+> Post Comments
+
+Post comments will be on the `comments` prop of the post by default. They will be paginated and capped at 10 per page. To change the comments page or per page values, add `comments_page` and `comments_per_page` to your GET query string.
+
+For example, with Vue:
+
+```js
+const commentsPage = ref(1);
+const onNavigateComments = (page = 1) => {
+	commentsPage.value = page;
+
+	const url = new URL(window.location.href);
+	url.searchParams.set("comments_page", commentsPage.value);
+	router.get(
+		url.toString(),
+		{},
+		{
+			only: ["post"],
+			replace: true,
+			preserveState: true,
+			preserveScroll: true,
+		},
+	);
+};
 ```

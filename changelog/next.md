@@ -1,2 +1,5 @@
+- **Improvement**: Added nested/paginated `comments` object to `getPost` function
 - **Improvement**: Changed `register` function to run on the `plugins_loaded` hook instead of `init`
+- **Improvement**: Added more settings to the `wp` $page.props object
 - **BugFix**: Add `resolve.dedupe` to Vite config stubs for NPM compatibility
+- **Chore**: Updated dependencies

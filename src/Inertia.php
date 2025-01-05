@@ -154,6 +154,7 @@ class Inertia
                 'author' => true,
                 'excerpt' => true,
                 'content' => true,
+                'comments' => true,
             ];
         }
 

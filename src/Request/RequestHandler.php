@@ -388,17 +388,35 @@ class RequestHandler
         $this->share('flash', Inertia::always(RequestResponse::getFlashData('flash', (object)[])));
         $this->share('wp', [
             'name' => get_bloginfo('name'),
+            'description' => get_bloginfo('description'),
+            'charset' => get_bloginfo('charset'),
+            'isRtl' => is_rtl(),
+            'language' => get_bloginfo('language'),
             'adminBar' => $this->isInertia() ? fn () => Wordpress::getAdminBar() : null,
+            'homeUrl' => home_url(),
             'restUrl' => get_rest_url(),
             'user' => is_user_logged_in() ? UserResource::single(wp_get_current_user()) : null,
             'userCapabilities' => is_user_logged_in() ? Wordpress::getUserCapabilities(wp_get_current_user()) : null,
+            'userRoles' => is_user_logged_in() ? wp_get_current_user()->roles : null,
+            'canRegister' => get_option('users_can_register'),
             'logo' => Wordpress::getCustomLogo(),
-            'homeUrl' => home_url(),
             'menus' => Wordpress::getNavigationMenus(),
             'nonces' => [
                 'rest' => wp_create_nonce('wp_rest'),
                 'ajax' => wp_create_nonce('ajax_nonce'),
             ],
+            'comments' => [
+                'showAvatars' => boolval(get_option('show_avatars')),
+                'perPage' => intval(get_option('comments_per_page')),
+                'requireAuth' => boolval(get_option('comment_registration')),
+                'requireInfo' => boolval(get_option('require_name_email')),
+                'closeForOld' => boolval(get_option('close_comments_for_old_posts')),
+                'daysForOld' => intval(get_option('close_comments_days_old')),
+            ],
+            'postsPerPage' => intval(get_option('posts_per_page')),
+            'dateFormat' => get_option('date_format'),
+            'timeFormat' => get_option('time_format'),
+            'startOfWeek' => intval(get_option('start_of_week')),
         ]);
 
         /**
