@@ -101,6 +101,10 @@ class Wordpress
     {
         $menuObject = wp_get_nav_menu_object($menuId);
 
+        if(empty($menuObject)) {
+            return [];
+        }
+
         /**
          * Filter the arguments supplied to each call to `wp_get_nav_menu_items` when generating menus
          *
