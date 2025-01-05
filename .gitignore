@@ -4,3 +4,4 @@ build
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/changelogs
+.php-cs-fixer.cache
