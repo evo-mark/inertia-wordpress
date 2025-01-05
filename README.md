@@ -21,15 +21,9 @@
 ---
 
 <p align="center">
-    <a href="https://vuejs.org/" target="_blank" title="Vue" style="text-decoration: none">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="height:100px">
-    </a>
-    <a href="https://react.dev/"  target="_blank" title="React" style="text-decoration: none">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" style="height:100px">
-    </a>
-    <a href="https://svelte.dev/"  target="_blank" title="Svelte" style="text-decoration: none">
-        <img src="https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg" style="height:100px">
-    </a>
+    <a href="https://vuejs.org/" target="_blank" title="Vue" style="text-decoration: none"><img src="https://upload.wikimedia.org/wikipedia/commons/9/95/Vue.js_Logo_2.svg" style="height:100px" /></a>
+    <a href="https://react.dev/"  target="_blank" title="React" style="text-decoration: none"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" style="height:100px" /></a>
+    <a href="https://svelte.dev/"  target="_blank" title="Svelte" style="text-decoration: none"><img src="https://raw.githubusercontent.com/sveltejs/branding/refs/heads/master/svelte-logo.svg" style="height:100px" /></a>
 </p>
 
 ---
@@ -47,10 +41,8 @@ For more information on InertiaJS, visit the [Official Website](https://inertiaj
 We're providing this community adapter free-of-charge without any paywalled features. However, all development and maintenance costs time, energy and money. So please help fund this project if you can.
 
 <p align="center" style="display:flex;align-items:center;gap:1rem;justify-content:center">
-<a href="https://github.com/sponsors/craigrileyuk" target="_blank">
-<img src="https://img.shields.io/badge/sponsor-GitHub%20Sponsors-fafbfc?style=for-the-badge&logo=github">
-</a>
-<a href="https://www.buymeacoffee.com/craigrileyuk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://github.com/sponsors/craigrileyuk" target="_blank"><img src="https://img.shields.io/badge/sponsor-GitHub%20Sponsors-fafbfc?style=for-the-badge&logo=github" /></a>
+<a href="https://www.buymeacoffee.com/craigrileyuk" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" /></a>
 </p>
 
 ## Getting Started and Documentation

@@ -1,0 +1,2 @@
+- **Feature**: added `backWithErrors` PHP function
+- **BugFix**: Fix errant underlines in README

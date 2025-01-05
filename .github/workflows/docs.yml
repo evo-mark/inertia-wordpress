@@ -1,47 +1,47 @@
 name: documentation
 
 on:
-  workflow_run:
-    workflows: [tag-release]
-    types:
-      - completed
-  workflow_dispatch:
+    workflow_run:
+        workflows: [tag-release]
+        types:
+            - completed
+    workflow_dispatch:
 
 jobs:
-  build_documentation:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            package.json
-            pnpm-lock.yaml
-            docs
-            changelog
+    build_documentation:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  sparse-checkout: |
+                      package.json
+                      pnpm-lock.yaml
+                      docs
+                      changelog
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 9
 
-      - name: Use Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "pnpm"
-      - run: pnpm -r install
+            - name: Use Node.js 22
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: "pnpm"
+            - run: pnpm -r install
 
-      - name: Build documentation
-        run: npm run docs:build
+            - name: Build documentation
+              run: npm run docs:build
 
-      - name: Deploy documentation
-        uses: up9cloud/action-rsync@v1
-        env:
-          HOST: ${{secrets.DEPLOY_DOCS_SSH_HOST}}
-          USER: ${{secrets.DEPLOY_DOCS_SSH_USER}}
-          KEY: ${{secrets.DEPLOY_DOCS_SSH_KEY}}
-          SOURCE: ./docs/.vitepress/dist/
-          TARGET: ${{secrets.DEPLOY_DOCS_SSH_TARGET}}
-          SSH_ARGS: -p ${{secrets.DEPLOY_DOCS_SSH_PORT}} -o StrictHostKeyChecking=no
+            - name: Deploy documentation
+              uses: up9cloud/action-rsync@v1
+              env:
+                  HOST: ${{secrets.DEPLOY_DOCS_SSH_HOST}}
+                  USER: ${{secrets.DEPLOY_DOCS_SSH_USER}}
+                  KEY: ${{secrets.DEPLOY_DOCS_SSH_KEY}}
+                  SOURCE: ./docs/.vitepress/dist/
+                  TARGET: ${{secrets.DEPLOY_DOCS_SSH_TARGET}}
+                  SSH_ARGS: -p ${{secrets.DEPLOY_DOCS_SSH_PORT}} -o StrictHostKeyChecking=no

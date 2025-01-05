@@ -240,6 +240,29 @@ Inertia::back();
 If the client made a partial reload request, the back redirection will only load the page props requested.
 :::
 
+## Back With Errors
+
+Same as the [Back](#back) function, except you can manually throw a validation error and pass an associative array of errors to be returned to the frontend.
+
+| Param   | Type                | Description                         |
+| ------- | ------------------- | ----------------------------------- |
+| request | \WP_REST_Request    | The current REST API request object |
+| errors  | Array (associative) | An array of errors to return        |
+
+### Example
+
+```php
+$user = wp_signon(apply_filters('woocommerce_login_credentials', $credentials), is_ssl());
+
+if (is_wp_error($user) || !$validNonce) {
+    Inertia::backWithErrors($request, [
+        'username' => 'Could not login with these credentials',
+    ]);
+}
+```
+
+`exit` is automatically called after the response is sent
+
 ## Redirect
 
 Returns a redirect response, useful if you want to send the user somewhere else after processing a form request.
@@ -274,11 +297,11 @@ Post comments will be on the `comments` prop of the post by default.
 
 They will be paginated according to your Wordpress Discussion settings for the following:
 
-- Break comments into pages
-- Top level comments per page
-- Comments to display at the top of each page
+- Break comments into pages (enable pagination)
+- Top level comments per page (comments per page)
+- Comments to display at the top of each page (comments order)
 
-To change the comments page or per page values, add `comments_page`, `comments_per_page` and `comments_order` to your GET query string.
+To change the comments page or override certain pagination values, add `comments_page`, `comments_per_page` and `comments_order` to your GET query string.
 
 | GET param         | type                | default                    |
 | ----------------- | ------------------- | -------------------------- |

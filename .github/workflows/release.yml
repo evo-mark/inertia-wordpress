@@ -1,205 +1,205 @@
 name: tag-release
 
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - main
 
 jobs:
-  # Perform a Dry Run on the tag action and get the proposed version
-  check_tag:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
+    # Perform a Dry Run on the tag action and get the proposed version
+    check_tag:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: "0"
 
-      - name: Bump version and push tag
-        id: check_tag
-        uses: anothrNick/github-tag-action@1.71.0
+            - name: Bump version and push tag
+              id: check_tag
+              uses: anothrNick/github-tag-action@1.71.0
+              env:
+                  WITH_V: true
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  DEFAULT_BUMP: none
+                  RELEASE_BRANCHES: main
+                  DRY_RUN: true
+
+        outputs:
+            bump: ${{ steps.check_tag.outputs.part }}
+            new_tag: ${{ steps.check_tag.outputs.new_tag }}
+
+    # With the version from the last step, write it to the entry PHP file and create the changelog file
+    version:
+        runs-on: ubuntu-latest
+        needs: check_tag
+        if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: "0"
+
+            - name: Update version in PHP file
+              run: |
+                  VERSION=${{ needs.check_tag.outputs.new_tag }}
+                  VERSION=${VERSION#v}
+                  sed -i "s/Version: .*/Version: $VERSION/" inertia-wordpress.php
+
+            - name: Process changelog
+              id: changelog_file
+              run: |
+                  if [[ ! -z $(cat changelog/next.md) ]] ; then
+                    echo "changelog=${{ needs.check_tag.outputs.new_tag }}-$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+                    mv changelog/next.md changelog/${{ needs.check_tag.outputs.new_tag }}-$(date +'%Y-%m-%d').md
+                    touch changelog/next.md
+                  else
+                    echo "changelog=next" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Commit changes to changelog folder
+              continue-on-error: true
+              run: |
+                  git config --global user.email  "noreply@evomark.co.uk"
+                  git config --global user.name  "evoMark Action"
+                  git add changelog/ inertia-wordpress.php
+                  git commit -m "Chore: Updated changelog and version"
+                  git push
+
+        outputs:
+            changelog: ${{ steps.changelog_file.outputs.changelog }}
+
+    # Actually create the git tag
+    tag:
+        runs-on: ubuntu-latest
+        needs:
+            - check_tag
+            - version
+        if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
+        permissions:
+            contents: write
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: "0"
+
+            - name: Fetch and checkout the latest commit
+              run: |
+                  git fetch origin main
+                  git checkout origin/main
+
+            - name: Bump version and push tag
+              id: tag
+              uses: anothrNick/github-tag-action@1.71.0
+              env:
+                  WITH_V: true
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  DEFAULT_BUMP: none
+                  RELEASE_BRANCHES: main
+
+        outputs:
+            bump: ${{ steps.tag.outputs.part }}
+            new_tag: ${{ steps.tag.outputs.new_tag }}
+
+    # Create a release with asset
+    release:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        needs:
+            - tag
+            - version
+        if: needs.tag.outputs.bump != '' && needs.tag.outputs.bump != 'none'
         env:
-          WITH_V: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: none
-          RELEASE_BRANCHES: main
-          DRY_RUN: true
+            PHP_VERSION: "8.3"
+            PHP_EXTENSIONS: dom, curl, libxml, mbstring, zip, mysqli
+            PHP_CACHE_KEY: extension-cache-v2
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-    outputs:
-      bump: ${{ steps.check_tag.outputs.part }}
-      new_tag: ${{ steps.check_tag.outputs.new_tag }}
+            - name: Fetch and checkout the latest commit
+              run: |
+                  git fetch origin main
+                  git checkout origin/main
 
-  # With the version from the last step, write it to the entry PHP file and create the changelog file
-  version:
-    runs-on: ubuntu-latest
-    needs: check_tag
-    if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
+            - uses: pnpm/action-setup@v2
+              with:
+                  version: 9
 
-      - name: Update version in PHP file
-        run: |
-          VERSION=${{ needs.check_tag.outputs.new_tag }}
-          VERSION=${VERSION#v}
-          sed -i "s/Version: .*/Version: $VERSION/" inertia-wordpress.php
+            - name: Setup cache environment
+              id: extcache
+              uses: shivammathur/cache-extensions@v1
+              with:
+                  php-version: ${{ env.PHP_VERSION }}
+                  extensions: ${{ env.PHP_EXTENSIONS }}
+                  key: ${{ env.PHP_CACHE_KEY }}
 
-      - name: Process changelog
-        id: changelog_file
-        run: |
-          if [[ ! -z $(cat changelog/next.md) ]] ; then
-            echo "changelog=${{ needs.check_tag.outputs.new_tag }}-$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-            mv changelog/next.md changelog/${{ needs.check_tag.outputs.new_tag }}-$(date +'%Y-%m-%d').md
-            touch changelog/next.md
-          else
-            echo "changelog=next" >> $GITHUB_OUTPUT
-          fi
+            - name: Cache PHP extensions
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.extcache.outputs.dir }}
+                  key: ${{ steps.extcache.outputs.key }}
+                  restore-keys: ${{ steps.extcache.outputs.key }}
 
-      - name: Commit changes to changelog folder
-        continue-on-error: true
-        run: |
-          git config --global user.email  "noreply@evomark.co.uk"
-          git config --global user.name  "evoMark Action"
-          git add changelog/ inertia-wordpress.php
-          git commit -m "Chore: Updated changelog and version"
-          git push
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ env.PHP_VERSION }}
+                  extensions: ${{ env.PHP_EXTENSIONS }}
+                  ini-values: error_reporting=E_ALL
+                  tools: composer:v2, wp-cli, phpunit-polyfills
+                  coverage: none
 
-    outputs:
-      changelog: ${{ steps.changelog_file.outputs.changelog }}
+            - name: Get Composer cache dir
+              id: composer-cache-dir
+              run: echo dir=$(composer config cache-files-dir) >> $GITHUB_OUTPUT
 
-  # Actually create the git tag
-  tag:
-    runs-on: ubuntu-latest
-    needs:
-      - check_tag
-      - version
-    if: needs.check_tag.outputs.bump != '' && needs.check_tag.outputs.bump != 'none'
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
+            - name: Cache composer vendor files
+              id: cache-composer
+              uses: actions/cache@v4.0.2
+              with:
+                  key: composer-cache-${{ hashFiles('**/composer.lock') }}
+                  path: ${{ steps.composer-cache-dir.outputs.dir }}
+                  restore-keys: composer-cache-
 
-      - name: Fetch and checkout the latest commit
-        run: |
-          git fetch origin main
-          git checkout origin/main
+            - name: Install dependencies
+              uses: nick-fields/retry@v3
+              with:
+                  timeout_minutes: 1
+                  max_attempts: 5
+                  command: composer install --no-interaction
 
-      - name: Bump version and push tag
-        id: tag
-        uses: anothrNick/github-tag-action@1.71.0
-        env:
-          WITH_V: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: none
-          RELEASE_BRANCHES: main
+            - name: Use Node.js 22
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: "pnpm"
+            - run: pnpm -r install
 
-    outputs:
-      bump: ${{ steps.tag.outputs.part }}
-      new_tag: ${{ steps.tag.outputs.new_tag }}
+            - name: Build assets
+              run: pnpm -r run build
 
-  # Create a release with asset
-  release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    needs:
-      - tag
-      - version
-    if: needs.tag.outputs.bump != '' && needs.tag.outputs.bump != 'none'
-    env:
-      PHP_VERSION: "8.3"
-      PHP_EXTENSIONS: dom, curl, libxml, mbstring, zip
-      PHP_CACHE_KEY: extension-cache-v1
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+            - name: Create ZIP for release
+              run: |
+                  mkdir -p temp_inertia-wordpress
+                  rsync -a --exclude-from=exclude.txt . temp_inertia-wordpress/
+                  mv temp_inertia-wordpress inertia-wordpress
+                  zip -r inertia-wordpress.zip inertia-wordpress
+                  rm -rf inertia-wordpress
 
-      - name: Fetch and checkout the latest commit
-        run: |
-          git fetch origin main
-          git checkout origin/main
-
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
-
-      - name: Setup cache environment
-        id: extcache
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: ${{ env.PHP_EXTENSIONS }}
-          key: ${{ env.PHP_CACHE_KEY }}
-
-      - name: Cache PHP extensions
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.extcache.outputs.dir }}
-          key: ${{ steps.extcache.outputs.key }}
-          restore-keys: ${{ steps.extcache.outputs.key }}
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          extensions: ${{ env.PHP_EXTENSIONS }}
-          ini-values: error_reporting=E_ALL
-          tools: composer:v2
-          coverage: none
-
-      - name: Get Composer cache dir
-        id: composer-cache-dir
-        run: echo dir=$(composer config cache-files-dir) >> $GITHUB_OUTPUT
-
-      - name: Cache composer vendor files
-        id: cache-composer
-        uses: actions/cache@v4.0.2
-        with:
-          key: composer-cache-${{ hashFiles('**/composer.lock') }}
-          path: ${{ steps.composer-cache-dir.outputs.dir }}
-          restore-keys: composer-cache-
-
-      - name: Install dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 1
-          max_attempts: 5
-          command: composer install --no-interaction
-
-      - name: Use Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: "pnpm"
-      - run: pnpm -r install
-
-      - name: Build assets
-        run: pnpm -r run build
-
-      - name: Create ZIP for release
-        run: |
-          mkdir -p temp_inertia-wordpress
-          rsync -a --exclude-from=exclude.txt . temp_inertia-wordpress/
-          mv temp_inertia-wordpress inertia-wordpress
-          zip -r inertia-wordpress.zip inertia-wordpress
-          rm -rf inertia-wordpress
-
-      - name: Create Github release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ needs.tag.outputs.new_tag }}
-          name: ${{ needs.tag.outputs.new_tag }}
-          body_path: changelog/${{ needs.version.outputs.changelog }}.md
-          draft: false
-          prerelease: false
-          files: inertia-wordpress.zip
+            - name: Create Github release
+              id: create_release
+              uses: softprops/action-gh-release@v2
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ needs.tag.outputs.new_tag }}
+                  name: ${{ needs.tag.outputs.new_tag }}
+                  body_path: changelog/${{ needs.version.outputs.changelog }}.md
+                  draft: false
+                  prerelease: false
+                  files: inertia-wordpress.zip

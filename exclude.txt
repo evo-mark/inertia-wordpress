@@ -12,3 +12,4 @@ phpcs.xml.dist
 phpunit.xml.dist
 /temp_inertia-wordpress/
 docs/*
+tests/*

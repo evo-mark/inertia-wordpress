@@ -15,6 +15,7 @@ use EvoMark\InertiaWordpress\Props\OptionalProp;
 use EvoMark\InertiaWordpress\Resources\PostResource;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Modules\WooCommerce\Resources\ProductResource;
+use WP_REST_Request;
 
 /**
  * Facade-like functions
@@ -117,6 +118,11 @@ class Inertia
     public static function back(...$params)
     {
         return RequestResponse::back(...$params);
+    }
+
+    public static function backWithErrors(WP_REST_Request $request, array $errors)
+    {
+        return RequestResponse::backWithErrors($request, $errors);
     }
 
     public static function redirect(string $url, ?int $status)
