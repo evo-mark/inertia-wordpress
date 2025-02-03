@@ -63,6 +63,10 @@ abstract class BaseModule
     public function isEnabled()
     {
         $enabledModules = Settings::get('modules');
+        if (empty($enabledModules)) {
+            return false;
+        }
+        
         return (class_exists($this->class) || function_exists($this->class)) &&
             ModuleSetup::checkActive($this->entry) === true &&
             in_array($this->slug, $enabledModules);
