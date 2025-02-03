@@ -2,6 +2,7 @@
 
 namespace EvoMark\InertiaWordpress\Modules\AdvancedCustomFields;
 
+use EvoMark\InertiaWordpress\Helpers\HookFilters;
 use EvoMark\InertiaWordpress\Inertia;
 use EvoMark\InertiaWordpress\Modules\BaseModule;
 
@@ -22,10 +23,20 @@ class Module extends BaseModule
      */
     public function boot(): void
     {
-        Inertia::share('acf', [
-            'post' => $this->getAcfPostFields(),
-            'options' => $this->getAcfOptionsPages(),
-        ]);
+        Inertia::share(
+            'acf',
+            /**
+             * Modify the ACF fields shared with the frontend
+             *
+             * @param stdClass $data The ACF fields
+             *
+             * @since 0.8.0
+             */
+            apply_filters(HookFilters::ACF_SHARE, [
+                'post' => $this->getAcfPostFields(),
+                'options' => $this->getAcfOptionsPages(),
+            ])
+        );
     }
 
     /**
@@ -34,7 +45,15 @@ class Module extends BaseModule
     private function getAcfPostFields()
     {
         if (!function_exists('get_field_objects')) {
-            return (object) [];
+
+            /**
+             * Modify the ACF fields associated with the current post
+             *
+             * @param stdClass $data The post fields to share
+             *
+             * @since 0.8.0
+             */
+            return apply_filters(HookFilters::ACF_POST_FIELDS, (object) []);
         }
         $acf = get_field_objects();
         $acf = $acf !== false ? $acf : [];
@@ -44,7 +63,14 @@ class Module extends BaseModule
             $results[$key] = $field['value'];
         }
 
-        return (object) $results;
+        /**
+         * Modify the ACF fields associated with the current post
+         *
+         * @param stdClass $data The post fields to share
+         *
+         * @since 0.8.0
+         */
+        return apply_filters(HookFilters::ACF_POST_FIELDS, (object) $results);
     }
 
     /**
@@ -54,7 +80,15 @@ class Module extends BaseModule
     {
         $pages = [];
         if (! $definedPages = acf_get_options_pages()) {
-            return (object) $pages;
+
+            /**
+             * Modify the ACF fields associated with any defined options pages
+             *
+             * @param stdClass $data The global options pages
+             *
+             * @since 0.8.0
+             */
+            return apply_filters(HookFilters::ACF_OPTIONS_PAGES, (object) $pages);
         };
 
         foreach (array_keys($definedPages) as $key) {
@@ -75,6 +109,13 @@ class Module extends BaseModule
             $pages[$key] = $fieldsWithValues;
         }
 
-        return $pages;
+        /**
+         * Modify the ACF fields associated with any defined options pages
+         *
+         * @param stdClass $data The global options pages
+         *
+         * @since 0.8.0
+         */
+        return apply_filters(HookFilters::ACF_OPTIONS_PAGES, (object) $pages);
     }
 }

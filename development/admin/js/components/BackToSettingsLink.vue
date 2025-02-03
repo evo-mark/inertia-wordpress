@@ -1,6 +1,6 @@
 <template>
-	<router-link :to="{ name: 'settings' }">
-		<VBtn variant="text" :prepend-icon="mdiChevronLeft" color="warning">Return to Settings</VBtn>
+	<router-link :to="{ name: 'modules' }">
+		<VBtn variant="text" :prepend-icon="mdiChevronLeft" color="warning">Return to Modules</VBtn>
 	</router-link>
 </template>
 

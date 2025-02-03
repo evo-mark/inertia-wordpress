@@ -57,5 +57,5 @@ import { computed } from "vue";
 import { mdiCogOffOutline } from "@mdi/js";
 
 const { settings } = useSettings(["modules"]);
-const isEnabled = computed(() => settings.value?.modules && settings.value.modules.includes("cf7"));
+const isEnabled = computed(() => settings.value?.modules && settings.value.modules.includes("acf"));
 </script>

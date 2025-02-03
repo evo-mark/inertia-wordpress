@@ -1,8 +1,11 @@
 import AdvancedCustomFields from "../pages/modules/AdvancedCustomFields.vue";
 import ContactForm7 from "../pages/modules/ContactForm7.vue";
+import NinjaForms from "../pages/modules/NinjaForms.vue";
 import TheSeoFramework from "../pages/modules/TheSeoFramework.vue";
 import WooCommerce from "../pages/modules/WooCommerce.vue";
 import SettingsPage from "../pages/Settings.vue";
+import ModulesPage from "../pages/modules/index.vue";
+import WebPExpress from "../pages/modules/WebPExpress.vue";
 
 export default [
 	{
@@ -12,6 +15,14 @@ export default [
 			title: "Inertia Settings",
 		},
 		name: "settings",
+	},
+	{
+		path: "/modules",
+		component: ModulesPage,
+		meta: {
+			title: "Modules",
+		},
+		name: "modules",
 	},
 	{
 		path: "/modules/acf",
@@ -28,6 +39,22 @@ export default [
 			title: "Modules: Contact Form 7",
 		},
 		name: "modules.cf7",
+	},
+	{
+		path: "/modules/ninja-forms",
+		component: NinjaForms,
+		meta: {
+			title: "Modules: Ninja Forms",
+		},
+		name: "modules.ninja-forms",
+	},
+	{
+		path: "/modules/webp-express",
+		component: WebPExpress,
+		meta: {
+			title: "Modules: WebP Express",
+		},
+		name: "modules.webp-express",
 	},
 	{
 		path: "/modules/seo-framework",

@@ -81,7 +81,7 @@ class ThemeSetup
             echo $controller->handle();
         } else {
             $class = Utils::getClass(Path::join($controllerDir, 'error.php'));
-            if (in_array('EvoMark\InertiaWordpress\Contracts\InertiaControllerContract', class_implements($class)) === false) {
+            if (empty($class) || in_array('EvoMark\InertiaWordpress\Contracts\InertiaControllerContract', class_implements($class)) === false) {
                 return $template;
             }
             Inertia::share('error', 404);

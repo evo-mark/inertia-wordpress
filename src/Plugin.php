@@ -9,6 +9,7 @@ use EvoWpRestRegistration\RestApi;
 use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Header;
 use EvoMark\InertiaWordpress\Data\MessageBag;
+use EvoMark\InertiaWordpress\Helpers\Admin;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Theme\ThemeSetup;
 use EvoMark\InertiaWordpress\Modules\ModuleSetup;
@@ -89,6 +90,7 @@ class Plugin
 
     private function registerSettings()
     {
+        Admin::setup();
         Settings::registerPage();
 
         register_setting('inertia', 'inertia_ssr_enabled', [

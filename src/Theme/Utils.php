@@ -7,7 +7,7 @@ class Utils
     public static function getClass($path)
     {
         if (empty($path) || !file_exists($path)) {
-            return [];
+            return null;
         }
 
         $classes = get_declared_classes();

@@ -16,7 +16,25 @@
 use EvoMark\InertiaWordpress\Container;
 use EvoMark\InertiaWordpress\Plugin;
 
-require_once __DIR__ . "/vendor/autoload.php";
+$dir = get_option('inertia-wordpress__autoload-path', __DIR__);
+$autoloaded = false;
+
+while ($dir !== '/') {
+    $autoloadPath = $dir . '/vendor/autoload.php';
+
+    if (file_exists($autoloadPath)) {
+        require_once $autoloadPath;
+        update_option('inertia-wordpress__autoload-path', $dir);
+        $autoloaded = true;
+        break;
+    }
+
+    $dir = dirname($dir);
+}
+
+if ($autoloaded === false) {
+    throw new RuntimeException('No autoload.php file was found');
+}
 
 $container = Container::getInstance();
 $plugin = $container->get(Plugin::class);

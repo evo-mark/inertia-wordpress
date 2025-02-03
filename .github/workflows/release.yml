@@ -203,3 +203,33 @@ jobs:
                   draft: false
                   prerelease: false
                   files: inertia-wordpress.zip
+
+            - name: Deploy to dist repo
+              id: deploy_to_dist_repo
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.DEPLOY_DIST_PACKAGIST }}" > ~/.ssh/id_ed25519
+                  chmod 600 ~/.ssh/id_ed25519
+                  ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
+                  mkdir dist
+                  cd dist
+                  git init
+                  cp -r ../build ./build
+                  cp -r ../changelog ./changelog
+                  cp -r ../lib ./lib
+                  cp -r ../resources ./resources
+                  cp -r ../src ./src
+                  cp -r ../stubs ./stubs
+                  cp ../composer.json ./composer.json
+                  cp ../composer.lock ./composer.lock
+                  cp ../inertia-wordpress.php ./inertia-wordpress.php
+                  cp ../package.json ./package.json
+                  cp ../pnpm-lock.yaml ./pnpm-lock.yaml
+                  cp ../README.md ./README.md
+                  echo -e "> [!IMPORTANT]\n> This is a READONLY repo used for distribution of the plugin via Packagist. Please go to [evo-mark/inertia-wordpress](https://github.com/evo-mark/inertia-wordpress) for the main repo.\n---\n" | cat - README.md > temp && mv temp README.md
+                  git add .
+                  git commit -m "Deploy"
+                  git tag ${{ needs.tag.outputs.new_tag }}
+                  git remote add origin git@github.com:evo-mark/wp-inertia.git
+                  git push -f origin main
+                  git push --tags

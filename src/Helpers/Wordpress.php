@@ -147,10 +147,11 @@ class Wordpress
             $items_by_parent[$item->menu_item_parent][] = $item;
         }
 
-        $buildTree = function ($parentId) use (&$items_by_parent, &$buildTree) {
+        $buildTree = function ($parentId) use (&$items_by_parent, &$buildTree, $menuId) {
             $tree = [];
             if (isset($items_by_parent[$parentId])) {
                 foreach ($items_by_parent[$parentId] as $item) {
+                    $rawItem = $item;
                     $item = MenuItemResource::single($item);
                     $children = $buildTree($item->id);
                     $item->items = count($children) > 0 ? $children : null;
@@ -162,9 +163,11 @@ class Wordpress
                      *
                      * @param stdClass $item The generated menu item object
                      * @param string $parentId The ID of the menu item's parent. Default is "0"
+                     * @param \WP_Post $rawItem The original menu item class
+                     * @param int $menuId The ID of the menu that the item belongs to
                      * @return stdClass $item
                      */
-                    $tree[] = apply_filters(HookFilters::MENU_ITEM, $item, $parentId);
+                    $tree[] = apply_filters(HookFilters::MENU_ITEM, $item, $parentId, $rawItem, $menuId);
                 }
             }
             return $tree;

@@ -33,6 +33,16 @@ abstract class BaseModule
     }
 
     /**
+     * The init function is called when the class is instantiated, regardless
+     * of whether or not the module is enabled.
+     * You should use this function to provide any setup that needs to run
+     * no matter what. It should never be used to modify frontend output
+     */
+    public function init()
+    {
+    }
+
+    /**
      * The register function is called before a module instance is created.
      * You should only use this to register essential side-effects using
      * Wordpress hooks.

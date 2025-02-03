@@ -27,9 +27,52 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 import InertiaLogo from "components/InertiaLogo.vue";
 import BuyMeACoffee from "components/BuyMeACoffee.vue";
 import GithubSponsors from "components/GithubSponsors.vue";
+
+const router = useRouter();
+
+const updateCurrent = (el) => {
+	const menuEl = el.closest("ul");
+	menuEl.querySelectorAll("li").forEach((li) => {
+		if (li.classList.contains("wp-submenu-head")) return;
+
+		li.classList.remove("current");
+		const a = li.querySelector("a");
+		a.classList.remove("current");
+	});
+
+	el.classList.add("current");
+	el.closest("li").classList.add("current");
+};
+
+router.beforeEach((to) => {
+	if (to.name.startsWith("modules")) {
+		updateCurrent(document.querySelector('#toplevel_page_inertia-wordpress a[href$="modules"]'));
+	}
+});
+
+/**
+ * Intercept WP sidebar navigation and feed into VueRouter
+ */
+onMounted(() => {
+	const menuParent = document.querySelector("li.toplevel_page_inertia-wordpress");
+	menuParent.addEventListener("click", (ev) => {
+		ev.preventDefault();
+		const target = ev.target.closest("a");
+		if (!target) return;
+
+		// eslint-disable-next-line no-unused-vars
+		const [root, path] = target.href.split("#");
+		const destination = path ? path : "/";
+
+		router.push("/" + destination);
+		updateCurrent(target);
+	});
+});
 </script>
 
 <style lang="postcss">

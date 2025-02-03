@@ -2,6 +2,8 @@
 
 namespace EvoMark\InertiaWordpress\Resources;
 
+use EvoMark\InertiaWordpress\Helpers\HookFilters;
+
 class ImageResource
 {
     public static function single(?int $attachment_id = null, array $args = [])
@@ -32,17 +34,37 @@ class ImageResource
             'sizes' => $images,
             'metadata' => self::getImageMetadata($attachment_id),
             'exists' => !empty($attachment_id),
+            'original' => wp_get_original_image_url($attachment_id),
         ];
 
-        return $imageObject;
+        /**
+         * Modify the image object for an image passed through the ImageResource
+         *
+         * @param stdClass $image The object containing the image
+         * @param int $attachment_id The attachment ID used as the basis for the image
+         *
+         * @since 0.8.0
+         */
+        return apply_filters(HookFilters::RESOURCES_IMAGE_ITEM, $imageObject, $attachment_id);
     }
 
     public static function collection(array $attachment_ids = [], array $args = [])
     {
-        return array_map(fn ($id) => self::single($id, $args), $attachment_ids);
+        $collection = array_map(fn ($id) => self::single($id, $args), $attachment_ids);
+
+        /**
+         * Modify a collection of images returned as an array
+         *
+         * @param array $collection The array of images
+         * @param array $attachment_ids The attachment IDs used as the basis for the collection
+         * @param array $args Associative array of arguments passed through to the item resource
+         *
+         * @since 0.8.0
+         */
+        return apply_filters(HookFilters::RESOURCES_IMAGE_COLLECTION, $collection, $attachment_ids, $args);
     }
 
-    public static function getImageMetadata($id)
+    public static function getImageMetadata($id): array
     {
         $meta = [];
         $meta['alt'] = get_post_meta($id, '_wp_attachment_image_alt', true);
@@ -53,6 +75,14 @@ class ImageResource
         $meta['type'] = get_post_field('post_type', $id);
         $meta['mime'] = get_post_field('post_mime_type', $id);
 
-        return $meta;
+        /**
+         * Get the metadata associated with the image
+         *
+         * @param array $meta The metadata associative array
+         * @param int $id The attachment ID of the image being fetched
+         *
+         * @since 0.8.0
+         */
+        return apply_filters(HookFilters::RESOURCES_IMAGE_METADATA, $meta, $id);
     }
 }
