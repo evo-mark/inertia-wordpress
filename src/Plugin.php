@@ -10,6 +10,7 @@ use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Header;
 use EvoMark\InertiaWordpress\Data\MessageBag;
 use EvoMark\InertiaWordpress\Helpers\Admin;
+use EvoMark\InertiaWordpress\Helpers\Efficiency;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Theme\ThemeSetup;
 use EvoMark\InertiaWordpress\Modules\ModuleSetup;
@@ -60,6 +61,7 @@ class Plugin
         $this->registerRest();
         $this->registerRestErrorHandler();
         ThemeSetup::init();
+        Efficiency::init();
     }
 
     /**
@@ -141,6 +143,18 @@ class Plugin
             'type' => 'string',
             'default' => 'resources/js/templates',
             'label' => 'Theme templates directory',
+        ]);
+
+        register_setting('inertia', 'inertia_remove_emojis', [
+            'type' => 'boolean',
+            'default' => false,
+            'label' => 'Remove Emojis',
+        ]);
+
+        register_setting('inertia', 'inertia_remove_jquery', [
+            'type' => 'boolean',
+            'default' => false,
+            'label' => 'Remove jQuery',
         ]);
     }
 

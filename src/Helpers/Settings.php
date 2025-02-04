@@ -9,16 +9,28 @@ class Settings
 {
     public static $prefix = "inertia_";
 
+    public static function cast($value, $type)
+    {
+        switch ($type) {
+            case "boolean":
+                return boolval($value);
+            default:
+                return $value;
+        }
+    }
+
     public static function get(array|string $fields): mixed
     {
+        $registered = get_registered_settings();
         $isSingle = is_string($fields);
         $fields = (array) $fields;
 
         $payload = [];
         foreach ($fields as $key => $field) {
             $optionName = self::$prefix . $field;
+            $type = $registered[$optionName]['type'] ?? null;
 
-            $payload[$field] = sanitize_option($optionName, get_option($optionName));
+            $payload[$field] = self::cast(sanitize_option($optionName, get_option($optionName)), $type);
         }
 
         if (true === $isSingle) {

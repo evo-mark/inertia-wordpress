@@ -4,6 +4,7 @@ import NinjaForms from "../pages/modules/NinjaForms.vue";
 import TheSeoFramework from "../pages/modules/TheSeoFramework.vue";
 import WooCommerce from "../pages/modules/WooCommerce.vue";
 import SettingsPage from "../pages/Settings.vue";
+import WordpressPage from "../pages/Wordpress.vue";
 import ModulesPage from "../pages/modules/index.vue";
 import WebPExpress from "../pages/modules/WebPExpress.vue";
 
@@ -15,6 +16,14 @@ export default [
 			title: "Inertia Settings",
 		},
 		name: "settings",
+	},
+	{
+		path: "/wordpress",
+		component: WordpressPage,
+		meta: {
+			title: "Wordpress Settings",
+		},
+		name: "wordpress",
 	},
 	{
 		path: "/modules",

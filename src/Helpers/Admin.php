@@ -32,6 +32,7 @@ class Admin
 
             self::registerSubMenus([
                 '' => 'Settings',
+                'wordpress' => 'Wordpress',
                 'modules' => 'Modules',
             ]);
         });

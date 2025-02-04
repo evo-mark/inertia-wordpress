@@ -52,6 +52,8 @@ const updateCurrent = (el) => {
 router.beforeEach((to) => {
 	if (to.name.startsWith("modules")) {
 		updateCurrent(document.querySelector('#toplevel_page_inertia-wordpress a[href$="modules"]'));
+	} else if (to.name.startsWith("wordpress")) {
+		updateCurrent(document.querySelector('#toplevel_page_inertia-wordpress a[href$="#wordpress"]'));
 	}
 });
 
