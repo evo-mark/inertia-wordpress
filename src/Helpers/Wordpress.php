@@ -142,6 +142,7 @@ class Wordpress
     public static function createMenuTree($menuId, $args): array
     {
         $items = wp_get_nav_menu_items($menuId, $args);
+
         $items_by_parent = [];
         foreach ($items as $item) {
             $items_by_parent[$item->menu_item_parent][] = $item;

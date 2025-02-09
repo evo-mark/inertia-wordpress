@@ -38,18 +38,14 @@ abstract class BaseModule
      * You should use this function to provide any setup that needs to run
      * no matter what. It should never be used to modify frontend output
      */
-    public function init()
-    {
-    }
+    public function init() {}
 
     /**
      * The register function is called before a module instance is created.
      * You should only use this to register essential side-effects using
      * Wordpress hooks.
      */
-    public function register()
-    {
-    }
+    public function register() {}
 
 
     /**
@@ -66,7 +62,6 @@ abstract class BaseModule
         if (empty($enabledModules)) {
             return false;
         }
-        
         return (class_exists($this->class) || function_exists($this->class)) &&
             ModuleSetup::checkActive($this->entry) === true &&
             in_array($this->slug, $enabledModules);

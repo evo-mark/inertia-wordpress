@@ -13,5 +13,9 @@ export const resolvePageTemplate = async (templates, query, extension) => {
 	resolvedTemplate =
 		resolvedTemplate && typeof resolvedTemplate === "function" ? await resolvedTemplate() : resolvedTemplate;
 
-	return resolvedTemplate?.default ?? resolvedTemplate;
+	const processedTemplate = resolvedTemplate?.default ?? resolvedTemplate;
+	if (processedTemplate) {
+		processedTemplate._is_template = true;
+	}
+	return processedTemplate;
 };

@@ -138,7 +138,9 @@ class RequestHandler
 
     public function isPartial(): bool
     {
-        return $this->getHeader(Header::PARTIAL_COMPONENT) === $this->component;
+        $rawHeader = $this->getHeader(Header::PARTIAL_COMPONENT);
+        $header = !empty($rawHeader) ? strstr($rawHeader, '?', true) : $rawHeader;
+        return $header === $this->component;
     }
 
     public function isInertia(): bool

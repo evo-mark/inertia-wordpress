@@ -17,16 +17,16 @@
     "license": "ISC",
     "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c",
     "devDependencies": {
-        "@eslint/js": "^9.19.0",
-        "eslint": "^9.19.0",
+        "@eslint/js": "^9.20.0",
+        "eslint": "^9.20.0",
         "eslint-config-prettier": "^10.0.1",
         "globals": "^15.14.0",
         "husky": "^9.1.7",
         "lint-staged": "^15.4.3",
         "postcss": "^8.5.1",
         "postcss-nested": "^7.0.2",
-        "prettier": "^3.4.2",
-        "vite": "^6.0.11",
+        "prettier": "^3.5.0",
+        "vite": "^6.1.0",
         "vitepress": "^1.6.3"
     },
     "dependencies": {

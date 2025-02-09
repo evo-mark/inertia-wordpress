@@ -193,8 +193,14 @@ class Plugin
         if (is_wp_error($response) && $request->get_header(Header::INERTIA) === "true") {
             /** @var \WP_Error $response */
             $bag = $request->get_header(Header::ERROR_BAG) ?? "default";
+            $errorData = $response->error_data['rest_invalid_param']['params'] ?? [];
+
+            if (empty($errorData)) {
+                $errorData['content'] = collect($response->errors)->first()[0] ?? "An error occurred";
+            }
+
             RequestResponse::setFlashData('errors', [
-                $bag => new MessageBag(RequestResponse::formatErrors($response->error_data['rest_invalid_param']['params'] ?? [])),
+                $bag => new MessageBag(RequestResponse::formatErrors($errorData)),
             ]);
             return Inertia::back();
         }

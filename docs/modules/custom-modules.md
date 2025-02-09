@@ -32,6 +32,14 @@ class YourModule extends BaseModule
     protected array|string $entry = ['advanced-custom-fields-pro/acf.php', 'acf-pro/acf.php'];
 
     /**
+     * Always called immediately regardless of status
+     */
+    public function init()
+    {
+        //
+    }
+
+    /**
      * Called immediately if the module is enabled and plugin installed/activated
      */
     public function register()
@@ -78,9 +86,10 @@ Don't forget to enable your module in the `Inertia -> Settings` menu once it is 
 
 1. Plugin boots
 2. All modules are added to the registry
-3. Checks that the `$class` for the plugin exists
-4. Checks that plugin is activated (using `$entry`)
-5. Checks that the module is enabled
-6. If all checks pass, the module's `register` method is called
-7. Request is handled through the controller
-8. `boot` method is called just before a response is sent
+3. `init` method is called on each module (if present)
+4. Checks that the `$class` for the plugin exists
+5. Checks that plugin is activated (using `$entry`)
+6. Checks that the module is enabled
+7. If all checks pass, the module's `register` method is called
+8. Request is handled through the controller
+9. `boot` method is called just before a response is sent

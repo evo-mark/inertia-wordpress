@@ -1,64 +1,64 @@
 {
-    "name": "evo-mark/inertia-wordpress",
-    "type": "wordpress-plugin",
-    "description": "Inertia adapter for Wordpress applications",
-    "keywords": [
-        "wordpress",
-        "plugin"
-    ],
-    "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist",
-        "sort-packages": true
-    },
-    "homepage": "https://github.com/evo-mark/inertia-wordpress",
-    "authors": [
-        {
-            "name": "Craig Riley",
-            "homepage": "https://evomark.co.uk"
-        }
-    ],
-    "support": {
-        "source": "https://github.com/evo-mark/inertia-wordpress",
-        "issues": "https://github.com/evo-mark/inertia-wordpress/issues"
-    },
-    "require": {
-        "php": ">=8.2",
-        "evo-mark/evo-wp-rest-registration": "^4.1",
-        "evo-mark/wp-vite": "^1.2",
-        "guzzlehttp/guzzle": "^7.9",
-        "illuminate/collections": "^11.35",
-        "nesbot/carbon": "^3.8",
-        "php-di/php-di": "^7.0",
-        "symfony/console": "^7.2",
-        "symfony/process": "^7.2",
-        "yahnis-elsts/plugin-update-checker": "^5.5"
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.65",
-        "php-stubs/wordpress-stubs": "^6.3",
-        "php-stubs/wordpress-tests-stubs": "^6.7",
-        "php-stubs/wp-cli-stubs": "^2.8",
-        "phpunit/phpunit": "^9.0",
-        "symfony/var-dumper": "^7.2",
-        "yoast/phpunit-polyfills": "^3.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "EvoMark\\InertiaWordpress\\": "src/"
-        },
-        "files": [
-            "lib/functions.php"
-        ]
-    },
-    "scripts": {
-        "cs-check": [
-            "./vendor/bin/php-cs-fixer check --config ./.php-cs-fixer.php -vvv"
-        ],
-        "cs-fix": [
-            "./vendor/bin/php-cs-fixer fix --config ./.php-cs-fixer.php -vvv"
-        ]
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+	"name": "evo-mark/inertia-wordpress",
+	"type": "wordpress-plugin",
+	"description": "Inertia adapter for Wordpress applications",
+	"keywords": [
+		"wordpress",
+		"plugin"
+	],
+	"config": {
+		"optimize-autoloader": true,
+		"preferred-install": "dist",
+		"sort-packages": true
+	},
+	"homepage": "https://github.com/evo-mark/inertia-wordpress",
+	"authors": [
+		{
+			"name": "Craig Riley",
+			"homepage": "https://evomark.co.uk"
+		}
+	],
+	"support": {
+		"source": "https://github.com/evo-mark/inertia-wordpress",
+		"issues": "https://github.com/evo-mark/inertia-wordpress/issues"
+	},
+	"require": {
+		"php": ">=8.2",
+		"evo-mark/evo-wp-rest-registration": "^4.1",
+		"evo-mark/wp-vite": "^1.2",
+		"guzzlehttp/guzzle": "^7.9",
+		"illuminate/collections": "^11.35",
+		"nesbot/carbon": "^3.8",
+		"php-di/php-di": "^7.0",
+		"symfony/console": "^7.2",
+		"symfony/process": "^7.2",
+		"yahnis-elsts/plugin-update-checker": "^5.5"
+	},
+	"require-dev": {
+		"friendsofphp/php-cs-fixer": "^3.65",
+		"php-stubs/wordpress-stubs": "^6.3",
+		"php-stubs/wordpress-tests-stubs": "^6.7",
+		"php-stubs/wp-cli-stubs": "^2.8",
+		"phpunit/phpunit": ">=11.0",
+		"symfony/var-dumper": "^7.2",
+		"yoast/phpunit-polyfills": "^3.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"EvoMark\\InertiaWordpress\\": "src/"
+		},
+		"files": [
+			"lib/functions.php"
+		]
+	},
+	"scripts": {
+		"cs-check": [
+			"./vendor/bin/php-cs-fixer check --config ./.php-cs-fixer.php -vvv"
+		],
+		"cs-fix": [
+			"./vendor/bin/php-cs-fixer fix --config ./.php-cs-fixer.php -vvv"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
