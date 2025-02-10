@@ -11,6 +11,7 @@ use EvoMark\InertiaWordpress\Helpers\Header;
 use EvoMark\InertiaWordpress\Data\MessageBag;
 use EvoMark\InertiaWordpress\Helpers\Admin;
 use EvoMark\InertiaWordpress\Helpers\Efficiency;
+use EvoMark\InertiaWordpress\Helpers\HookFilters;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Theme\ThemeSetup;
 use EvoMark\InertiaWordpress\Modules\ModuleSetup;
@@ -24,7 +25,7 @@ class Plugin
 {
     public function __construct()
     {
-        add_action('init', [$this, 'init']);
+        add_action('plugins_loaded', [$this, 'init'], 5);
         add_action('admin_init', [$this, 'adminInit']);
         add_action('rest_api_init', [$this, 'restApiInit']);
         add_action('plugins_loaded', [ModuleSetup::class, 'init']);
@@ -148,13 +149,37 @@ class Plugin
         register_setting('inertia', 'inertia_remove_emojis', [
             'type' => 'boolean',
             'default' => false,
-            'label' => 'Remove Emojis',
+            'label' => 'Remove emojis',
         ]);
 
         register_setting('inertia', 'inertia_remove_jquery', [
             'type' => 'boolean',
             'default' => false,
             'label' => 'Remove jQuery',
+        ]);
+
+        register_setting('inertia', 'inertia_remove_global_styles', [
+            'type' => 'boolean',
+            'default' => false,
+            'label' => 'Remove global styles',
+        ]);
+
+        register_setting('inertia', 'inertia_load_blocks_separately', [
+            'type' => 'boolean',
+            'default' => false,
+            'label' => 'Load core blocks separately',
+        ]);
+
+        register_setting('inertia', 'inertia_blocked_admin_roles', [
+            'type' => 'array',
+            'default' => ['subscriber'],
+            'label' => 'Roles that are blocked from admin',
+        ]);
+
+        register_setting('inertia', 'inertia_blocked_admin_roles_hide_bar', [
+            'type' => 'boolean',
+            'default' => true,
+            'label' => 'Hide admin bar from blocked admin-area users',
         ]);
     }
 
@@ -196,12 +221,30 @@ class Plugin
             $errorData = $response->error_data['rest_invalid_param']['params'] ?? [];
 
             if (empty($errorData)) {
-                $errorData['content'] = collect($response->errors)->first()[0] ?? "An error occurred";
+                $errorData['_message'] = collect($response->errors)->first()[0] ?? "An error occurred";
             }
 
+            /**
+             * Modify the error bag (if present) before flashing to the session and returning
+             *
+             * @since 0.8.0
+             *
+             * @param MessageBag The data object containing the errors
+             * @param WP_Error The error response
+             * @param WP_REST_Request The Wordpress request instance
+             * @return MessageBag Modified data object
+             */
+            $errorBag = apply_filters(
+                HookFilters::REST_ERROR_BAG,
+                new MessageBag(RequestResponse::formatErrors($errorData)),
+                $response,
+                $request
+            );
+
             RequestResponse::setFlashData('errors', [
-                $bag => new MessageBag(RequestResponse::formatErrors($errorData)),
+                $bag => $errorBag,
             ]);
+
             return Inertia::back();
         }
 

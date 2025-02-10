@@ -26,9 +26,14 @@ class Settings
         $fields = (array) $fields;
 
         $payload = [];
-        foreach ($fields as $key => $field) {
+        foreach ($fields as $field) {
             $optionName = self::$prefix . $field;
-            $type = $registered[$optionName]['type'] ?? null;
+            $optionMeta = $registered[$optionName];
+            if (empty($optionMeta) || $optionMeta['group'] !== "inertia") {
+                continue;
+            }
+
+            $type = $optionMeta['type'] ?? null;
 
             $payload[$field] = self::cast(sanitize_option($optionName, get_option($optionName)), $type);
         }

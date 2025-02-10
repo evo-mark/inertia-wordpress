@@ -14,6 +14,8 @@ class HookFilters
     public const RESOURCES_IMAGE_COLLECTION = "inertia_resources_image_collection";
     public const RESOURCES_IMAGE_METADATA = "inertia_resources_image_metadata";
 
+    public const REST_ERROR_BAG = "inertia_rest_error_bag";
+
 
     /**
      * Modules

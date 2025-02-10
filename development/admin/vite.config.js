@@ -23,6 +23,7 @@ export default ({ mode }) => {
 		},
 		server: {
 			host: env.VITE_DEV_SERVER ?? "127.0.0.1",
+			cors: true,
 		},
 		resolve: {
 			alias: {

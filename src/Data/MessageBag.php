@@ -16,4 +16,21 @@ class MessageBag
     {
         return $this->messages;
     }
+
+    /**
+     * Update a message inside the bag
+     */
+    public function update(string $key, string $value): static
+    {
+        $this->messages[$key] = [$value];
+
+        return $this;
+    }
+
+    public function remove(string $key): static
+    {
+        unset($this->messages[$key]);
+
+        return $this;
+    }
 }
