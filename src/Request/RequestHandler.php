@@ -407,6 +407,7 @@ class RequestHandler
             'nonces' => [
                 'rest' => wp_create_nonce('wp_rest'),
                 'ajax' => wp_create_nonce('ajax_nonce'),
+                'logout' => wp_create_nonce('inertia_logout'),
             ],
             'comments' => [
                 'showAvatars' => boolval(get_option('show_avatars')),
