@@ -32,7 +32,7 @@ class YourModule extends BaseModule
     protected array|string $entry = ['advanced-custom-fields-pro/acf.php', 'acf-pro/acf.php'];
 
     /**
-     * Always called immediately regardless of status
+     * Always called immediately regardless of status.
      */
     public function init()
     {

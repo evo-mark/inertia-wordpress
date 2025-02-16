@@ -66,6 +66,10 @@ export const sidebar = [
 				link: "/modules/the-seo-framework",
 			},
 			{
+				text: "WebP Express",
+				link: "/modules/webp-express",
+			},
+			{
 				text: "Custom Modules",
 				link: "/modules/custom-modules",
 			},
