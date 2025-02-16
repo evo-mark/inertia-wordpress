@@ -214,6 +214,9 @@ jobs:
                   mkdir dist
                   cd dist
                   git init
+                  git config --global init.defaultBranch main
+                  git config --global user.email "github@evomark.co.uk"
+                  git config --global user.name "Github Action"
                   cp -r ../build ./build
                   cp -r ../changelog ./changelog
                   cp -r ../lib ./lib
