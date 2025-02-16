@@ -11,6 +11,7 @@
 - **Improvement**: New detection for `vendor/autoload.php` to allow use in roots/bedrock project
 - **Improvement**: Return generic form validation errors as `_message` to form helper.
 - **Improvement**: Ensure settings belong to the `inertia` group before attempting to load them via REST
+- **Improvement**: Add checks for file locations and display notices on settings pages
 
 - **BugFix**: Fix errant underlines in README
 - **BugFix**: ACF status inside admin-module page showing wrong data

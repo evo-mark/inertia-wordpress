@@ -20,6 +20,15 @@
 		</VAppBar>
 		<VMain>
 			<VContainer fluid>
+				<VExpandTransition>
+					<div v-if="notices.length">
+						<VAlert class="mb-4" type="warning" prominent density="compact">
+							<div class="flex flex-col gap-y-2">
+								<div v-for="(notice, index) in notices" :key="index" v-html="notice" />
+							</div>
+						</VAlert>
+					</div>
+				</VExpandTransition>
 				<router-view></router-view>
 			</VContainer>
 		</VMain>
@@ -29,11 +38,13 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useApi } from "../composables/useApi";
 import InertiaLogo from "components/InertiaLogo.vue";
 import BuyMeACoffee from "components/BuyMeACoffee.vue";
 import GithubSponsors from "components/GithubSponsors.vue";
 
 const router = useRouter();
+const api = useApi();
 
 const updateCurrent = (el) => {
 	const menuEl = el.closest("ul");
@@ -74,6 +85,14 @@ onMounted(() => {
 		router.push("/" + destination);
 		updateCurrent(target);
 	});
+});
+
+/* *********************************************
+ * Notices
+ * ******************************************* */
+const notices = ref([]);
+api.get("notices").then((res) => {
+	notices.value = res.data.notices;
 });
 </script>
 

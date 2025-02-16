@@ -23,7 +23,7 @@
 	</VBanner>
 	<EvoSetting
 		title="Encrypt"
-		description="When you visit pages with Inertia, page props are saved to the browser's history. If you save sensitive details with page props, it's recommended to encrypt the data."
+		description="When you visit pages with Inertia, page props are saved to the browser's history. If you send down sensitive details with page props, it's recommended to encrypt the data."
 	>
 		<VSwitch v-model="settings.history_encrypt" label="Encrypt" />
 	</EvoSetting>
