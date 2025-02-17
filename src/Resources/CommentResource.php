@@ -28,7 +28,7 @@ class CommentResource implements InertiaResource
             'authorUrl' => $comment->comment_author_url,
             'authorAvatar' => get_avatar_url($comment->comment_author_email),
             'karma'     => intval($comment->comment_karma),
-            'content'   => $comment->comment_content,
+            'content'   => htmlspecialchars($comment->comment_content, ENT_QUOTES, 'UTF-8'),
             'date'      => $comment->comment_date_gmt,
             'children'  => self::collection($comment->get_children()),
         ];
