@@ -90,6 +90,10 @@ class Wordpress
         $registered = get_registered_nav_menus();
         $locations = get_nav_menu_locations();
         foreach ($locations as $name => $menuId) {
+            if (!array_key_exists($name, $registered)) {
+                continue;
+            }
+
             $menus[$name] = [
                 'label' => $registered[$name],
                 ...self::getNavigationMenu($menuId),
