@@ -14,6 +14,11 @@ class ThemeSetup
     public static function init()
     {
         add_filter('template_include', [__CLASS__, 'handleTemplateInclude']);
+        add_action('after_setup_theme', [__CLASS__, 'setupTheme']);
+    }
+
+    public static function setupTheme()
+    {
         self::addTemplateDirectories();
         self::enqueueScripts();
         self::getThemeVersion();
@@ -43,8 +48,9 @@ class ThemeSetup
 
     public static function getThemeVersion()
     {
+        $viteDistDir = apply_filters('vite_dist_path', wp_upload_dir()['basedir'] . DIRECTORY_SEPARATOR . 'scw-vite-hmr');
         $entryNamespace = Settings::get('entry_namespace');
-        $viteDir =  Path::join(wp_upload_dir()['basedir'], 'scw-vite-hmr', $entryNamespace);
+        $viteDir =  Path::join($viteDistDir, $entryNamespace);
         $container = Container::getInstance();
         $request = $container->get('requestHandler');
         $manifestPath = Path::join($viteDir, 'build', 'manifest.json');

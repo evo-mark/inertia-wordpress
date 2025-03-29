@@ -25,7 +25,9 @@ class StartSsrCommand
         }
 
         $namespace = Settings::get('entry_namespace');
-        $target = Path::join(wp_upload_dir()['basedir'], 'scw-vite-hmr', $namespace, 'ssr', 'ssr.mjs');
+        $viteDistPath = apply_filters('vite_dist_path', wp_upload_dir()['basedir'] . DIRECTORY_SEPARATOR . 'scw-vite-hmr');
+
+        $target = Path::join($viteDistPath, $namespace, 'ssr', 'ssr.mjs');
 
         if (!file_exists($target)) {
             WP_CLI::error("Couldn't find Inertia SSR file. Ensure you have run a build of your theme and try again.");
