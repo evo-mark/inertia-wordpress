@@ -1,2 +1,0 @@
-- **BugFix**: Skip empty menu locations in Wordpress helper
-- **Chore**: Updated dependencies
