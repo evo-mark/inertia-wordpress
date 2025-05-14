@@ -27,7 +27,7 @@
 		"evo-mark/evo-wp-rest-registration": "^4.1",
 		"evo-mark/wp-vite": "^1.2",
 		"guzzlehttp/guzzle": "^7.9",
-		"illuminate/collections": "^11.35",
+		"illuminate/collections": "^12.0",
 		"nesbot/carbon": "^3.8",
 		"php-di/php-di": "^7.0",
 		"symfony/console": "^7.2",

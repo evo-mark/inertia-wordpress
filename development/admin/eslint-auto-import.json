@@ -76,6 +76,8 @@
     "watchPostEffect": true,
     "watchSyncEffect": true,
     "useApi": true,
-    "useSettings": true
+    "useSettings": true,
+    "Slot": true,
+    "Slots": true
   }
 }
