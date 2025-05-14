@@ -234,5 +234,6 @@ jobs:
                   git commit -m "Deploy"
                   git tag ${{ needs.tag.outputs.new_tag }}
                   git remote add origin git@github.com:evo-mark/wp-inertia.git
-                  git push -f origin main
+                  git branch -M main
+                  git push -u origin main --force
                   git push --tags
