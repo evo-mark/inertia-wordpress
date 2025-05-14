@@ -160,7 +160,7 @@ jobs:
 
             - name: Cache composer vendor files
               id: cache-composer
-              uses: actions/cache@v4.0.2
+              uses: actions/cache@v4
               with:
                   key: composer-cache-${{ hashFiles('**/composer.lock') }}
                   path: ${{ steps.composer-cache-dir.outputs.dir }}
