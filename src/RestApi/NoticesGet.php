@@ -37,7 +37,7 @@ class NoticesGet extends BaseRestController
         if (file_exists($templates) === false) {
             $notices[] = "Your templates folder doesn't appear to exist. Check the location in your Inertia settings page";
         }
-        if (file_exists($node) !== false) {
+        if (file_exists($node) === false) {
             $notices[] = "You haven't installed your node dependencies in your theme. Follow the instructions at <a href='https://inertia-wordpress.evomark.co.uk/getting-started/finishing-theme-setup.html' target='_blank'>the documentation site</a> to finish your set up.";
         }
 
