@@ -1,4 +1,0 @@
-- **BugFix**: Wrong comparator for Node install check in notices
-- **BugFix**: Handle no layout (default) when resolving page
-- **Security**: Force Axios version >= 1.9.0 to avoid possible SSRF and credential leakage
-- **Security**: Force @babel/runtime version >= 7.26.10 to fix inefficient regex complexity
