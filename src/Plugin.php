@@ -28,7 +28,7 @@ class Plugin
         add_action('plugins_loaded', [$this, 'init'], 5);
         add_action('admin_init', [$this, 'adminInit']);
         add_action('rest_api_init', [$this, 'restApiInit']);
-        add_action('plugins_loaded', [ModuleSetup::class, 'init']);
+        add_action('after_setup_theme', [ModuleSetup::class, 'init']);
     }
 
     /**

@@ -1,0 +1,1 @@
+- **BugFix**: Moved the module setup hook to fire `after_setup_theme` since it was firing before themes could add modules
