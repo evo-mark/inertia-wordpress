@@ -38,6 +38,9 @@ For more information on InertiaJS, visit the [Official Website](https://inertiaj
 
 ## Support Open-Source Software
 
+> [!TIP]
+> When we get to 10 contributions on BuyMeACoffee with "Inertia" included in the note, we'll finish work on the WooCommerce integration.
+
 We're providing this community adapter free-of-charge without any paywalled features. However, all development and maintenance costs time, energy and money. So please help fund this project if you can.
 
 <p align="center" style="display:flex;align-items:center;gap:1rem;justify-content:center">
