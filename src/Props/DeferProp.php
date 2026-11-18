@@ -5,16 +5,18 @@ namespace EvoMark\InertiaWordpress\Props;
 use EvoMark\InertiaWordpress\Traits\MergesProps;
 use EvoMark\InertiaWordpress\Contracts\Mergeable;
 use EvoMark\InertiaWordpress\Contracts\IgnoreFirstLoad;
+use EvoMark\InertiaWordpress\Traits\ResolvesCallables;
 
 class DeferProp implements IgnoreFirstLoad, Mergeable
 {
     use MergesProps;
+    use ResolvesCallables;
 
     protected $callback;
 
     protected $group;
 
-    public function __construct(callable $callback, ?string $group = null)
+    public function __construct(callable $callback, string $group = 'default')
     {
         $this->callback = $callback;
         $this->group = $group;
@@ -27,6 +29,6 @@ class DeferProp implements IgnoreFirstLoad, Mergeable
 
     public function __invoke()
     {
-        return call_user_func($this->callback);
+        return $this->resolveCallable($this->callback);
     }
 }

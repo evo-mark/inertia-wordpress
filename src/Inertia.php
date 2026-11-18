@@ -3,6 +3,8 @@
 namespace EvoMark\InertiaWordpress;
 
 use EvoMark\InertiaWordpress\Data\Archive;
+use EvoMark\InertiaWordpress\Data\HttpResponse;
+use EvoMark\InertiaWordpress\Request\RequestHandler;
 use EvoMark\InertiaWordpress\Helpers\Header;
 use EvoMark\InertiaWordpress\Helpers\Plugin;
 use EvoMark\InertiaWordpress\Props\LazyProp;
@@ -49,6 +51,10 @@ class Inertia
     {
         $request = inertia_request();
         $request->setClearHistory();
+
+        // Also carry the flag to the next page rendered for this visitor, so that
+        // clearing history and then redirecting (e.g. after logout) still works.
+        RequestResponse::setFlashData(RequestHandler::CLEAR_HISTORY_FLASH_KEY, true);
     }
 
     /**
@@ -69,6 +75,16 @@ class Inertia
     {
         $request = inertia_request();
         return $request->getVersion();
+    }
+
+    /**
+     * Set the current asset version. A closure is resolved lazily, the first time the
+     * version is needed.
+     */
+    public static function version(\Closure|string|int|null $version): void
+    {
+        $request = inertia_request();
+        $request->setVersion($version);
     }
 
     /**
@@ -99,20 +115,25 @@ class Inertia
         return new AlwaysProp($value);
     }
 
+    /**
+     * Send the visitor to a URL with a full page load, e.g. an external site.
+     * Inertia visits get a 409 + X-Inertia-Location (the client then does window.location);
+     * other requests get a plain redirect. External URLs are allowed. This ends the request.
+     */
     public static function location(string $url)
     {
-        $container = Container::getInstance();
-        $request = $container->get('requestHandler');
+        $request = inertia_request();
 
         if ($request->isInertia()) {
-            header(ucwords(Header::LOCATION, "-") . ": " . $url);
-            header("Content-Type: text/html; charset=UTF-8", true);
-            status_header(409);
-            exit;
+            RequestResponse::emit(new HttpResponse(409, [
+                ucwords(Header::LOCATION, "-") => $url,
+                'Content-Type' => 'text/html; charset=UTF-8',
+            ], ''));
+
+            return;
         }
 
-        wp_redirect($url, 302, 'Inertia');
-        exit;
+        RequestResponse::emit(HttpResponse::redirect($url, 302, safe: false));
     }
 
     public static function back(...$params)
@@ -125,7 +146,7 @@ class Inertia
         return RequestResponse::backWithErrors($request, $errors);
     }
 
-    public static function redirect(string $url, ?int $status)
+    public static function redirect(string $url, ?int $status = 302)
     {
         return RequestResponse::redirect($url, $status);
     }

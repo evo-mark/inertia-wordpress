@@ -2,8 +2,12 @@
 
 namespace EvoMark\InertiaWordpress\Props;
 
+use EvoMark\InertiaWordpress\Traits\ResolvesCallables;
+
 class AlwaysProp
 {
+    use ResolvesCallables;
+
     /** @var mixed */
     protected $value;
 
@@ -17,6 +21,6 @@ class AlwaysProp
 
     public function __invoke()
     {
-        return is_callable($this->value) ? call_user_func($this->value) : $this->value;
+        return $this->resolveCallable($this->value);
     }
 }

@@ -3,6 +3,7 @@
 namespace EvoMark\InertiaWordpress\Modules\WooCommerce\RestApi;
 
 use EvoWpRestRegistration\BaseRestController;
+use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use WP_REST_Request;
 
 class AddressUpdatePut extends BaseRestController
@@ -145,7 +146,7 @@ class AddressUpdatePut extends BaseRestController
          */
         do_action('woocommerce_customer_save_address', $user_id, $address_type);
 
-        wp_safe_redirect(wc_get_endpoint_url('edit-address', '', wc_get_page_permalink('myaccount')));
-        exit;
+        // A PUT, so Inertia visits get a 303 rather than a 302.
+        RequestResponse::redirect(wc_get_endpoint_url('edit-address', '', wc_get_page_permalink('myaccount')));
     }
 }

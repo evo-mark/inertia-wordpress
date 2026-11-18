@@ -3,9 +3,12 @@
 namespace EvoMark\InertiaWordpress\Props;
 
 use EvoMark\InertiaWordpress\Contracts\IgnoreFirstLoad;
+use EvoMark\InertiaWordpress\Traits\ResolvesCallables;
 
 class LazyProp implements IgnoreFirstLoad
 {
+    use ResolvesCallables;
+
     protected $callback;
 
     public function __construct(callable $callback)
@@ -15,6 +18,6 @@ class LazyProp implements IgnoreFirstLoad
 
     public function __invoke()
     {
-        return call_user_func($this->callback);
+        return $this->resolveCallable($this->callback);
     }
 }

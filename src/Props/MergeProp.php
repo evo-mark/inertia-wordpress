@@ -4,10 +4,12 @@ namespace EvoMark\InertiaWordpress\Props;
 
 use EvoMark\InertiaWordpress\Traits\MergesProps;
 use EvoMark\InertiaWordpress\Contracts\Mergeable;
+use EvoMark\InertiaWordpress\Traits\ResolvesCallables;
 
 class MergeProp implements Mergeable
 {
     use MergesProps;
+    use ResolvesCallables;
 
     /** @var mixed */
     protected $value;
@@ -23,6 +25,6 @@ class MergeProp implements Mergeable
 
     public function __invoke()
     {
-        return is_callable($this->value) ? call_user_func($this->value) : $this->value;
+        return $this->resolveCallable($this->value);
     }
 }

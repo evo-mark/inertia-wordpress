@@ -1,42 +1,18 @@
 <?php
 
 /**
- * PHPUnit bootstrap file.
+ * PHPUnit bootstrap for the unit suite.
  *
- * @package Inertia_Wordpress
+ * WordPress is not loaded. WP functions are stubbed per-test with Brain Monkey
+ * (see tests/TestCase.php), and a handful of WP classes have minimal doubles in
+ * tests/Stubs/WordPress.php.
  */
 
-$_tests_dir = getenv('WP_TESTS_DIR');
-require_once __DIR__ . "/../vendor/autoload.php";
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-if (! $_tests_dir) {
-    $_tests_dir = rtrim(sys_get_temp_dir(), '/\\') . '/wordpress-tests-lib';
-}
+defined('ABSPATH') || define('ABSPATH', sys_get_temp_dir() . '/inertia-wordpress-tests/');
+defined('COOKIEPATH') || define('COOKIEPATH', '/');
+defined('COOKIE_DOMAIN') || define('COOKIE_DOMAIN', '');
+defined('HOUR_IN_SECONDS') || define('HOUR_IN_SECONDS', 3600);
 
-// Forward custom PHPUnit Polyfills configuration to PHPUnit bootstrap file.
-$_phpunit_polyfills_path = getenv('WP_TESTS_PHPUNIT_POLYFILLS_PATH');
-if (false !== $_phpunit_polyfills_path) {
-    define('WP_TESTS_PHPUNIT_POLYFILLS_PATH', $_phpunit_polyfills_path);
-}
-
-if (! file_exists("{$_tests_dir}/includes/functions.php")) {
-    echo "Could not find {$_tests_dir}/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-    exit(1);
-}
-
-// Give access to tests_add_filter() function.
-require_once "{$_tests_dir}/includes/functions.php";
-
-/**
- * Manually load the plugin being tested.
- */
-function _manually_load_plugin()
-{
-    require dirname(dirname(__FILE__)) . '/inertia-wordpress.php';
-}
-
-/** @disregard P1010 */
-tests_add_filter('muplugins_loaded', '_manually_load_plugin');
-
-// Start up the WP testing environment.
-require "{$_tests_dir}/includes/bootstrap.php";
+require_once __DIR__ . '/Stubs/WordPress.php';

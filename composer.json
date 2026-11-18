@@ -35,6 +35,7 @@
 		"yahnis-elsts/plugin-update-checker": "^5.5"
 	},
 	"require-dev": {
+		"brain/monkey": "^2.6",
 		"friendsofphp/php-cs-fixer": "^3.65",
 		"php-stubs/wordpress-stubs": "^6.3",
 		"php-stubs/wordpress-tests-stubs": "^6.7",
@@ -51,7 +52,15 @@
 			"lib/functions.php"
 		]
 	},
+	"autoload-dev": {
+		"psr-4": {
+			"EvoMark\\InertiaWordpress\\Tests\\": "tests/"
+		}
+	},
 	"scripts": {
+		"test": [
+			"./vendor/bin/phpunit"
+		],
 		"cs-check": [
 			"./vendor/bin/php-cs-fixer check --config ./.php-cs-fixer.php -vvv"
 		],

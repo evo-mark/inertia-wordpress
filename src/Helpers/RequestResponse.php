@@ -2,6 +2,10 @@
 
 namespace EvoMark\InertiaWordpress\Helpers;
 
+use EvoMark\InertiaWordpress\Container;
+use EvoMark\InertiaWordpress\Contracts\ResponseEmitter;
+use EvoMark\InertiaWordpress\Data\HttpResponse;
+
 class RequestResponse
 {
     public static function getMethod(): string
@@ -9,33 +13,62 @@ class RequestResponse
         return strtoupper($_SERVER['REQUEST_METHOD'] ?? "GET");
     }
 
+    /**
+     * Send a response through the bound ResponseEmitter. This ends the request.
+     */
+    public static function emit(HttpResponse $response): void
+    {
+        Container::getInstance()->get(ResponseEmitter::class)->emit($response);
+    }
+
     public static function back($status = 302)
     {
-        self::redirect(wp_get_referer(), $status);
+        self::redirect(wp_get_referer() ?: home_url(), $status);
     }
 
     public static function redirect(string $url, ?int $status = 302)
     {
-        if ($url) {
-            wp_safe_redirect($url, $status, "Inertia");
-            exit;
-        } else {
-            wp_safe_redirect(home_url(), $status, "Inertia");
-            exit;
+        $status = self::resolveRedirectStatus($status ?? 302);
+
+        self::emit(HttpResponse::redirect($url !== '' ? $url : home_url(), $status));
+    }
+
+    /**
+     * After a PUT/PATCH/DELETE, an Inertia redirect must be a 303 so the browser follows it
+     * with a GET rather than repeating the original method. Other statuses are left alone.
+     */
+    public static function resolveRedirectStatus(int $status): int
+    {
+        if (
+            $status === 302
+            && in_array(self::getMethod(), ['PUT', 'PATCH', 'DELETE'], true)
+            && inertia_request()->isInertia()
+        ) {
+            return 303;
         }
+
+        return $status;
     }
 
     public static function getTemporaryId(): string
     {
         if (! isset($_COOKIE['_temp_id'])) {
             $tempId = bin2hex(random_bytes(16));
-            setcookie('_temp_id', $tempId, [
-                'expires' => 0,
-                'path' => COOKIEPATH,
-                'domain' => COOKIE_DOMAIN,
-                'httponly' => true,
-                'samesite' => 'Strict',
-            ]);
+
+            if (! headers_sent()) {
+                setcookie('_temp_id', $tempId, [
+                    'expires' => 0,
+                    'path' => COOKIEPATH,
+                    'domain' => COOKIE_DOMAIN,
+                    'httponly' => true,
+                    'samesite' => 'Strict',
+                ]);
+            }
+
+            // Reuse the same ID for the rest of this request rather than minting (and
+            // re-sending) a new one on every flash read/write.
+            $_COOKIE['_temp_id'] = $tempId;
+
             return $tempId;
         }
         return $_COOKIE['_temp_id'];

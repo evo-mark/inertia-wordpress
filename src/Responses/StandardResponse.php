@@ -13,15 +13,16 @@ class StandardResponse
     {
         $request = inertia_request();
 
-        $id = $args['id'] ?? "app";
+        $id = esc_attr($args['id'] ?? "app");
         $class = $args['class'] ?? "";
+        $classAttribute = $class !== "" ? " class=\"" . esc_attr($class) . "\"" : "";
 
         $page = json_encode($request->getPageData());
         $page = htmlspecialchars($page, ENT_QUOTES, 'UTF-8');
 
         wp_body_open();
 
-        echo "<div id=\"$id\" class=\"$class\" data-page=\"$page\"></div>";
+        echo "<div id=\"$id\"$classAttribute data-page=\"$page\"></div>";
 
         wp_footer();
     }

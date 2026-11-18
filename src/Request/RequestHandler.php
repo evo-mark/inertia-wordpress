@@ -25,9 +25,15 @@ use EvoMark\InertiaWordpress\Helpers\HookActions;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Helpers\Wordpress;
 use EvoMark\InertiaWordpress\Resources\UserResource;
+use EvoMark\InertiaWordpress\Traits\ResolvesCallables;
 
 class RequestHandler
 {
+    use ResolvesCallables;
+
+    /** Flash key used to carry Inertia::clearHistory() across a redirect. */
+    public const CLEAR_HISTORY_FLASH_KEY = 'clear_history';
+
     protected ?DataSsrResponse $ssr;
     public bool $ssrEnabled = false;
     protected string $ssrUrl = "";
@@ -94,14 +100,34 @@ class RequestHandler
         $this->ssr = $ssr;
     }
 
-    public function getVersion()
+    /**
+     * The current asset version. Always a string so it compares cleanly with the
+     * X-Inertia-Version request header; an unset version is "".
+     */
+    public function getVersion(): string
     {
-        return $this->version;
+        // A closure version is resolved on first use and then cached.
+        if ($this->useAsCallable($this->version)) {
+            $this->version = $this->resolveCallable($this->version);
+        }
+
+        return (string) ($this->version ?? '');
     }
 
     public function setVersion($version)
     {
         $this->version = $version;
+    }
+
+    /**
+     * A GET Inertia visit whose X-Inertia-Version doesn't match the current asset version
+     * must be answered with a 409 so the client does a full page reload.
+     */
+    public function hasVersionMismatch(): bool
+    {
+        return $this->isInertia()
+            && RequestResponse::getMethod() === 'GET'
+            && (string) $this->getHeader(Header::VERSION, '') !== $this->getVersion();
     }
 
     public function setUrl()
@@ -130,17 +156,27 @@ class RequestHandler
         $this->encryptHistory = $encrypt;
     }
 
+    /**
+     * The protocol identifies Inertia visits by the X-Inertia header alone.
+     */
     public function checkForInertiaRequest(): bool
     {
-        return $this->getHeader('x-requested-with') === "XMLHttpRequest" &&
-            $this->getHeader(Header::INERTIA) === "true";
+        return $this->getHeader(Header::INERTIA) === "true";
     }
 
     public function isPartial(): bool
     {
-        $rawHeader = $this->getHeader(Header::PARTIAL_COMPONENT);
-        $header = !empty($rawHeader) ? strstr($rawHeader, '?', true) : $rawHeader;
-        return $header === $this->component;
+        $header = $this->getHeader(Header::PARTIAL_COMPONENT);
+
+        if (! is_string($header) || $header === '') {
+            return false;
+        }
+
+        // The client echoes back the component it received, which carries a "?template=..."
+        // suffix when a page template is selected (see Wordpress::getTemplate()).
+        $component = explode('?', $header, 2)[0];
+
+        return $component === $this->component;
     }
 
     public function isInertia(): bool
@@ -150,12 +186,19 @@ class RequestHandler
 
     public function getPageData(): array
     {
+        // Picks up (and consumes) a clearHistory() made before a redirect. Kept on the
+        // handler so repeated getPageData() calls in one request (e.g. SSR) agree.
+        if (RequestResponse::getFlashData(self::CLEAR_HISTORY_FLASH_KEY, false)) {
+            $this->clearHistory = true;
+        }
+
+        // Key order follows the protocol's page object.
         return array_merge(
             [
-                'url' => $this->url,
-                'props' => $this->resolveProperties(),
-                'version' => $this->version,
                 'component' => $this->component . Wordpress::getTemplate(),
+                'props' => $this->resolveProperties(),
+                'url' => $this->url,
+                'version' => $this->getVersion(),
                 'clearHistory' => $this->clearHistory,
                 'encryptHistory' => $this->encryptHistory,
             ],
@@ -165,9 +208,18 @@ class RequestHandler
         );
     }
 
+    /**
+     * Shared props overlaid with the page's own props: page props win on key conflicts,
+     * and shared keys come first so their dot props are unpacked before the page's.
+     */
+    private function allProps(): Collection
+    {
+        return $this->sharedProps->merge($this->props);
+    }
+
     private function resolveProperties(): array
     {
-        $props = $this->props->merge($this->sharedProps);
+        $props = $this->allProps();
         $props = $this->resolvePartialProperties($props);
         $props = $this->resolveArrayableProperties($props);
         $props = $this->resolveAlways($props);
@@ -183,24 +235,26 @@ class RequestHandler
             });
         }
 
-        $only = $this->headers->has(Header::PARTIAL_ONLY) ? array_filter(explode(",", $this->headers[Header::PARTIAL_ONLY])) : [];
-        $except = $this->headers->has(Header::PARTIAL_EXCEPT) ? array_filter(explode(",", $this->headers[Header::PARTIAL_EXCEPT])) : [];
+        $only = $this->getHeaderList(Header::PARTIAL_ONLY);
+        $except = $this->getHeaderList(Header::PARTIAL_EXCEPT);
+
+        $all = $props->all();
 
         if (count($only)) {
             $newProps = [];
 
             foreach ($only as $key) {
-                Arr::set($newProps, $key, $props->get($key));
+                Arr::set($newProps, $key, Arr::get($all, $key));
             }
 
-            $props = collect($newProps);
+            $all = $newProps;
         }
 
         if (count($except)) {
-            $props->forget($except);
+            Arr::forget($all, $except);
         }
 
-        return $props;
+        return collect($all);
     }
 
     private function resolveArrayableProperties(Collection $props, bool $unpackDotProps = true): Collection
@@ -211,16 +265,19 @@ class RequestHandler
             }
 
             if (is_array($value)) {
-                $value = $this->resolveArrayableProperties(collect($value), false);
+                // Keep nested values as plain arrays so Arr::set() can unpack dot props into them.
+                $value = $this->resolveArrayableProperties(collect($value), false)->all();
             }
 
-            if ($value instanceof Closure || is_callable($value)) {
-                $value = call_user_func($value);
-            }
+            // Only closures and invokable objects; strings and arrays are data, never callables.
+            $value = $this->resolveCallable($value);
 
             if ($unpackDotProps && str_contains($key, '.')) {
-                $props = collect(Arr::set($props->all(), $key, $value));
-                $props->forget($key);
+                // Arr::set() returns the innermost array, not the root, so mutate a copy in place.
+                $all = $props->all();
+                unset($all[$key]);
+                Arr::set($all, $key, $value);
+                $props = collect($all);
             } else {
                 $props->put($key, $value);
             }
@@ -234,7 +291,7 @@ class RequestHandler
      */
     private function resolveAlways(Collection $props): Collection
     {
-        $allProps = $this->props->merge($this->sharedProps);
+        $allProps = $this->allProps();
         $always = $allProps->filter(function ($prop) {
             return $prop instanceof AlwaysProp;
         });
@@ -274,10 +331,9 @@ class RequestHandler
 
     private function resolveMergeProps(): array
     {
-        $allProps = $this->props->merge($this->sharedProps);
-        $resetProps = collect(explode(',', $this->getHeader(Header::RESET, "")));
+        $resetProps = $this->getHeaderList(Header::RESET);
 
-        $mergeProps = collect($allProps)
+        $mergeProps = $this->allProps()
             ->filter(function ($prop) {
                 return $prop instanceof Mergeable;
             })
@@ -285,10 +341,21 @@ class RequestHandler
                 /** @var Mergeable $prop */
                 return $prop->shouldMerge();
             })
-            ->filter(function ($prop, $key) use ($resetProps) {
-                return ! $resetProps->contains($key);
-            })
-            ->keys();
+            ->except($resetProps);
+
+        // Only advertise merge props that this partial reload actually sends.
+        if ($this->isPartial()) {
+            $only = $this->getHeaderList(Header::PARTIAL_ONLY);
+            $except = $this->getHeaderList(Header::PARTIAL_EXCEPT);
+
+            if (count($only)) {
+                $mergeProps = $mergeProps->only($only);
+            }
+
+            $mergeProps = $mergeProps->except($except);
+        }
+
+        $mergeProps = $mergeProps->keys();
 
         return $mergeProps->isNotEmpty() ? ['mergeProps' => $mergeProps->toArray()] : [];
     }
@@ -299,7 +366,7 @@ class RequestHandler
             return [];
         }
 
-        $allProps = $this->props->merge($this->sharedProps);
+        $allProps = $this->allProps();
 
         $deferredProps = collect($allProps)
             ->filter(function ($prop) {
@@ -334,6 +401,22 @@ class RequestHandler
                 return intval($value);
             }),
         ];
+    }
+
+    /**
+     * Parse a comma-separated header (e.g. X-Inertia-Partial-Data) into a list of keys.
+     *
+     * @return array<int, string>
+     */
+    public function getHeaderList(string $header): array
+    {
+        $value = $this->getHeader($header, '');
+
+        if (! is_string($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map('trim', explode(',', $value)), fn ($key) => $key !== ''));
     }
 
     public function getHeader(string $header, mixed $defaultValue = null): mixed
@@ -375,10 +458,11 @@ class RequestHandler
      */
     public function share($key, $value = null): void
     {
+        // Collection::merge() returns a new collection rather than mutating, so reassign it.
         if (is_array($key)) {
-            $this->sharedProps->merge($key);
+            $this->sharedProps = $this->sharedProps->merge($key);
         } elseif ($key instanceof Arrayable) {
-            $this->sharedProps->merge($key->toArray());
+            $this->sharedProps = $this->sharedProps->merge($key->toArray());
         } else {
             $this->sharedProps->put($key, $value);
         }

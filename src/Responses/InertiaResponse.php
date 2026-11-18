@@ -2,32 +2,38 @@
 
 namespace EvoMark\InertiaWordpress\Responses;
 
+use EvoMark\InertiaWordpress\Data\HttpResponse;
 use EvoMark\InertiaWordpress\Helpers\Header;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Inertia;
 
 class InertiaResponse
 {
+    /**
+     * Send the page object to an Inertia visit as JSON. This ends the request.
+     */
     public static function handle()
     {
         $request = inertia_request();
-        $requestedUrl = home_url($_SERVER['REQUEST_URI']);
 
-        $page = $request->getPageData();
-
-        if (RequestResponse::getMethod() === "GET" && $request->getHeader(Header::VERSION, "") !== Inertia::getVersion()) {
-            // Can't use wp_redirect because WP doesn't allow non-3xx redirection codes
-            Inertia::location($requestedUrl);
+        // Normally caught earlier by InertiaController::render() so that flash data and
+        // errors are not consumed; kept here for anything calling handle() directly.
+        if ($request->hasVersionMismatch()) {
+            return self::handleVersionChange();
         }
 
-        if (http_response_code() === 302 && in_array(RequestResponse::getMethod(), ['PUT', 'PATCH', 'DELETE'])) {
-            status_header(303);
-        }
+        RequestResponse::emit(HttpResponse::json($request->getPageData(), 200, [
+            ucwords(Header::INERTIA, "-") => 'true',
+            'Vary' => ucwords(Header::INERTIA, "-"),
+        ]));
+    }
 
-        header('Vary: Accept');
-        header(ucwords(Header::INERTIA, "-") . ": true");
-
-
-        wp_send_json($page);
+    /**
+     * Tell the client its assets are stale: it will reload the requested URL with a full visit.
+     */
+    public static function handleVersionChange()
+    {
+        // Can't use wp_redirect because WP doesn't allow non-3xx redirection codes
+        return Inertia::location(home_url($_SERVER['REQUEST_URI'] ?? '/'));
     }
 }

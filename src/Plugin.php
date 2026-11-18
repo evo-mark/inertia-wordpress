@@ -15,9 +15,10 @@ use EvoMark\InertiaWordpress\Helpers\HookFilters;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Theme\ThemeSetup;
 use EvoMark\InertiaWordpress\Modules\ModuleSetup;
-use YahnisElsts\PluginUpdateChecker\v5p5\Vcs\Api;
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 use EvoMark\InertiaWordpress\Request\RequestHandler;
+use EvoMark\InertiaWordpress\Contracts\ResponseEmitter;
+use EvoMark\InertiaWordpress\Responses\WordpressEmitter;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Helpers\Plugin as HelpersPlugin;
 
@@ -42,6 +43,7 @@ class Plugin
         $container->set('env.root', plugin_dir_path($entryFile));
         $container->set('env.baseUrl', plugin_dir_url($entryFile));
         $container->set('requestHandler', \Di\create(RequestHandler::class));
+        $container->set(ResponseEmitter::class, \Di\create(WordpressEmitter::class));
         HelpersPlugin::setPluginVersion();
 
         $uploadDir = wp_upload_dir()['basedir'];
@@ -195,7 +197,8 @@ class Plugin
             'inertia-wordpress'
         );
         /** @disregard P1013 Is a valid function */
-        $checker->getVcsApi()->enableReleaseAssets('/\.zip($|[?&#])/i', Api::REQUIRE_RELEASE_ASSETS);
+        // 2 = Vcs\Api::REQUIRE_RELEASE_ASSETS (inlined; the Api class lives in a minor-versioned namespace)
+        $checker->getVcsApi()->enableReleaseAssets('/\.zip($|[?&#])/i', 2);
     }
 
     private function registerRest()
