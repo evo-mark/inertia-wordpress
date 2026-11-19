@@ -126,9 +126,8 @@ jobs:
                   git fetch origin main
                   git checkout origin/main
 
-            - uses: pnpm/action-setup@v2
-              with:
-                  version: 9
+            # pnpm version comes from "packageManager" in package.json
+            - uses: pnpm/action-setup@v4
 
             - name: Setup cache environment
               id: extcache
@@ -173,10 +172,10 @@ jobs:
                   max_attempts: 5
                   command: composer install --no-dev --no-interaction
 
-            - name: Use Node.js 22
+            - name: Use Node.js 24
               uses: actions/setup-node@v4
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: "pnpm"
             - run: pnpm -r install
 
@@ -229,6 +228,7 @@ jobs:
                   cp ../package.json ./package.json
                   cp ../pnpm-lock.yaml ./pnpm-lock.yaml
                   cp ../README.md ./README.md
+                  cp ../LICENCE.md ./LICENCE.md
                   echo -e "> [!IMPORTANT]\n> This is a READONLY repo used for distribution of the plugin via Packagist. Please go to [evo-mark/inertia-wordpress](https://github.com/evo-mark/inertia-wordpress) for the main repo.\n---\n" | cat - README.md > temp && mv temp README.md
                   git add .
                   git commit -m "Deploy"

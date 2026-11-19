@@ -1,8 +1,8 @@
 import { defineConfig } from "vitepress";
-import { socialLinks } from "./helpers/socialLinks";
-import { generateChangelogMenu } from "./helpers/generateChangelogMenu";
-import { sidebar } from "./helpers/sidebar";
-import { copyChangelogs } from "./helpers/copyChangelogs";
+import { socialLinks } from "./helpers/socialLinks.js";
+import { generateChangelogMenu } from "./helpers/generateChangelogMenu.js";
+import { sidebar } from "./helpers/sidebar.js";
+import { copyChangelogs } from "./helpers/copyChangelogs.js";
 
 copyChangelogs();
 

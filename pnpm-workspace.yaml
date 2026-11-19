@@ -1,5 +1,5 @@
 packages:
   - development/admin
 
-onlyBuiltDependencies:
-  - '@parcel/watcher'
+allowBuilds:
+  '@parcel/watcher': true

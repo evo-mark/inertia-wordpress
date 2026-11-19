@@ -22,14 +22,13 @@ jobs:
                       docs
                       changelog
 
-            - uses: pnpm/action-setup@v2
-              with:
-                  version: 9
+            # pnpm version comes from "packageManager" in package.json
+            - uses: pnpm/action-setup@v4
 
-            - name: Use Node.js 22
+            - name: Use Node.js 24
               uses: actions/setup-node@v4
               with:
-                  node-version: 22
+                  node-version: 24
                   cache: "pnpm"
             - run: pnpm -r install
 
