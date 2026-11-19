@@ -4,10 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  axios: '>=1.9.0'
-  '@babel/runtime': '>=7.26.10'
-
 importers:
 
   .:
@@ -1185,7 +1181,7 @@ packages:
     resolution: {integrity: sha512-fbGYivgK5uBTRt7p5F3zy6VrETlV9RtZjBqd1/HxGdjdckBgBM4ugP8LHpjolqTj14TXTxSK1ZfgPbHYyGuH7g==}
     peerDependencies:
       async-validator: ^4
-      axios: '>=1.9.0'
+      axios: ^1
       change-case: ^5
       drauu: ^0.4
       focus-trap: ^7
