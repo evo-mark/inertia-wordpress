@@ -2,8 +2,11 @@
 
 namespace EvoMark\InertiaWordpress\Tests\Unit\Ssr;
 
+use Brain\Monkey\Actions;
+use Brain\Monkey\Functions;
 use EvoMark\InertiaWordpress\Container;
 use EvoMark\InertiaWordpress\Data\SsrResponse;
+use EvoMark\InertiaWordpress\Helpers\HookActions;
 use EvoMark\InertiaWordpress\Ssr\HttpGateway;
 use EvoMark\InertiaWordpress\Tests\TestCase;
 use GuzzleHttp\Client;
@@ -36,6 +39,8 @@ class HttpGatewayTest extends TestCase
 
     private HttpGateway $gateway;
 
+    private string $uploads;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,6 +51,31 @@ class HttpGatewayTest extends TestCase
 
         $this->gateway = new HttpGateway(new Client(['handler' => $stack]));
         Container::getInstance()->set(HttpGateway::class, $this->gateway);
+
+        // A built SSR bundle, which the gateway requires before calling the server.
+        $this->uploads = sys_get_temp_dir() . '/inertia-wordpress-tests/uploads-' . bin2hex(random_bytes(4));
+        Functions\when('wp_upload_dir')->justReturn(['basedir' => $this->uploads]);
+        $this->writeBundle();
+    }
+
+    protected function tearDown(): void
+    {
+        if (is_file(HttpGateway::bundlePath())) {
+            unlink(HttpGateway::bundlePath());
+        }
+
+        parent::tearDown();
+    }
+
+    private function writeBundle(): void
+    {
+        $bundle = HttpGateway::bundlePath();
+
+        if (! is_dir(dirname($bundle))) {
+            mkdir(dirname($bundle), 0o777, true);
+        }
+
+        file_put_contents($bundle, '// built SSR bundle');
     }
 
     private function ssrSucceeds(): void
@@ -198,5 +228,64 @@ class HttpGatewayTest extends TestCase
         $this->captureOutput(fn () => inertia_head());
 
         $this->assertSame(self::PAGE, json_decode((string) $this->history[0]['request']->getBody(), true));
+    }
+
+    public function test_it_returns_null_without_a_request_when_the_bundle_has_not_been_built(): void
+    {
+        $this->setSetting('ssr_enabled', true);
+        unlink(HttpGateway::bundlePath());
+
+        $this->assertNull($this->gateway->dispatch(self::PAGE));
+        $this->assertCount(0, $this->history, 'No request should be sent without a built bundle.');
+    }
+
+    public function test_failures_fire_the_ssr_failed_action(): void
+    {
+        $this->setSetting('ssr_enabled', true);
+        $this->mock->append(new Response(500));
+
+        Actions\expectDone(HookActions::SSR_FAILED)->once();
+
+        $this->assertNull($this->gateway->dispatch(self::PAGE));
+    }
+
+    public function test_inertia_body_renders_server_side_rendered_content_without_inertia_head(): void
+    {
+        // Previously a fatal error: the SSR request was only made from inertia_head().
+        $this->setSetting('ssr_enabled', true);
+        $this->ssrSucceeds();
+        $request = $this->makeRequest('/test');
+        $request->setComponent('Foo/Bar');
+
+        $html = $this->captureOutput(fn () => inertia_body());
+
+        $this->assertSame('<div id="app">SSR Response</div>', $html);
+        $this->assertCount(1, $this->history);
+    }
+
+    public function test_server_side_rendered_body_runs_the_body_open_and_footer_hooks(): void
+    {
+        $this->setSetting('ssr_enabled', true);
+        $this->ssrSucceeds();
+        $request = $this->makeRequest('/test');
+        $request->setComponent('Foo/Bar');
+
+        $this->captureOutput(fn () => inertia_head());
+        $this->captureOutput(fn () => inertia_body());
+
+        $this->assertHookCalled('wp_head');
+        $this->assertHookCalled('wp_body_open');
+        $this->assertHookCalled('wp_footer');
+    }
+
+    public function test_the_gateway_is_not_used_when_ssr_is_disabled(): void
+    {
+        Container::getInstance()->set(HttpGateway::class, fn () => $this->fail('The gateway should not be resolved.'));
+        $request = $this->makeRequest('/test');
+        $request->setComponent('Foo/Bar');
+
+        $body = $this->captureOutput(fn () => inertia_body());
+
+        $this->assertSame('Foo/Bar', $this->extractPageFromHtml($body)['component']);
     }
 }

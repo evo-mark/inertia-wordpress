@@ -4,12 +4,15 @@ namespace EvoMark\InertiaWordpress\Props;
 
 use EvoMark\InertiaWordpress\Traits\MergesProps;
 use EvoMark\InertiaWordpress\Contracts\Mergeable;
+use EvoMark\InertiaWordpress\Contracts\Onceable;
 use EvoMark\InertiaWordpress\Traits\ResolvesCallables;
+use EvoMark\InertiaWordpress\Traits\ResolvesOnce;
 
-class MergeProp implements Mergeable
+class MergeProp implements Mergeable, Onceable
 {
     use MergesProps;
     use ResolvesCallables;
+    use ResolvesOnce;
 
     /** @var mixed */
     protected $value;

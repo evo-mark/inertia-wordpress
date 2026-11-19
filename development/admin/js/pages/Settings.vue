@@ -27,6 +27,23 @@
 	>
 		<VSwitch v-model="settings.history_encrypt" label="Encrypt" />
 	</EvoSetting>
+	<VBanner :icon="mdiCodeJson" v-bind="bannerBind">
+		<VBannerText>Initial Page</VBannerText>
+	</VBanner>
+	<EvoSetting title="Use Script Element">
+		<template #description>
+			<p class="mb-2">
+				Embed the initial page data in a <code>&lt;script type="application/json"&gt;</code> element instead of
+				the root element's <code>data-page</code> attribute. This makes your HTML smaller, as the data doesn't
+				need to be HTML-escaped.
+			</p>
+			<p>
+				If you use SSR, also set <code>future.useScriptElementForInitialPage</code> to <code>true</code> in your
+				theme's <code>createInertiaApp</code> defaults, so server-rendered pages use it too.
+			</p>
+		</template>
+		<VSwitch v-model="settings.use_script_element" label="Use script element" />
+	</EvoSetting>
 	<VBanner :icon="mdiProjectorScreen" v-bind="bannerBind">
 		<VBannerText>Theme Settings</VBannerText>
 	</VBanner>
@@ -57,7 +74,7 @@
 </template>
 
 <script setup>
-import { mdiServerNetwork, mdiTimer, mdiProjectorScreen } from "@mdi/js";
+import { mdiServerNetwork, mdiTimer, mdiProjectorScreen, mdiCodeJson } from "@mdi/js";
 import { useSettings } from "composables/useSettings";
 import EvoSetting from "components/Setting.vue";
 
@@ -65,6 +82,7 @@ const { settings } = useSettings([
 	"ssr_enabled",
 	"ssr_url",
 	"history_encrypt",
+	"use_script_element",
 	"root_template",
 	"entry_namespace",
 	"entry_file",
@@ -72,7 +90,7 @@ const { settings } = useSettings([
 ]);
 
 const bannerBind = {
-	class: "bg-teal-500 border-teal-600 text-white",
+	class: "bg-teal-500 border-teal-600 font-bold text-white",
 	theme: "dark",
 	density: "compact",
 };

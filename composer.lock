@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2da8248484a23aa3a12d1a3bba707970",
+    "content-hash": "fad01b929708869770cde24f392e80a7",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -3919,46 +3919,6 @@
             "time": "2026-05-01T20:36:01+00:00"
         },
         {
-            "name": "php-stubs/wordpress-tests-stubs",
-            "version": "v6.9.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-stubs/wordpress-tests-stubs.git",
-                "reference": "c6878d4aee7b6cdd7bdc53c30653c4a8bb0c417f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-tests-stubs/zipball/c6878d4aee7b6cdd7bdc53c30653c4a8bb0c417f",
-                "reference": "c6878d4aee7b6cdd7bdc53c30653c4a8bb0c417f",
-                "shasum": ""
-            },
-            "require-dev": {
-                "php": "^7.4 || ^8.0",
-                "php-stubs/generator": "^0.8.0"
-            },
-            "suggest": {
-                "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
-                "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
-            },
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "WordPress Tests function and class declaration stubs for static analysis.",
-            "homepage": "https://github.com/php-stubs/wordpress-tests-stubs",
-            "keywords": [
-                "PHPStan",
-                "static analysis",
-                "wordpress"
-            ],
-            "support": {
-                "issues": "https://github.com/php-stubs/wordpress-tests-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-tests-stubs/tree/v6.9.7"
-            },
-            "time": "2026-08-13T08:31:51+00:00"
-        },
-        {
             "name": "php-stubs/wp-cli-stubs",
             "version": "v2.12.0",
             "source": {
@@ -6718,69 +6678,6 @@
                 }
             ],
             "time": "2025-12-08T11:19:18+00:00"
-        },
-        {
-            "name": "yoast/phpunit-polyfills",
-            "version": "4.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "134921bfca9b02d8f374c48381451da1d98402f9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/134921bfca9b02d8f374c48381451da1d98402f9",
-                "reference": "134921bfca9b02d8f374c48381451da1d98402f9",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1",
-                "phpunit/phpunit": "^7.5 || ^8.0 || ^9.0 || ^11.0 || ^12.0"
-            },
-            "require-dev": {
-                "php-parallel-lint/php-console-highlighter": "^1.0.0",
-                "php-parallel-lint/php-parallel-lint": "^1.4.0",
-                "yoast/yoastcs": "^3.1.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-main": "4.x-dev"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "phpunitpolyfills-autoload.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Team Yoast",
-                    "email": "support@yoast.com",
-                    "homepage": "https://yoast.com"
-                },
-                {
-                    "name": "Contributors",
-                    "homepage": "https://github.com/Yoast/PHPUnit-Polyfills/graphs/contributors"
-                }
-            ],
-            "description": "Set of polyfills for changed PHPUnit functionality to allow for creating PHPUnit cross-version compatible tests",
-            "homepage": "https://github.com/Yoast/PHPUnit-Polyfills",
-            "keywords": [
-                "phpunit",
-                "polyfill",
-                "testing"
-            ],
-            "support": {
-                "issues": "https://github.com/Yoast/PHPUnit-Polyfills/issues",
-                "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
-                "source": "https://github.com/Yoast/PHPUnit-Polyfills"
-            },
-            "time": "2025-02-09T18:58:54+00:00"
         }
     ],
     "aliases": [],
@@ -6792,5 +6689,5 @@
         "php": ">=8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

@@ -6,8 +6,6 @@ function Layout({ children }) {
 
     const headerMenu = useMemo(() => menus?.["header-menu"] ?? null, [menus]);
 
-    console.log(menus);
-
     return (
         <>
             <header>

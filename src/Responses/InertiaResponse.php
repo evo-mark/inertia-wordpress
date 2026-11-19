@@ -34,6 +34,6 @@ class InertiaResponse
     public static function handleVersionChange()
     {
         // Can't use wp_redirect because WP doesn't allow non-3xx redirection codes
-        return Inertia::location(home_url($_SERVER['REQUEST_URI'] ?? '/'));
+        return Inertia::location(RequestResponse::currentUrl());
     }
 }

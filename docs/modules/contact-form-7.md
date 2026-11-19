@@ -14,7 +14,7 @@ processing of user-submitted content on your Wordpress application.
 - Disables CF7 JavaScript and CSS stylesheets
 - Automatically handles validation errors with support for the InertiaJS form helper
 - Extension for Inertia form helper for all frameworks
-- Messages will be flashed to the `$page.props.flash.cf7` namespace
+- Messages will be flashed to the `$page.flash.cf7` namespace (also on the deprecated `$page.props.flash.cf7`)
 
 ## useCf7Form Extended Composable
 

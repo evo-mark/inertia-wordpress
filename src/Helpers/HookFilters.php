@@ -16,6 +16,8 @@ class HookFilters
 
     public const REST_ERROR_BAG = "inertia_rest_error_bag";
 
+    public const SSR_CLIENT_OPTIONS = "inertia_wordpress_ssr_client_options";
+
 
     /**
      * Modules

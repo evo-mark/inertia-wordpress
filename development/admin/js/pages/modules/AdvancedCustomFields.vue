@@ -16,7 +16,7 @@
 		<VRow>
 			<VCol>
 				<ModuleStatus :enabled="isEnabled" />
-				<div class="prose">
+				<div class="prose dark:prose-invert">
 					<p>
 						Advanced Custom Fields (ACF) is one of the most essential plugins in the Wordpress ecosystem.
 						Allowing you to easily manage the creation and display of post meta, custom post types and even

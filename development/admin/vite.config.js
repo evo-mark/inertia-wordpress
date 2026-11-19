@@ -5,6 +5,7 @@ import vuetify from "vite-plugin-vuetify";
 import { resolve } from "node:path";
 import AutoImport from "unplugin-auto-import/vite";
 import { wordpress } from "wordpress-vite-plugin";
+import tailwindcss from "@tailwindcss/vite";
 
 export default ({ mode }) => {
 	const env = loadEnv(mode, resolve(process.cwd() + "/../../"), "VITE");
@@ -48,6 +49,7 @@ export default ({ mode }) => {
 					},
 				},
 			}),
+			tailwindcss(),
 			wordpress({
 				input: ["js/main.js"],
 				namespace: "inertia-wordpress-admin",

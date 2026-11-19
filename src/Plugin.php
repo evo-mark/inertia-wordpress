@@ -19,6 +19,8 @@ use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 use EvoMark\InertiaWordpress\Request\RequestHandler;
 use EvoMark\InertiaWordpress\Contracts\ResponseEmitter;
 use EvoMark\InertiaWordpress\Responses\WordpressEmitter;
+use EvoMark\InertiaWordpress\Ssr\HttpGateway;
+use GuzzleHttp\Client;
 use EvoMark\InertiaWordpress\Helpers\RequestResponse;
 use EvoMark\InertiaWordpress\Helpers\Plugin as HelpersPlugin;
 
@@ -44,6 +46,23 @@ class Plugin
         $container->set('env.baseUrl', plugin_dir_url($entryFile));
         $container->set('requestHandler', \Di\create(RequestHandler::class));
         $container->set(ResponseEmitter::class, \Di\create(WordpressEmitter::class));
+        $container->set(HttpGateway::class, \Di\factory(function () {
+            /**
+             * Options for the Guzzle client that calls the SSR server. The timeouts make a slow
+             * or hung SSR server fall back to client-side rendering instead of stalling pages.
+             *
+             * @since 0.9.0
+             *
+             * @param array $options Guzzle request options
+             * @return array
+             */
+            $options = apply_filters(HookFilters::SSR_CLIENT_OPTIONS, [
+                'connect_timeout' => 1,
+                'timeout' => 5,
+            ]);
+
+            return new HttpGateway(new Client($options));
+        }));
         HelpersPlugin::setPluginVersion();
 
         $uploadDir = wp_upload_dir()['basedir'];
@@ -89,6 +108,7 @@ class Plugin
         if (defined('WP_CLI') && \WP_CLI) {
             WP_CLI::add_command('inertia:start-ssr', \EvoMark\InertiaWordpress\Commands\StartSsrCommand::class);
             WP_CLI::add_command('inertia:stop-ssr', \EvoMark\InertiaWordpress\Commands\StopSsrCommand::class);
+            WP_CLI::add_command('inertia:check-ssr', \EvoMark\InertiaWordpress\Commands\CheckSsrCommand::class);
             WP_CLI::add_command('inertia:create-theme', \EvoMark\InertiaWordpress\Commands\CreateThemeCommand::class);
         };
     }
@@ -116,6 +136,13 @@ class Plugin
             'default' => false,
             'sanitize_callback' => 'boolval',
             'label' => 'Encrypt the stored history data',
+        ]);
+
+        register_setting('inertia', 'inertia_use_script_element', [
+            'type' => 'boolean',
+            'default' => false,
+            'sanitize_callback' => 'boolval',
+            'label' => 'Embed the initial page in a script element instead of a data-page attribute',
         ]);
 
         register_setting('inertia', 'inertia_root_template', [

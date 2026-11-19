@@ -16,7 +16,7 @@
     "license": "ISC",
     "dependencies": {
         "@evo-mark/inertia-wordpress": "file:../../plugins/inertia-wordpress/resources/plugins",
-        "@inertiajs/react": "^2.0.0",
+        "@inertiajs/react": "^2.3.3",
         "@vitejs/plugin-react": "^4.3.2",
         "vite": "^6.0.3",
         "react": "^19.0.0",

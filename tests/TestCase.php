@@ -219,12 +219,13 @@ abstract class TestCase extends BaseTestCase
      */
     protected function extractPageFromHtml(string $html): array
     {
-        if (preg_match('/data-page="([^"]*)"/', $html, $matches)) {
-            return json_decode(html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8'), true, flags: JSON_THROW_ON_ERROR);
-        }
-
+        // Check the script form first: its tag also has a data-page attribute (holding the id).
         if (preg_match('#<script data-page="[^"]*" type="application/json">(.*?)</script>#s', $html, $matches)) {
             return json_decode($matches[1], true, flags: JSON_THROW_ON_ERROR);
+        }
+
+        if (preg_match('/data-page="([^"]*)"/', $html, $matches)) {
+            return json_decode(html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8'), true, flags: JSON_THROW_ON_ERROR);
         }
 
         $this->fail('No Inertia page object found in HTML: ' . $html);

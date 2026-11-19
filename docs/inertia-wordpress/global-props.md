@@ -12,7 +12,7 @@ This is an object that's used by your InertiaJS [Form Helper](https://inertiajs.
 
 ## Flash
 
-> $page.props.flash
+> $page.flash
 
 Flash data is short-lived information passed to your frontend that provides feedback on user actions.
 
@@ -23,6 +23,24 @@ use EvoMark\InertiaWordpress\Inertia;
 
 Inertia::flash('success', 'Thanks for your message');
 ```
+
+Flash data is a top-level key on the page object rather than a prop, as in Inertia v2. The client keeps it out of browser history (so a toast doesn't reappear on back/forward) and fires a `flash` event when it arrives:
+
+```js
+import { router, usePage } from "@inertiajs/vue3";
+
+// Read it directly...
+const flash = usePage().flash;
+
+// ...or react whenever new flash data arrives
+router.on("flash", (event) => {
+    showToast(event.detail.flash.success);
+});
+```
+
+::: warning Deprecated: `$page.props.flash`
+Flash data is also still shared as `$page.props.flash` for backwards compatibility. This will be removed in a future release, so move to `$page.flash` or the `flash` event.
+:::
 
 ## WP
 

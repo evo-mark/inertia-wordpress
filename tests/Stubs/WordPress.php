@@ -5,6 +5,44 @@
  * instantiate. They only implement the surface the plugin actually touches.
  */
 
+if (! class_exists('WP_CLI')) {
+    /**
+     * Records command output. error() throws, as the real one exits.
+     */
+    class WP_CLI
+    {
+        /** @var array<int, array{0: string, 1: string}> [type, message] */
+        public static array $messages = [];
+
+        public static function reset(): void
+        {
+            self::$messages = [];
+        }
+
+        public static function success($message)
+        {
+            self::$messages[] = ['success', $message];
+        }
+
+        public static function warning($message)
+        {
+            self::$messages[] = ['warning', $message];
+        }
+
+        public static function log($message)
+        {
+            self::$messages[] = ['log', $message];
+        }
+
+        public static function error($message, $exit = true)
+        {
+            self::$messages[] = ['error', $message];
+
+            throw new \RuntimeException('WP_CLI::error: ' . $message);
+        }
+    }
+}
+
 if (! class_exists('WP_Admin_Bar')) {
     /**
      * Shared as `wp.adminBar` on Inertia visits. Like core, it always renders the wrapper.

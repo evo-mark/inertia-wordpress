@@ -3,6 +3,9 @@ module.exports = {
         {
             name: "inertia-ssr",
             script: "wp",
+            // "wp" is a PHP phar or shell wrapper, not JS: run it directly via its shebang
+            // instead of letting PM2 default to Node.
+            interpreter: "none",
             exec_mode: "fork",
             instances: 1,
             args: ["inertia:start-ssr"],

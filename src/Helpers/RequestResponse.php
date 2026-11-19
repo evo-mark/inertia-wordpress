@@ -14,6 +14,27 @@ class RequestResponse
     }
 
     /**
+     * The absolute URL of the current request.
+     *
+     * REQUEST_URI already contains any subdirectory the site lives in, so only the origin
+     * (scheme, host, port) is taken from home_url(); home_url($uri) would repeat the
+     * subdirectory. The Host header is deliberately not used, as clients control it.
+     */
+    public static function currentUrl(): string
+    {
+        $uri = '/' . ltrim($_SERVER['REQUEST_URI'] ?? '/', '/');
+        $home = parse_url(home_url());
+
+        if (empty($home['scheme']) || empty($home['host'])) {
+            return home_url($uri);
+        }
+
+        $port = isset($home['port']) ? ':' . $home['port'] : '';
+
+        return $home['scheme'] . '://' . $home['host'] . $port . $uri;
+    }
+
+    /**
      * Send a response through the bound ResponseEmitter. This ends the request.
      */
     public static function emit(HttpResponse $response): void

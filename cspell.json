@@ -1,24 +1,23 @@
 {
-    "version": "0.2",
-    "ignorePaths": [],
-    "dictionaryDefinitions": [],
-    "dictionaries": [],
-    "words": [
-        "bloginfo",
-        "dedupe",
-        "enshittification",
-        "frontmatter",
-        "invokable",
-        "PACKAGIST",
-        "paywalling",
-        "phpcs",
-        "phpunit",
-        "Shiki",
-        "tagline",
-        "vitepress"
-    ],
-    "ignoreWords": [
-        "QDFYJO"
-    ],
-    "import": []
+	"version": "0.2",
+	"language": "en_GB",
+	"ignorePaths": [],
+	"dictionaryDefinitions": [],
+	"dictionaries": [],
+	"words": [
+		"bloginfo",
+		"dedupe",
+		"enshittification",
+		"frontmatter",
+		"invokable",
+		"PACKAGIST",
+		"paywalling",
+		"phpcs",
+		"phpunit",
+		"Shiki",
+		"tagline",
+		"vitepress"
+	],
+	"ignoreWords": ["QDFYJO"],
+	"import": []
 }

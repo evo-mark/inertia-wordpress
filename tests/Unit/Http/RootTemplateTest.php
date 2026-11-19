@@ -123,6 +123,17 @@ class RootTemplateTest extends TestCase
         );
     }
 
+    public function test_inertia_body_script_element_puts_the_class_on_the_root_element(): void
+    {
+        $this->setSetting('use_script_element', true);
+        $this->pageFor();
+
+        $html = $this->captureOutput(fn () => inertia_body(['class' => 'min-h-screen']));
+
+        $this->assertStringStartsWith('<script data-page="app" type="application/json">', $html);
+        $this->assertStringEndsWith('</script><div id="app" class="min-h-screen"></div>', $html);
+    }
+
     public function test_inertia_body_script_element_uses_the_root_element_id(): void
     {
         $this->setSetting('use_script_element', true);

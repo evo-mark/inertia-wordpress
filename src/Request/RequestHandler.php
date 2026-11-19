@@ -16,8 +16,15 @@ use EvoMark\InertiaWordpress\Props\MergeProp;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Props\AlwaysProp;
 use EvoMark\InertiaWordpress\Props\OptionalProp;
+use EvoMark\InertiaWordpress\Props\OnceProp;
+use EvoMark\InertiaWordpress\Props\ScrollProp;
+use EvoMark\InertiaWordpress\Contracts\Deferrable;
 use EvoMark\InertiaWordpress\Contracts\Mergeable;
-use EvoMark\InertiaWordpress\Responses\SsrResponse;
+use EvoMark\InertiaWordpress\Contracts\Onceable;
+use EvoMark\InertiaWordpress\Contracts\ProvidesInertiaProperties;
+use EvoMark\InertiaWordpress\Data\RenderContext;
+use EvoMark\InertiaWordpress\Container;
+use EvoMark\InertiaWordpress\Ssr\HttpGateway;
 use EvoMark\InertiaWordpress\Contracts\IgnoreFirstLoad;
 use EvoMark\InertiaWordpress\Responses\StandardResponse;
 use EvoMark\InertiaWordpress\Data\SsrResponse as DataSsrResponse;
@@ -34,12 +41,26 @@ class RequestHandler
     /** Flash key used to carry Inertia::clearHistory() across a redirect. */
     public const CLEAR_HISTORY_FLASH_KEY = 'clear_history';
 
-    protected ?DataSsrResponse $ssr;
-    public bool $ssrEnabled = false;
-    protected string $ssrUrl = "";
+    /** The server-rendered page for this request, once SSR has been attempted. */
+    protected ?DataSsrResponse $ssrResponse = null;
+    protected bool $ssrAttempted = false;
 
     protected bool $clearHistory = false;
     protected bool $encryptHistory = false;
+
+    /** Flash key holding data from Inertia::flash() until the next page render. */
+    public const FLASH_KEY = 'flash';
+
+    /**
+     * Flash data delivered with this request's page, or null until it has been read.
+     * Read once so page.flash and the (deprecated) props.flash always agree.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected ?array $flashed = null;
+
+    /** Shared + page props with providers expanded, cached while building one page. */
+    protected ?Collection $allProps = null;
 
     protected $version = null;
     protected $url = null;
@@ -51,13 +72,13 @@ class RequestHandler
 
     protected bool $isInertia = false;
 
+    /** @var callable|null Decides the page object's url; see setUrlResolver() */
+    protected $urlResolver = null;
+
     public function __construct()
     {
         $this->url = $this->setUrl();
-        $settings = Settings::get(["ssr_enabled", "ssr_url", "history_encrypt", "root_template", "entry_file", "entry_namespace"]);
-        $this->ssrEnabled = $settings['ssr_enabled'];
-        $this->ssrUrl = $settings['ssr_url'];
-        $this->encryptHistory = $settings['history_encrypt'];
+        $this->encryptHistory = Settings::get('history_encrypt');
         $this->props = collect();
         $this->sharedProps = collect();
         $this->headers = collect(getallheaders())->mapWithKeys(function (mixed $value, string $key) {
@@ -67,37 +88,58 @@ class RequestHandler
     }
 
     /**
-     * Called by the theme's app.php file, standard/ssr only
+     * Called by the theme's root template via inertia_head(). Prints the server-rendered
+     * head elements when SSR succeeds, then wp_head().
      */
     public function head()
     {
-        if ($this->ssrEnabled === true) {
-            return SsrResponse::handleHead();
-        } else {
+        $ssr = $this->getSsrResponse();
+
+        if ($ssr === null) {
             return StandardResponse::handleHead();
         }
+
+        foreach ($ssr->head as $element) {
+            echo $element . PHP_EOL;
+        }
+
+        wp_head();
     }
 
     /**
-     * Called by the theme's app.php file, standard/ssr only
+     * Called by the theme's root template via inertia_body(). Prints the server-rendered
+     * page when SSR succeeds, otherwise the root element for client-side rendering.
      */
-    public function body($args)
+    public function body($args = [])
     {
-        if ($this->ssrEnabled === true) {
-            return SsrResponse::handleBody($args);
-        } else {
+        $ssr = $this->getSsrResponse();
+
+        if ($ssr === null) {
             return StandardResponse::handleBody($args);
         }
+
+        wp_body_open();
+
+        echo $ssr->body;
+
+        wp_footer();
     }
 
-    public function getSsr(): DataSsrResponse
+    /**
+     * Server-render the page, at most once per request, whichever of head() or body() runs
+     * first. Null when SSR is disabled or fails, meaning client-side rendering.
+     */
+    public function getSsrResponse(): ?DataSsrResponse
     {
-        return $this->ssr;
-    }
+        if (! $this->ssrAttempted) {
+            $this->ssrAttempted = true;
 
-    public function setSsr(?DataSsrResponse $ssr): void
-    {
-        $this->ssr = $ssr;
+            if (Settings::get('ssr_enabled')) {
+                $this->ssrResponse = Container::getInstance()->get(HttpGateway::class)->dispatch($this->getPageData());
+            }
+        }
+
+        return $this->ssrResponse;
     }
 
     /**
@@ -136,14 +178,45 @@ class RequestHandler
             ?? '/';
     }
 
+    /**
+     * Use a callback to decide the page object's `url`. It's given the default URL (the
+     * request URI) and this request handler, and returns the URL to use. Null restores the default.
+     */
+    public function setUrlResolver(?callable $resolver): void
+    {
+        $this->urlResolver = $resolver;
+    }
+
+    /**
+     * The page object's `url`: the request URI, unless a resolver has been set.
+     */
+    public function getUrl(): string
+    {
+        $url = (string) $this->url;
+
+        if ($this->urlResolver === null) {
+            return $url;
+        }
+
+        return (string) call_user_func($this->urlResolver, $url, $this);
+    }
+
     public function setComponent(string $component)
     {
         $this->component = $component;
     }
 
-    public function setProps(array $props)
+    /**
+     * @param  array<array-key, mixed>|Arrayable|ProvidesInertiaProperties  $props
+     */
+    public function setProps(array|Arrayable|ProvidesInertiaProperties $props)
     {
-        $this->props = collect($props);
+        $this->props = match (true) {
+            // A provider passed on its own is treated as a single keyless entry.
+            $props instanceof ProvidesInertiaProperties => collect([$props]),
+            $props instanceof Arrayable => collect($props->toArray()),
+            default => collect($props),
+        };
     }
 
     public function setClearHistory(): void
@@ -186,6 +259,9 @@ class RequestHandler
 
     public function getPageData(): array
     {
+        // Expand ProvidesInertiaProperties afresh for each page build (see allProps()).
+        $this->allProps = null;
+
         // Picks up (and consumes) a clearHistory() made before a redirect. Kept on the
         // handler so repeated getPageData() calls in one request (e.g. SSR) agree.
         if (RequestResponse::getFlashData(self::CLEAR_HISTORY_FLASH_KEY, false)) {
@@ -197,15 +273,150 @@ class RequestHandler
             [
                 'component' => $this->component . Wordpress::getTemplate(),
                 'props' => $this->resolveProperties(),
-                'url' => $this->url,
+                'url' => $this->getUrl(),
                 'version' => $this->getVersion(),
                 'clearHistory' => $this->clearHistory,
                 'encryptHistory' => $this->encryptHistory,
             ],
             $this->resolveMergeProps(),
             $this->resolveDeferredProps(),
-            $this->resolveCacheDirections()
+            $this->resolveCacheDirections(),
+            $this->resolveScrollProps(),
+            $this->resolveOnceProps(),
+            $this->resolveFlashData()
         );
+    }
+
+    /**
+     * scrollProps metadata for the client's <InfiniteScroll>: pagination details per scroll
+     * prop sent in this response, and whether the client asked to reset (replace) it.
+     */
+    private function resolveScrollProps(): array
+    {
+        $resetProps = $this->getHeaderList(Header::RESET);
+        $isPartial = $this->isPartial();
+
+        $scrollProps = $this->getMergePropsForRequest(false)
+            ->filter(fn ($prop) => $prop instanceof ScrollProp)
+            // A deferred scroll prop isn't sent on the first visit, so has no metadata yet.
+            ->reject(fn (ScrollProp $prop) => ! $isPartial && $prop->shouldDefer())
+            ->mapWithKeys(fn (ScrollProp $prop, string $key) => [$key => [
+                ...$prop->metadata(),
+                'reset' => in_array($key, $resetProps, true),
+            ]]);
+
+        return $scrollProps->isNotEmpty() ? ['scrollProps' => $scrollProps->toArray()] : [];
+    }
+
+    /**
+     * Once props the client reports it already has cached (by cache key).
+     *
+     * @return array<int, string>
+     */
+    private function getExceptOnceProps(): array
+    {
+        return $this->getHeaderList(Header::EXCEPT_ONCE_PROPS);
+    }
+
+    /**
+     * Whether a prop is a once prop the client already has, so it can be skipped.
+     */
+    private function isLoadedOnceProp(mixed $prop, string $key, array $exceptOnceProps): bool
+    {
+        return $prop instanceof Onceable
+            && $prop->shouldResolveOnce()
+            && ! $prop->shouldBeRefreshed()
+            && in_array($prop->getKey() ?? $key, $exceptOnceProps, true);
+    }
+
+    /**
+     * Skip once props the client already has. Only on full Inertia visits: a partial reload
+     * asks for its props explicitly, and a first (non-Inertia) visit has no client cache.
+     */
+    private function resolveOnceProperties(Collection $props): Collection
+    {
+        if (! $this->isInertia() || $this->isPartial()) {
+            return $props;
+        }
+
+        $exceptOnceProps = $this->getExceptOnceProps();
+
+        if (count($exceptOnceProps) === 0) {
+            return $props;
+        }
+
+        return $props->reject(fn ($prop, $key) => $this->isLoadedOnceProp($prop, (string) $key, $exceptOnceProps));
+    }
+
+    /**
+     * onceProps metadata: cache key => the prop it holds and when the cached copy expires.
+     * Listed even when skipped, so the client knows to keep using its cached copy.
+     */
+    private function resolveOnceProps(): array
+    {
+        $onceProps = $this->allProps()
+            ->filter(fn ($prop) => $prop instanceof Onceable && $prop->shouldResolveOnce());
+
+        if ($this->isPartial()) {
+            $only = $this->getHeaderList(Header::PARTIAL_ONLY);
+
+            if (count($only)) {
+                $onceProps = $onceProps->only($only);
+            }
+
+            $onceProps = $onceProps->except($this->getHeaderList(Header::PARTIAL_EXCEPT));
+        }
+
+        $onceProps = $onceProps->mapWithKeys(fn (Onceable $prop, string $key) => [
+            $prop->getKey() ?? $key => [
+                'prop' => $key,
+                'expiresAt' => $prop->expiresAt(),
+            ],
+        ]);
+
+        return $onceProps->isNotEmpty() ? ['onceProps' => $onceProps->toArray()] : [];
+    }
+
+    /**
+     * Add flash data. Before this request's page has read its flash data, it's stored for the
+     * next page render (surviving a redirect); afterwards it joins the current page's data.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function flash(array $data): void
+    {
+        if ($this->flashed !== null) {
+            $this->flashed = array_merge($this->flashed, $data);
+            return;
+        }
+
+        $stored = (array) RequestResponse::getFlashData(self::FLASH_KEY, []);
+        RequestResponse::setFlashData(self::FLASH_KEY, array_merge($stored, $data));
+    }
+
+    /**
+     * The flash data for this request's page, read (and consumed) on first use.
+     *
+     * @return array<string, mixed>
+     */
+    public function getFlashed(): array
+    {
+        if ($this->flashed === null) {
+            $this->flashed = (array) RequestResponse::getFlashData(self::FLASH_KEY, []);
+        }
+
+        return $this->flashed;
+    }
+
+    /**
+     * Flash data is a top-level page key (not a prop), so the client can fire its flash
+     * event and keep it out of history. Omitted when there is nothing flashed.
+     */
+    private function resolveFlashData(): array
+    {
+        $flashed = $this->getFlashed();
+
+        return count($flashed) ? ['flash' => $flashed] : [];
     }
 
     /**
@@ -214,13 +425,45 @@ class RequestHandler
      */
     private function allProps(): Collection
     {
-        return $this->sharedProps->merge($this->props);
+        if ($this->allProps === null) {
+            $this->allProps = $this->expandPropsProviders($this->sharedProps)
+                ->merge($this->expandPropsProviders($this->props));
+
+            // Apply each scroll prop's append/prepend direction before any merge metadata is built.
+            $this->allProps
+                ->filter(fn ($prop) => $prop instanceof ScrollProp)
+                ->each(fn (ScrollProp $prop) => $prop->configureMergeIntent($this));
+        }
+
+        return $this->allProps;
+    }
+
+    /**
+     * Replace keyless ProvidesInertiaProperties entries with the props they provide, in
+     * place, so later keys still override earlier ones.
+     */
+    private function expandPropsProviders(Collection $props): Collection
+    {
+        $context = null;
+        $expanded = [];
+
+        foreach ($props as $key => $value) {
+            if (is_int($key) && $value instanceof ProvidesInertiaProperties) {
+                $context ??= new RenderContext((string) $this->component, $this);
+                $expanded = array_merge($expanded, collect($value->toInertiaProperties($context))->all());
+            } else {
+                $expanded[$key] = $value;
+            }
+        }
+
+        return collect($expanded);
     }
 
     private function resolveProperties(): array
     {
         $props = $this->allProps();
         $props = $this->resolvePartialProperties($props);
+        $props = $this->resolveOnceProperties($props);
         $props = $this->resolveArrayableProperties($props);
         $props = $this->resolveAlways($props);
         $props = $this->resolvePropertyInstances($props);
@@ -231,7 +474,8 @@ class RequestHandler
     {
         if (! $this->isPartial()) {
             return $props->filter(function ($prop) {
-                return ! ($prop instanceof IgnoreFirstLoad);
+                return ! ($prop instanceof IgnoreFirstLoad)
+                    && ! ($prop instanceof Deferrable && $prop->shouldDefer());
             });
         }
 
@@ -309,6 +553,8 @@ class RequestHandler
                 DeferProp::class,
                 AlwaysProp::class,
                 MergeProp::class,
+                OnceProp::class,
+                ScrollProp::class,
             ])->first(fn ($class) => $value instanceof $class);
 
             if ($resolveUserFunction) {
@@ -329,35 +575,112 @@ class RequestHandler
         return $props;
     }
 
-    private function resolveMergeProps(): array
+    /**
+     * Merge props this response actually sends: on a partial reload, only those requested.
+     *
+     * @param  bool  $rejectResetProps  Leave out props the client asked to reset (not merge)
+     * @return Collection<string, Mergeable>
+     */
+    private function getMergePropsForRequest(bool $rejectResetProps = true): Collection
     {
-        $resetProps = $this->getHeaderList(Header::RESET);
-
         $mergeProps = $this->allProps()
-            ->filter(function ($prop) {
-                return $prop instanceof Mergeable;
-            })
-            ->filter(function ($prop) {
-                /** @var Mergeable $prop */
-                return $prop->shouldMerge();
-            })
-            ->except($resetProps);
+            ->filter(fn ($prop) => $prop instanceof Mergeable && $prop->shouldMerge());
 
-        // Only advertise merge props that this partial reload actually sends.
+        if ($rejectResetProps) {
+            $mergeProps = $mergeProps->except($this->getHeaderList(Header::RESET));
+        }
+
         if ($this->isPartial()) {
             $only = $this->getHeaderList(Header::PARTIAL_ONLY);
-            $except = $this->getHeaderList(Header::PARTIAL_EXCEPT);
 
             if (count($only)) {
                 $mergeProps = $mergeProps->only($only);
             }
 
-            $mergeProps = $mergeProps->except($except);
+            $mergeProps = $mergeProps->except($this->getHeaderList(Header::PARTIAL_EXCEPT));
         }
 
-        $mergeProps = $mergeProps->keys();
+        return $mergeProps;
+    }
 
-        return $mergeProps->isNotEmpty() ? ['mergeProps' => $mergeProps->toArray()] : [];
+    private function resolveMergeProps(): array
+    {
+        $mergeProps = $this->getMergePropsForRequest();
+
+        // Empty lists are left out, so pages without merge props keep the plain page object.
+        return array_filter([
+            'mergeProps' => $this->resolveAppendMergeProps($mergeProps),
+            'prependProps' => $this->resolvePrependMergeProps($mergeProps),
+            'deepMergeProps' => $this->resolveDeepMergeProps($mergeProps),
+            'matchPropsOn' => $this->resolveMergeMatchingKeys($mergeProps),
+        ], fn (array $keys) => count($keys) > 0);
+    }
+
+    /**
+     * Props appended to: whole props ("posts") and nested paths ("posts.data").
+     *
+     * @param  Collection<string, Mergeable>  $mergeProps
+     * @return array<int, string>
+     */
+    private function resolveAppendMergeProps(Collection $mergeProps): array
+    {
+        [$rootProps, $nestedProps] = $mergeProps
+            ->reject(fn (Mergeable $prop) => $prop->shouldDeepMerge())
+            ->partition(fn (Mergeable $prop) => $prop->appendsAtRoot());
+
+        return $nestedProps
+            ->flatMap(fn (Mergeable $prop, string $key) => collect($prop->appendsAtPaths())->map(fn ($path) => $key . '.' . $path))
+            ->merge($rootProps->keys())
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Props prepended to: whole props and nested paths.
+     *
+     * @param  Collection<string, Mergeable>  $mergeProps
+     * @return array<int, string>
+     */
+    private function resolvePrependMergeProps(Collection $mergeProps): array
+    {
+        [$rootProps, $nestedProps] = $mergeProps
+            ->reject(fn (Mergeable $prop) => $prop->shouldDeepMerge())
+            ->partition(fn (Mergeable $prop) => $prop->prependsAtRoot());
+
+        return $nestedProps
+            ->flatMap(fn (Mergeable $prop, string $key) => collect($prop->prependsAtPaths())->map(fn ($path) => $key . '.' . $path))
+            ->merge($rootProps->keys())
+            ->unique()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * @param  Collection<string, Mergeable>  $mergeProps
+     * @return array<int, string>
+     */
+    private function resolveDeepMergeProps(Collection $mergeProps): array
+    {
+        return $mergeProps
+            ->filter(fn (Mergeable $prop) => $prop->shouldDeepMerge())
+            ->keys()
+            ->toArray();
+    }
+
+    /**
+     * Keys the client matches items on when merging, prefixed with the prop name ("posts.data.id").
+     *
+     * @param  Collection<string, Mergeable>  $mergeProps
+     * @return array<int, string>
+     */
+    private function resolveMergeMatchingKeys(Collection $mergeProps): array
+    {
+        return $mergeProps
+            ->map(fn (Mergeable $prop, string $key) => collect($prop->matchesOn())->map(fn ($strategy) => $key . '.' . $strategy)->toArray())
+            ->flatten()
+            ->values()
+            ->toArray();
     }
 
     private function resolveDeferredProps(): array
@@ -367,13 +690,16 @@ class RequestHandler
         }
 
         $allProps = $this->allProps();
+        $exceptOnceProps = $this->getExceptOnceProps();
 
         $deferredProps = collect($allProps)
             ->filter(function ($prop) {
-                return $prop instanceof DeferProp;
+                return $prop instanceof Deferrable && $prop->shouldDefer();
             })
+            // A deferred once prop the client already has doesn't need fetching again.
+            ->reject(fn ($prop, $key) => $this->isLoadedOnceProp($prop, (string) $key, $exceptOnceProps))
             ->map(function ($prop, $key) {
-                /** @var DeferProp $prop */
+                /** @var Deferrable $prop */
                 return [
                     'key' => $key,
                     'group' => $prop->group(),
@@ -453,13 +779,16 @@ class RequestHandler
     }
 
     /**
-     * @param  string|array|Arrayable  $key
+     * @param  string|array|Arrayable|ProvidesInertiaProperties  $key
      * @param  mixed  $value
      */
     public function share($key, $value = null): void
     {
         // Collection::merge() returns a new collection rather than mutating, so reassign it.
-        if (is_array($key)) {
+        if ($key instanceof ProvidesInertiaProperties) {
+            // Kept as a keyless entry; expanded when the page is built (see allProps()).
+            $this->sharedProps->push($key);
+        } elseif (is_array($key)) {
             $this->sharedProps = $this->sharedProps->merge($key);
         } elseif ($key instanceof Arrayable) {
             $this->sharedProps = $this->sharedProps->merge($key->toArray());
@@ -471,7 +800,9 @@ class RequestHandler
     public function setGlobalShares()
     {
         $this->share('errors', Inertia::always(RequestResponse::getFormattedErrors()));
-        $this->share('flash', Inertia::always(RequestResponse::getFlashData('flash', (object)[])));
+        // Deprecated: flash data now lives on the top-level page.flash key. Kept as a prop for
+        // backwards compatibility; to be removed in a future release.
+        $this->share('flash', Inertia::always(fn () => $this->getFlashed() ?: (object) []));
         $this->share('wp', [
             'name' => get_bloginfo('name'),
             'description' => get_bloginfo('description'),

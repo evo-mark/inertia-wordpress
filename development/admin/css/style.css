@@ -1,6 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@plugin "@tailwindcss/typography";
+
+@utility container {
+	margin-inline: auto;
+	@apply px-4 sm:px-8 xl:px-16;
+}
+
+/* dark/light mode — Vuetify uses .v-theme--dark/.v-theme--light instead of .dark */
+@custom-variant light (&:where(.v-theme--light, .v-theme--light *));
+@custom-variant dark (&:where(.v-theme--dark, .v-theme--dark *));
 
 .v-application__wrap {
 	min-height: calc(100vh - var(--wp-admin--admin-bar--height));

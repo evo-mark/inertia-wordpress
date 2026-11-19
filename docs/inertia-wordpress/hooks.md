@@ -46,6 +46,17 @@ Called just before the shared props are returned by the request. Used internally
 
 Hook for registering new Inertia Wordpress modules. Used internally, users should call `Inertia::addModule(string $module)` instead.
 
+> SSR_FAILED
+
+**string key**: inertia_wordpress_ssr_failed
+
+Fired when server-side rendering fails and the page falls back to client-side rendering, e.g. the SSR server is down, times out, returns an error or the SSR bundle hasn't been built. Failures are also logged with `error_log()` when `WP_DEBUG` is enabled.
+
+| Arg Name   | Type            | Description                             |
+| ---------- | --------------- | --------------------------------------- |
+| $message   | string          | What went wrong                         |
+| $exception | Throwable\|null | The underlying exception, if any        |
+
 ## Filters
 
 Used by calling `add_filter(string $hookName, callable $callback, ?int $priority = 10, ?int $numberOfAcceptedArguments = 1): void`. The first argument passed to your callback can be modified and then returned. Failure to return a value in the expected format may break your site.
@@ -115,6 +126,16 @@ Filter the resolved page controller
 | --------------- | ------ | -------------------------------------------------------------- |
 | $class          | string | The resolved controller class name that should be instantiated |
 | $controllerFile | string | The absolute path of the controller file loaded                |
+
+> SSR_CLIENT_OPTIONS
+
+**string name**: inertia_wordpress_ssr_client_options
+
+Filter the [Guzzle request options](https://docs.guzzlephp.org/en/stable/request-options.html) used to call the SSR server. By default the connection times out after 1 second and the whole request after 5, so a slow or unresponsive SSR server falls back to client-side rendering rather than stalling your pages.
+
+| Arg Name | Type  | Description                                                       |
+| -------- | ----- | ----------------------------------------------------------------- |
+| $options | array | Guzzle options, defaults to `['connect_timeout' => 1, 'timeout' => 5]` |
 
 #### Modules
 

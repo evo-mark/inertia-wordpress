@@ -65,6 +65,21 @@ Retrieves a shasum of your frontend assets. You shouldn't need this, but it's in
 Inertia::getVersion(): string;
 ```
 
+## Resolve URL Using
+
+Changes the `url` sent on the page object, which the client puts in the address bar and browser history. By default it's the requested URI. The callback receives that default and the current request handler, and returns the URL to use:
+
+```php
+Inertia::resolveUrlUsing(?callable $resolver);
+
+// e.g. keep tracking parameters out of the address bar and history
+Inertia::resolveUrlUsing(function (string $url) {
+    return remove_query_arg(['utm_source', 'utm_medium', 'utm_campaign'], $url);
+});
+```
+
+Pass `null` to restore the default.
+
 ## Lazy
 
 :::warning
@@ -148,6 +163,51 @@ return $this->render('users/index', [
 ]);
 ```
 
+### Prepending
+
+By default, new items are added to the end. Use `prepend()` to add them to the start instead:
+
+```php
+'messages' => Inertia::merge($messages)->prepend(),
+```
+
+### Nested paths
+
+When the prop is an object, such as a paginated result, merge into a key inside it rather than the whole prop. The rest of the object (e.g. pagination info) is replaced as normal:
+
+```php
+'results' => Inertia::merge([
+    'data' => $posts,
+    'total' => $total,
+])->append('data'),
+```
+
+`append()` and `prepend()` accept a path, a list of paths (`['data', 'items']`) or paths mapped to a match key (`['data' => 'id']`), and can be combined on the same prop.
+
+### Matching items
+
+To update existing items instead of duplicating them, tell the client which key identifies an item. Pass it as the second argument to `append()`/`prepend()`, or use `matchOn()`:
+
+```php
+'results' => Inertia::merge(['data' => $posts])->append('data', 'id'),
+
+'users' => Inertia::merge($users)->matchOn('id'),
+```
+
+### Deep merging
+
+`deepMerge` recursively merges objects on the client instead of appending to a list. It's also available on deferred props as `->deepMerge()`:
+
+```php
+Inertia::deepMerge(mixed $value);
+
+'settings' => Inertia::defer(fn () => $settings)->deepMerge(),
+```
+
+A merge prop is not merged when the client requests a reset of it, e.g. via `router.reload({ reset: ['results'] })`.
+
+See the [Official InertiaJS website](https://inertiajs.com/merging-props) for more details
+
 ## Always
 
 A prop wrapped in `always` is sent as part of the response no matter what.
@@ -157,6 +217,141 @@ By default, `errors` and `flash` are always props provided by the adapter.
 ```php
 Inertia::always(mixed $value);
 ```
+
+## Once
+
+A once prop is resolved and sent on the first visit, then cached by the client. On later visits the client tells the server which once props it already has, and the server skips resolving them, which is ideal for data that rarely changes, like a list of countries or site settings.
+
+```php
+Inertia::once(callable $callback);
+
+return $this->render('checkout', [
+    'countries' => Inertia::once(fn () => get_countries()),
+]);
+```
+
+Share a once prop with every page using `shareOnce`. It returns the prop so it can be configured further:
+
+```php
+Inertia::shareOnce('settings', fn () => get_theme_settings());
+```
+
+### Options
+
+| Method                       | Description                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `->until($delay)`            | Expire the client's cached copy after a number of seconds, a `DateInterval`, or at a `DateTime`       |
+| `->as($key)`                 | Cache under a custom key (a string or enum), e.g. to share one cached value between pages             |
+| `->fresh(bool $value = true)` | Resolve and send the prop on this visit even if the client already has it                            |
+
+```php
+'countries' => Inertia::once(fn () => get_countries())->until(HOUR_IN_SECONDS),
+
+'plans' => Inertia::once(fn () => get_plans())->as('pricing-plans'),
+
+'cart' => Inertia::once(fn () => get_cart())->fresh($cartWasUpdated),
+```
+
+Deferred, optional and merge props can also be resolved once:
+
+```php
+'stats' => Inertia::defer(fn () => get_stats())->once(),
+
+// or with options
+'stats' => Inertia::defer(fn () => get_stats())->once(as: 'dashboard-stats', until: 600),
+```
+
+A once prop is always sent on a full page load, and when it's explicitly requested in a partial reload.
+
+See the [Official InertiaJS website](https://inertiajs.com/once-props) for more details
+
+## Scroll
+
+A scroll prop powers Inertia's `<InfiniteScroll>` component. It sends a page of results plus the pagination details the component needs to load the next (or previous) page, and new items are merged into the list as the visitor scrolls.
+
+| Param    | Type                                      | Description                                                                                           |
+| -------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| value    | mixed                                     | The page of results, or a closure returning it, e.g. `['data' => $posts]`                              |
+| wrapper  | string                                    | The key holding the list of items to merge (default `data`)                                            |
+| metadata | ProvidesScrollMetadata\|callable\|null    | Pagination details, a callback given the resolved value that returns them, or `null` to use the main `WP_Query` |
+
+```php
+Inertia::scroll(mixed $value, string $wrapper = 'data', ProvidesScrollMetadata|callable|null $metadata = null);
+```
+
+On archive pages, the pagination comes from WordPress's main query, so no metadata is needed:
+
+```php
+// controllers/archive.php
+return $this->render('Archive', [
+    'posts' => Inertia::scroll(fn () => ['data' => Inertia::getArchive()->items]),
+]);
+```
+
+```vue
+<InfiniteScroll data="posts">
+    <PostCard v-for="post in $page.props.posts.data" :key="post.id" :post="post" />
+</InfiniteScroll>
+```
+
+For your own `WP_Query`, pass its pagination with `ScrollMetadata::fromQuery()`. The client requests further pages with the `paged` query parameter, which WordPress may redirect to a `/page/N/` URL, so read the page number with `get_query_var('paged')` rather than from `$_GET`:
+
+```php
+use EvoMark\InertiaWordpress\Data\ScrollMetadata;
+
+$query = new WP_Query([
+    'post_type' => 'event',
+    'paged' => max(1, (int) get_query_var('paged')),
+]);
+
+return $this->render('Events', [
+    'events' => Inertia::scroll(
+        ['data' => array_map('my_event_to_array', $query->posts)],
+        'data',
+        ScrollMetadata::fromQuery($query)
+    ),
+]);
+```
+
+For anything else, pass your own pagination details: `new ScrollMetadata('page', $previousPage, $nextPage, $currentPage)`, or any class implementing `ProvidesScrollMetadata`.
+
+Scroll props can be deferred with `->defer()` (optionally with a group name), so the first page loads straight after the initial visit.
+
+See the [Official InertiaJS website](https://inertiajs.com/infinite-scroll) for more details
+
+## Props Providers
+
+A class implementing `ProvidesInertiaProperties` contributes several props at once, which makes a bundle of related props reusable across controllers. Add it to your props **without a key**, and each key it returns becomes a normal top-level prop:
+
+```php
+use EvoMark\InertiaWordpress\Contracts\ProvidesInertiaProperties;
+use EvoMark\InertiaWordpress\Data\RenderContext;
+use EvoMark\InertiaWordpress\Inertia;
+
+class SeoProps implements ProvidesInertiaProperties
+{
+    public function toInertiaProperties(RenderContext $context): iterable
+    {
+        return [
+            'seo' => get_seo_data(),
+            'breadcrumbs' => Inertia::defer(fn () => get_breadcrumbs()),
+        ];
+    }
+}
+
+return $this->render('Post', [
+    'post' => Inertia::getPost(),
+    new SeoProps(),
+]);
+```
+
+- `$context->component` is the component being rendered, and `$context->request` the current Inertia request handler, so one provider can return different props per page
+- The props it returns can be any prop type (`defer`, `merge`, `once`, ...) and can be requested by name in partial reloads
+- Keys listed after a provider override its props, and the provider overrides keys listed before it
+- Providers can also be shared: `Inertia::share(new SeoProps())`, or inside an array passed to `share()`
+- A provider, or any `Arrayable`, can also be passed as the entire props argument: `$this->render('Post', new SeoProps())`
+
+`toInertiaProperties()` runs on every render, including partial reloads that don't ask for its props, so return closures or deferred props for anything expensive.
 
 ## Location
 
@@ -172,16 +367,21 @@ Inertia::location(string $url);
 
 ## Flash
 
-Flashes data that will be including as part of the next response
+Flashes data that will be included as part of the next page shown to the visitor, even after a redirect
 
-| Param | Type   | Description                                                |
-| ----- | ------ | ---------------------------------------------------------- |
-| key   | string | The key to use, will be placed on `$page.props.flash[key]` |
-| value | mixed  | Any serialisable value                                     |
+| Param | Type                    | Description                                                                 |
+| ----- | ----------------------- | --------------------------------------------------------------------------- |
+| key   | string\|enum\|array     | The key to use, placed on `$page.flash[key]`, or an array of key => value pairs |
+| value | mixed                   | Any serialisable value (omit when passing an array)                         |
 
 ```php
-Inertia::flash(string $key, mixed $value);
+Inertia::flash(string|BackedEnum|UnitEnum|array $key, mixed $value = null);
+
+Inertia::flash('success', 'Saved');
+Inertia::flash(['success' => 'Saved', 'id' => 42]);
 ```
+
+Multiple calls are merged. Flash data is also available on the deprecated `$page.props.flash`; see [Global Props](./global-props#flash).
 
 A common usage would be providing feedback to a user after processing a POST request via the REST API.
 

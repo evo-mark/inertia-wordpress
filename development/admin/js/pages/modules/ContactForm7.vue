@@ -14,7 +14,7 @@
 			<VRow>
 				<VCol>
 					<ModuleStatus :enabled="isEnabled" />
-					<div class="prose">
+					<div class="prose dark:prose-invert">
 						<p>
 							Contact Form 7 is a simple, lightweight plugin for handling the creation, validation and
 							processing of user-submitted content on your Wordpress application.

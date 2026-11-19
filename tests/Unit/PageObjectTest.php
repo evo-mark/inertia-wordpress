@@ -222,6 +222,38 @@ class PageObjectTest extends TestCase
         $this->assertArrayNotHasKey(0, $page['props']);
     }
 
+    public function test_provides_inertia_properties_is_called_once_per_page(): void
+    {
+        $provider = new class () implements ProvidesInertiaProperties {
+            public int $calls = 0;
+
+            public function toInertiaProperties(RenderContext $context): iterable
+            {
+                $this->calls++;
+
+                return ['items' => new MergeProp(['a'])];
+            }
+        };
+
+        $page = $this->page('User/Edit', [$provider]);
+
+        $this->assertSame(['a'], $page['props']['items']);
+        $this->assertSame(['items'], $page['mergeProps']);
+        $this->assertSame(1, $provider->calls, 'Props, merge and deferred metadata should share one expansion.');
+    }
+
+    public function test_keys_after_a_provider_override_its_props(): void
+    {
+        $page = $this->page('User/Edit', [
+            'before' => 'page',
+            new ExamplePropsProvider(['before' => 'provider', 'after' => 'provider']),
+            'after' => 'page',
+        ]);
+
+        $this->assertSame('provider', $page['props']['before']);
+        $this->assertSame('page', $page['props']['after']);
+    }
+
     public function test_provides_inertia_properties_receives_the_render_context(): void
     {
         $provider = new class () implements ProvidesInertiaProperties {

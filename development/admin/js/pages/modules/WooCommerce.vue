@@ -13,7 +13,7 @@
 		<VRow>
 			<VCol>
 				<ModuleStatus :enabled="isEnabled" />
-				<div class="prose">
+				<div class="prose dark:prose-invert">
 					<p>
 						The official eCommerce extension for Wordpress brings you the power of a full-suite of store
 						management functionality, helping merchants and developers build successful businesses for the
@@ -29,7 +29,7 @@
 				</div>
 			</VCol>
 			<VCol>
-				<div class="prose">
+				<div class="prose dark:prose-invert">
 					<h2 class="text-xl mt-0">REST API Endpoints</h2>
 					<VAlert density="compact" color="info">
 						All Inertia Wordpress endpoints begin with:<br />

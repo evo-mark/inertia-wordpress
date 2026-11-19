@@ -14,10 +14,28 @@ class ThemeSetup
     public static function init()
     {
         add_filter('template_include', [__CLASS__, 'handleTemplateInclude']);
+        add_filter('redirect_canonical', [__CLASS__, 'preventPaginationRedirect'], 10, 2);
         self::addTemplateDirectories();
         self::enqueueScripts();
         self::getThemeVersion();
         self::addThemeSupport();
+    }
+
+    /**
+     * Inertia's <InfiniteScroll> requests further pages as ?paged=N. With pretty permalinks,
+     * WordPress's canonical redirect would answer each with a 301 to /page/N/, costing a round
+     * trip per page. The client manages the address bar itself, so skip it for those requests;
+     * full page loads are still redirected as normal.
+     *
+     * @hook redirect_canonical
+     */
+    public static function preventPaginationRedirect($redirectUrl, $requestedUrl = null)
+    {
+        if ($redirectUrl && isset($_GET['paged']) && inertia_request()->isInertia()) {
+            return false;
+        }
+
+        return $redirectUrl;
     }
 
     public static function addThemeSupport()

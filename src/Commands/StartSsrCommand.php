@@ -4,7 +4,7 @@ namespace EvoMark\InertiaWordpress\Commands;
 
 use WP_CLI;
 use Symfony\Component\Process\Process;
-use EvoMark\InertiaWordpress\Helpers\Path;
+use EvoMark\InertiaWordpress\Ssr\HttpGateway;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Exceptions\SsrException;
 
@@ -24,8 +24,7 @@ class StartSsrCommand
             WP_CLI::error("Inertia SSR is not enabled. Enable it via the Inertia settings pages in your Wordpress admin area");
         }
 
-        $namespace = Settings::get('entry_namespace');
-        $target = Path::join(wp_upload_dir()['basedir'], 'scw-vite-hmr', $namespace, 'ssr', 'ssr.mjs');
+        $target = HttpGateway::bundlePath();
 
         if (!file_exists($target)) {
             WP_CLI::error("Couldn't find Inertia SSR file. Ensure you have run a build of your theme and try again.");

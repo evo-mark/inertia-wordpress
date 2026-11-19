@@ -10,6 +10,9 @@ use EvoMark\InertiaWordpress\Helpers\Plugin;
 use EvoMark\InertiaWordpress\Props\LazyProp;
 use EvoMark\InertiaWordpress\Props\DeferProp;
 use EvoMark\InertiaWordpress\Props\MergeProp;
+use EvoMark\InertiaWordpress\Props\OnceProp;
+use EvoMark\InertiaWordpress\Props\ScrollProp;
+use EvoMark\InertiaWordpress\Contracts\ProvidesScrollMetadata;
 use EvoMark\InertiaWordpress\Props\AlwaysProp;
 use EvoMark\InertiaWordpress\Helpers\Wordpress;
 use EvoMark\InertiaWordpress\Modules\BaseModule;
@@ -33,6 +36,18 @@ class Inertia
     {
         $request = inertia_request();
         $request->share($key, $value);
+    }
+
+    /**
+     * Get a shared prop by key, or all shared props when no key is given
+     *
+     * @param  mixed  $default Returned when the key has not been shared
+     * @return mixed
+     */
+    public static function getShared(?string $key = null, mixed $default = null): mixed
+    {
+        $request = inertia_request();
+        return $request->getShared($key, $default);
     }
 
     /**
@@ -88,6 +103,17 @@ class Inertia
     }
 
     /**
+     * Use a callback to decide the page's `url`, e.g. to strip tracking parameters. It receives
+     * the default URL (the request URI) and the request handler, and returns the URL to use.
+     * Pass null to restore the default.
+     */
+    public static function resolveUrlUsing(?callable $resolver): void
+    {
+        $request = inertia_request();
+        $request->setUrlResolver($resolver);
+    }
+
+    /**
      * Generate an Inertia Lazy prop
      */
     public static function lazy(callable $callback): LazyProp
@@ -110,9 +136,50 @@ class Inertia
         return new MergeProp($value);
     }
 
+    /**
+     * A merge prop the client merges recursively, rather than appending to a list
+     */
+    public static function deepMerge(mixed $value): MergeProp
+    {
+        return (new MergeProp($value))->deepMerge();
+    }
+
     public static function always(mixed $value): AlwaysProp
     {
         return new AlwaysProp($value);
+    }
+
+    /**
+     * A prop resolved on the first visit, then cached by the client and skipped on later visits
+     */
+    public static function once(callable $callback): OnceProp
+    {
+        return new OnceProp($callback);
+    }
+
+    /**
+     * Share a once prop with every page. Returns the prop so it can be configured further,
+     * e.g. Inertia::shareOnce('settings', fn () => ...)->as('app-settings')->until(3600)
+     */
+    public static function shareOnce(string $key, callable $callback): OnceProp
+    {
+        $prop = new OnceProp($callback);
+        self::share($key, $prop);
+
+        return $prop;
+    }
+
+    /**
+     * A paginated prop for the client's <InfiniteScroll> component
+     *
+     * @param  mixed  $value  The page of results (or a closure returning it), e.g. ['data' => $posts]
+     * @param  string  $wrapper  The key holding the list of items to merge
+     * @param  ProvidesScrollMetadata|callable|null  $metadata  Pagination details, a callback given the
+     *         resolved value that returns them, or null to read them from the main WP_Query
+     */
+    public static function scroll(mixed $value, string $wrapper = 'data', ProvidesScrollMetadata|callable|null $metadata = null): ScrollProp
+    {
+        return new ScrollProp($value, $wrapper, $metadata);
     }
 
     /**
@@ -151,13 +218,23 @@ class Inertia
         return RequestResponse::redirect($url, $status);
     }
 
-    public static function flash(string $key, mixed $value): void
+    /**
+     * Flash data to the next page shown to this visitor, on the page object's `flash` key.
+     * Accepts a key and value, or an array of key => value pairs. Keys may be enums.
+     */
+    public static function flash(\BackedEnum|\UnitEnum|string|array $key, mixed $value = null): void
     {
-        $data = RequestResponse::getFlashData('flash', []);
-        $data = array_merge($data, [
-            $key => $value,
-        ]);
-        RequestResponse::setFlashData('flash', $data);
+        if (! is_array($key)) {
+            $key = match (true) {
+                $key instanceof \BackedEnum => (string) $key->value,
+                $key instanceof \UnitEnum => $key->name,
+                default => $key,
+            };
+
+            $key = [$key => $value];
+        }
+
+        inertia_request()->flash($key);
     }
 
     /**

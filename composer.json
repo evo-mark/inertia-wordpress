@@ -38,11 +38,9 @@
 		"brain/monkey": "^2.6",
 		"friendsofphp/php-cs-fixer": "^3.65",
 		"php-stubs/wordpress-stubs": "^6.3",
-		"php-stubs/wordpress-tests-stubs": "^6.7",
 		"php-stubs/wp-cli-stubs": "^2.8",
 		"phpunit/phpunit": ">=11.0",
-		"symfony/var-dumper": "^7.2",
-		"yoast/phpunit-polyfills": "^4.0"
+		"symfony/var-dumper": "^7.2"
 	},
 	"autoload": {
 		"psr-4": {

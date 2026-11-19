@@ -77,6 +77,10 @@ class Admin
         if (!self::isInertiaMenu()) {
             return $stylesArray;
         } else {
+            self::wrapAdminStylesheet('common');
+            self::wrapAdminStylesheet('admin-menu');
+            self::wrapAdminStylesheet('admin-bar');
+            self::wrapAdminStylesheet('colors');
             return array_filter($stylesArray, fn ($style) => in_array($style, ['forms']) === false);
         }
     }
@@ -129,6 +133,7 @@ class Admin
                 #wpwrap { background-color: #fafaf9; }
                 #wpcontent { padding-left: 0px !important; }
                 </style>
+                <style id="layer-definitions">@layer theme, base, wp-admin, vuetify-core, components, vuetify-components, vuetify-overrides, vuetify-utilities, utilities, vuetify-final;</style>
                 <script>
                     window.\$inertia = {
                         restUrl: "$base",
@@ -151,5 +156,74 @@ class Admin
         } else {
             return true;
         }
+    }
+
+    /**
+     * Wraps the given handle in a CSS layer, by replacing its stylesheet link with an
+     * inline `@import ... layer(wp-admin)` of the same stylesheet(s).
+     */
+    private static function wrapAdminStylesheet(string $handle): void
+    {
+        global $wp_styles;
+
+        if (! $wp_styles instanceof \WP_Styles || ! isset($wp_styles->registered[$handle])) {
+            return;
+        }
+
+        $entry = $wp_styles->registered[$handle];
+        $urls = self::stylesheetUrls($wp_styles, $entry);
+
+        // Nothing to import, e.g. the "Fresh" colour scheme has no stylesheet of its own:
+        // leave the handle untouched so WordPress handles it as normal.
+        if (count($urls) === 0) {
+            return;
+        }
+
+        $imports = implode(' ', array_map(
+            fn (string $url) => '@import url("' . $url . '") layer(wp-admin);',
+            $urls
+        ));
+
+        $after = $wp_styles->get_data($handle, 'after');
+        if (! is_array($after)) {
+            $after = [];
+        }
+        // @import must come before any other rules in the inline style.
+        array_unshift($after, $imports);
+        $wp_styles->add_data($handle, 'after', $after);
+        $entry->src = '';
+    }
+
+    /**
+     * The URL(s) WordPress would load for a style handle, built the same way as
+     * WP_Styles::do_item(): with the version query, the `style_loader_src` filter (which is
+     * how "colors" resolves to the user's colour scheme), and right-to-left variants.
+     *
+     * @return array<int, string>
+     */
+    private static function stylesheetUrls(\WP_Styles $styles, \_WP_Dependency $entry): array
+    {
+        // _css_href() returns an HTML-escaped URL for a <link> tag; inside CSS it must be raw.
+        $href = fn ($src, string $handle) => html_entity_decode((string) $styles->_css_href($src, $entry->ver, $handle), ENT_QUOTES);
+
+        $url = $href($entry->src, $entry->handle);
+        if ($url === '') {
+            return [];
+        }
+
+        $rtl = $entry->extra['rtl'] ?? false;
+        if ($styles->text_direction !== 'rtl' || ! $rtl) {
+            return [$url];
+        }
+
+        if (is_bool($rtl) || $rtl === 'replace') {
+            $suffix = $entry->extra['suffix'] ?? '';
+            $rtlUrl = str_replace("{$suffix}.css", "-rtl{$suffix}.css", $href($entry->src, "{$entry->handle}-rtl"));
+        } else {
+            $rtlUrl = $href($rtl, "{$entry->handle}-rtl");
+        }
+
+        // "replace" swaps in the RTL stylesheet; otherwise it's loaded after the LTR one.
+        return $rtl === 'replace' ? [$rtlUrl] : [$url, $rtlUrl];
     }
 }

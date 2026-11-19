@@ -11,6 +11,7 @@ use EvoMark\InertiaWordpress\Props\MergeProp;
 use EvoMark\InertiaWordpress\Props\OnceProp;
 use EvoMark\InertiaWordpress\Props\OptionalProp;
 use EvoMark\InertiaWordpress\Props\ScrollProp;
+use EvoMark\InertiaWordpress\Request\RequestHandler;
 use EvoMark\InertiaWordpress\Tests\TestCase;
 
 /**
@@ -190,5 +191,34 @@ class InertiaTest extends TestCase
         $request->setComponent('User/Edit');
 
         $this->assertSame('/my-custom-url', $request->getPageData()['url']);
+    }
+
+    public function test_the_url_resolver_receives_the_request_handler(): void
+    {
+        $request = $this->makeInertiaRequest('/products?utm_source=newsletter&page=2');
+
+        Inertia::resolveUrlUsing(function (string $url, RequestHandler $handler) use ($request) {
+            $this->assertSame($request, $handler);
+
+            // e.g. strip tracking parameters from the URL the client stores in history
+            [$path, $query] = explode('?', $url, 2);
+            parse_str($query, $params);
+            unset($params['utm_source']);
+
+            return $path . ($params ? '?' . http_build_query($params) : '');
+        });
+        $request->setComponent('Products/Index');
+
+        $this->assertSame('/products?page=2', $request->getPageData()['url']);
+    }
+
+    public function test_the_default_url_can_be_restored(): void
+    {
+        $request = $this->makeInertiaRequest('/user/123');
+        Inertia::resolveUrlUsing(fn () => '/my-custom-url');
+        Inertia::resolveUrlUsing(null);
+        $request->setComponent('User/Edit');
+
+        $this->assertSame('/user/123', $request->getPageData()['url']);
     }
 }

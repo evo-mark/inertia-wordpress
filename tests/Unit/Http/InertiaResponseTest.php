@@ -2,6 +2,7 @@
 
 namespace EvoMark\InertiaWordpress\Tests\Unit\Http;
 
+use Brain\Monkey\Functions;
 use EvoMark\InertiaWordpress\Data\HttpResponse;
 use EvoMark\InertiaWordpress\Inertia;
 use EvoMark\InertiaWordpress\Tests\Stubs\ArrayableValue;
@@ -159,6 +160,46 @@ class InertiaResponseTest extends TestCase
         $this->assertSame(409, $response->getStatus());
         $this->assertSame(self::HOME_URL . '/user/123?tab=profile', $response->getHeader('X-Inertia-Location'));
         $this->assertEmpty($response->getBody());
+    }
+
+    /**
+     * Mirrors core get_home_url(): the path is appended to the "home" option, which on a
+     * subdirectory install (or a multisite subdirectory site) already ends in that directory.
+     */
+    private function homeIs(string $home): void
+    {
+        Functions\when('home_url')->alias(
+            fn ($path = '') => $home . ($path === '' ? '' : '/' . ltrim($path, '/'))
+        );
+    }
+
+    public function test_the_reload_url_is_not_doubled_up_in_a_subdirectory_install(): void
+    {
+        $this->homeIs('http://example.test/blog');
+        $this->makeInertiaRequest('/blog/about/?x=1', 'GET', ['X-Inertia-Version' => 'stale']);
+        Inertia::version('fresh');
+
+        $response = $this->visit();
+
+        $this->assertSame(409, $response->getStatus());
+        $this->assertSame('http://example.test/blog/about/?x=1', $response->getHeader('X-Inertia-Location'));
+    }
+
+    public function test_the_reload_url_keeps_the_home_scheme_and_port(): void
+    {
+        $this->homeIs('https://example.test:8443');
+        $this->makeInertiaRequest('/about', 'GET', ['X-Inertia-Version' => 'stale']);
+        Inertia::version('fresh');
+
+        $this->assertSame('https://example.test:8443/about', $this->visit()->getHeader('X-Inertia-Location'));
+    }
+
+    public function test_the_reload_url_does_not_trust_the_host_header(): void
+    {
+        $this->makeInertiaRequest('/about', 'GET', ['X-Inertia-Version' => 'stale', 'Host' => 'attacker.test']);
+        Inertia::version('fresh');
+
+        $this->assertSame(self::HOME_URL . '/about', $this->visit()->getHeader('X-Inertia-Location'));
     }
 
     public function test_a_missing_version_header_is_a_mismatch_when_a_version_is_set(): void

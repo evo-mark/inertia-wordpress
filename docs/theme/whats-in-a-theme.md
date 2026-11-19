@@ -35,6 +35,32 @@ On this page, we'll do a quick breakdown of what each file/directory's purpose i
 
 This is Inertia's entry point for your theme. Feel free to add anything you need, but remember that the HTML will only load on the first request.
 
+It calls `inertia_head()` in the `<head>` and `inertia_body()` in the `<body>`. `inertia_body()` outputs the root element your app mounts to, and accepts an `id` (default `app`) and an optional `class`:
+
+```php
+<?php inertia_body(['id' => 'app', 'class' => 'min-h-screen']); ?>
+```
+
+By default, the initial page data is embedded in the root element's `data-page` attribute. Enabling **Inertia → Settings → Initial Page → Use Script Element** embeds it in a `<script type="application/json">` element before the root element instead, which makes the HTML smaller, as the data doesn't need HTML-escaping:
+
+```html
+<script data-page="app" type="application/json">{"component":"Home","props":{...}}</script>
+<div id="app"></div>
+```
+
+The Inertia client reads either form automatically. If you use SSR, also enable it in your theme's `createInertiaApp` (in both `main.js` and `ssr.js`), so server-rendered pages use the script element too:
+
+```js
+createInertiaApp({
+    defaults: {
+        future: {
+            useScriptElementForInitialPage: true,
+        },
+    },
+    // ...
+});
+```
+
 See [InertiaJS.com > Server-Side Setup > Root Template](https://inertiajs.com/server-side-setup#root-template) for more information.
 
 ## controllers

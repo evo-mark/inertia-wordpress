@@ -2,7 +2,7 @@
 	<VBanner :icon="mdiConnection" v-bind="bannerBind">
 		<VBannerText>Modules</VBannerText>
 	</VBanner>
-	<div class="prose mt-8 ml-4">
+	<div class="prose dark:prose-invert my-8 ml-4">
 		<p>
 			Select the modules you wish to enable. If the required plugin is available, its extra functionality will be
 			provided.
@@ -32,6 +32,7 @@
 				<template #logo>
 					<div class="my-2">
 						<VImg
+							class="dark:invert"
 							src="https://contactform7.com/wp-content/uploads/contact-form-7-logo@2x.png"
 							max-width="275px"
 						/>
@@ -115,7 +116,7 @@ import EvoModule from "components/Module.vue";
 import { useApi } from "composables/useApi";
 
 const bannerBind = {
-	class: "bg-teal-500 border-teal-600 text-white",
+	class: "bg-teal-500 border-teal-600 font-bold text-white",
 	theme: "dark",
 	density: "compact",
 };

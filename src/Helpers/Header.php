@@ -19,4 +19,10 @@ class Header
     public const PARTIAL_EXCEPT = 'x-inertia-partial-except';
 
     public const RESET = 'x-inertia-reset';
+
+    /** Once props the client already has cached, which the server can skip. */
+    public const EXCEPT_ONCE_PROPS = 'x-inertia-except-once-props';
+
+    /** Whether infinite scroll items should be appended ("append") or prepended ("prepend"). */
+    public const INFINITE_SCROLL_MERGE_INTENT = 'x-inertia-infinite-scroll-merge-intent';
 }

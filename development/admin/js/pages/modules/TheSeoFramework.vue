@@ -16,7 +16,7 @@
 		<VRow>
 			<VCol>
 				<ModuleStatus :enabled="isEnabled" />
-				<div class="prose">
+				<div class="prose dark:prose-invert">
 					<p>
 						The SEO Framework is an expert system for SEO. It is a solution that can intelligently generate
 						critical SEO meta tags in any language by reading your WordPress environment. This automation

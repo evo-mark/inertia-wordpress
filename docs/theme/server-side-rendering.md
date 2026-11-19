@@ -49,3 +49,17 @@ npm run ssr:restart
 :::tip
 All of the above commands must be run from your theme directory in your terminal.
 :::
+
+## Checking the SSR server
+
+```sh
+wp inertia:check-ssr
+```
+
+Reports whether the SSR server is running, and exits with a non-zero status if it isn't, so it can be used in deploy or monitoring scripts. It also warns if SSR is disabled in your Inertia settings.
+
+## When SSR fails
+
+If the SSR server is down, slow to respond, returns an error, or your theme's SSR bundle hasn't been built, the page is rendered client-side instead, so visitors still get a working page. Failures fire the [`inertia_wordpress_ssr_failed`](../inertia-wordpress/hooks#actions-used-by-inertia-wordpress) action and are written to your PHP error log when `WP_DEBUG` is enabled.
+
+The SSR server's connection times out after 1 second and the whole request after 5. These can be changed with the [`inertia_wordpress_ssr_client_options`](../inertia-wordpress/hooks#filters-used-by-inertia-wordpress) filter.

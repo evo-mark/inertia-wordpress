@@ -20,21 +20,6 @@ class Module extends BaseModule
 
     public function boot(): void
     {
-        /* $formsBuilder = (new \NinjaForms\Blocks\DataBuilder\FormsBuilderFactory)->make();
-        $forms = array_map(function ($form) {
-            dd(Ninja_Forms()->form()->get_forms(), );
-            $instance = Ninja_Forms()->form()->get_forms()[0];
-            return [
-                'id' => $form['formID'],
-                'title' => $form['formTitle']
-            ];
-        }, $formsBuilder->get());
-        foreach ($forms as &$form) {
-            $form['fields'] = array_map(function ($field) {
-                return $field->get_settings();
-            }, Ninja_Forms()->form($form['id'])->get_fields());
-        } */
-
         Inertia::share('ninjaForms', fn () => [
             'i18n' => \Ninja_Forms::config('i18nFrontEnd'),
             'forms' => FormResource::collection(Ninja_Forms()->form()->get_forms()),

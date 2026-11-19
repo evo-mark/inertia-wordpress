@@ -5,13 +5,18 @@ namespace EvoMark\InertiaWordpress;
 use EvoMark\InertiaWordpress\Helpers\Path;
 use EvoMark\InertiaWordpress\Helpers\Settings;
 use EvoMark\InertiaWordpress\Contracts\InertiaControllerContract;
+use EvoMark\InertiaWordpress\Contracts\ProvidesInertiaProperties;
+use Illuminate\Contracts\Support\Arrayable;
 use EvoMark\InertiaWordpress\Responses\InertiaResponse;
 
 abstract class InertiaController implements InertiaControllerContract
 {
     protected bool $encryptHistory = false;
 
-    public function render(string $component, array $props = [])
+    /**
+     * @param  array<array-key, mixed>|Arrayable|ProvidesInertiaProperties  $props
+     */
+    public function render(string $component, array|Arrayable|ProvidesInertiaProperties $props = [])
     {
         $request = inertia_request();
 

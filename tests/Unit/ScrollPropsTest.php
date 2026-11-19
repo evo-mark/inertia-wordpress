@@ -131,4 +131,52 @@ class ScrollPropsTest extends TestCase
         $this->assertArrayNotHasKey('users', $page['props']);
         $this->assertSame(['custom-group' => ['users']], $page['deferredProps']);
     }
+
+    public function test_deferred_scroll_prop_merges_at_its_wrapper_path_on_the_first_visit(): void
+    {
+        // Unlike the Laravel adapter, the merge path doesn't depend on the prop being resolved.
+        $page = $this->page('Users/Index', [
+            'users' => Inertia::scroll(fn () => ['data' => $this->users()], 'data', new StaticScrollMetadata())->defer(),
+        ], [], '/users');
+
+        $this->assertSame(['users.data'], $page['mergeProps']);
+    }
+
+    public function test_building_the_page_twice_does_not_duplicate_merge_paths(): void
+    {
+        $request = $this->makeInertiaRequest('/users', 'GET', [
+            'X-Inertia-Partial-Component' => 'Users/Index',
+            'X-Inertia-Partial-Data' => 'users',
+            'X-Inertia-Infinite-Scroll-Merge-Intent' => 'prepend',
+        ]);
+        $request->setComponent('Users/Index');
+        $request->setProps(['users' => Inertia::scroll(['data' => $this->users()], 'data', new StaticScrollMetadata())]);
+
+        // e.g. once for the SSR request and once for the client-side fallback
+        $request->getPageData();
+        $page = $request->getPageData();
+
+        $this->assertSame(['users.data'], $page['prependProps']);
+        $this->assertArrayNotHasKey('mergeProps', $page);
+    }
+
+    public function test_scroll_metadata_comes_from_the_main_query_by_default(): void
+    {
+        $GLOBALS['wp_query'] = new \WP_Query(['paged' => 2]);
+        $GLOBALS['wp_query']->max_num_pages = 3;
+
+        try {
+            $page = $this->page('Archive', ['posts' => Inertia::scroll(['data' => []])], ['X-Inertia' => 'true'], '/blog/?paged=2');
+        } finally {
+            unset($GLOBALS['wp_query']);
+        }
+
+        $this->assertSame([
+            'pageName' => 'paged',
+            'previousPage' => 1,
+            'nextPage' => 3,
+            'currentPage' => 2,
+            'reset' => false,
+        ], $page['scrollProps']['posts']);
+    }
 }

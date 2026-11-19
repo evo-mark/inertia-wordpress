@@ -16,7 +16,7 @@
 		<VRow>
 			<VCol>
 				<ModuleStatus :enabled="isEnabled" />
-				<div class="prose">
+				<div class="prose dark:prose-invert">
 					<p>
 						More than 9/10 users are using a browser that is able to display webp images. Yet, on most
 						websites, they are served jpeg images, which are typically double the size of webp images for a

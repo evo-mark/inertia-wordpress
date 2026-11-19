@@ -4,6 +4,7 @@ namespace EvoMark\InertiaWordpress\Tests\Unit;
 
 use EvoMark\InertiaWordpress\Inertia;
 use EvoMark\InertiaWordpress\Tests\Stubs\TestBackedEnum;
+use EvoMark\InertiaWordpress\Tests\Stubs\TestController;
 use EvoMark\InertiaWordpress\Tests\TestCase;
 
 /**
@@ -106,6 +107,70 @@ class FlashTest extends TestCase
         $_COOKIE['_temp_id'] = 'another-visitor';
         $this->makeInertiaRequest('/');
 
+        $this->assertArrayNotHasKey('flash', $this->render());
+    }
+
+    /*
+     | Backwards compatibility: flash data is also shared as the deprecated "flash" prop,
+     | until themes have moved to page.flash.
+     */
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function controllerPage(): array
+    {
+        return $this->captureResponse(fn () => (new TestController())->handle())->getBody();
+    }
+
+    public function test_flash_data_is_also_shared_on_the_deprecated_flash_prop(): void
+    {
+        Inertia::flash('success', 'Welcome Back');
+        $this->makeInertiaRequest('/');
+
+        $page = $this->controllerPage();
+
+        $this->assertSame(['success' => 'Welcome Back'], $page['flash']);
+        $this->assertSame(['success' => 'Welcome Back'], $page['props']['flash']);
+    }
+
+    public function test_the_deprecated_flash_prop_is_an_empty_object_without_flash_data(): void
+    {
+        $this->makeInertiaRequest('/');
+
+        $page = $this->controllerPage();
+
+        $this->assertArrayNotHasKey('flash', $page);
+        $this->assertStringContainsString('"flash":{}', json_encode($page['props']));
+    }
+
+    public function test_the_deprecated_flash_prop_is_included_on_partial_reloads(): void
+    {
+        Inertia::flash('success', 'Saved');
+        $this->makeInertiaRequest('/', 'GET', [
+            'X-Inertia-Partial-Component' => 'User/Edit',
+            'X-Inertia-Partial-Data' => 'user',
+        ]);
+
+        $page = $this->controllerPage();
+
+        $this->assertSame(['success' => 'Saved'], $page['props']['flash']);
+        $this->assertSame(['success' => 'Saved'], $page['flash']);
+    }
+
+    public function test_flash_made_after_the_page_reads_flash_data_joins_the_current_page(): void
+    {
+        $request = $this->makeInertiaRequest('/');
+        Inertia::flash('first', 1);
+        $request->getFlashed();
+
+        Inertia::flash('second', 2);
+        $request->setComponent('User/Edit');
+
+        $this->assertSame(['first' => 1, 'second' => 2], $request->getPageData()['flash']);
+
+        // ...and isn't delivered again on the next page.
+        $this->makeInertiaRequest('/next');
         $this->assertArrayNotHasKey('flash', $this->render());
     }
 }
