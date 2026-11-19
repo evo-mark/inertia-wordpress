@@ -1,3 +1,5 @@
+This release brings the Inertia Wordpress adapter into feature parity with version 2 of the Laravel adapter. The next major release will bring v3 parity (with some exceptions).
+
 - **Feature**: New `Inertia::version($version)` method for setting the asset version; accepts a string, number or closure (resolved lazily)
 - **Feature**: New `Inertia::getShared($key = null, $default = null)` method for reading shared props
 - **Feature**: New `Inertia::resolveUrlUsing($resolver)` method for customising the page's `url`, e.g. to strip tracking parameters
