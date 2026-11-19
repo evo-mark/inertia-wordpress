@@ -1,2 +1,5 @@
 packages:
-  - "development/admin"
+  - development/admin
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'

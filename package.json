@@ -31,14 +31,5 @@
 	},
 	"dependencies": {
 		"@mdi/js": "^7.4.47"
-	},
-	"pnpm": {
-		"overrides": {
-			"axios": ">=1.9.0",
-			"@babel/runtime": ">=7.26.10"
-		},
-		"onlyBuiltDependencies": [
-			"esbuild"
-		]
 	}
 }
